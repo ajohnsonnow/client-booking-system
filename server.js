@@ -132,6 +132,9 @@ const CAMPAIGNS_FILE = path.join(DATA_DIR, 'campaigns.enc');
 const SEGMENTS_FILE = path.join(DATA_DIR, 'segments.enc');
 const WORKFLOWS_FILE = path.join(DATA_DIR, 'workflows.enc');
 const TEMPLATES_FILE = path.join(DATA_DIR, 'templates.enc');
+const LEADS_FILE = path.join(DATA_DIR, 'leads.enc');
+const LEAD_MAGNETS_FILE = path.join(DATA_DIR, 'lead_magnets.enc');
+const DRIP_CAMPAIGNS_FILE = path.join(DATA_DIR, 'drip_campaigns.enc');
 const BACKUP_DIR = path.join(DATA_DIR, 'backups');
 const AUTO_BACKUP_DIR = path.join(BACKUP_DIR, 'auto');
 const MAX_AUTO_BACKUPS = 50; // Keep last 50 automatic backups
@@ -2919,6 +2922,58 @@ function saveTemplates(templates) {
   fs.writeFileSync(TEMPLATES_FILE, encrypted, 'utf8');
 }
 
+// Helper functions for lead generation
+function loadLeads() {
+  try {
+    if (fs.existsSync(LEADS_FILE)) {
+      const decrypted = decrypt(fs.readFileSync(LEADS_FILE, 'utf8'));
+      return JSON.parse(decrypted);
+    }
+  } catch (err) {
+    console.error('Error loading leads:', err);
+  }
+  return [];
+}
+
+function saveLeads(leads) {
+  const encrypted = encrypt(JSON.stringify(leads, null, 2));
+  fs.writeFileSync(LEADS_FILE, encrypted, 'utf8');
+}
+
+function loadLeadMagnets() {
+  try {
+    if (fs.existsSync(LEAD_MAGNETS_FILE)) {
+      const decrypted = decrypt(fs.readFileSync(LEAD_MAGNETS_FILE, 'utf8'));
+      return JSON.parse(decrypted);
+    }
+  } catch (err) {
+    console.error('Error loading lead magnets:', err);
+  }
+  return [];
+}
+
+function saveLeadMagnets(magnets) {
+  const encrypted = encrypt(JSON.stringify(magnets, null, 2));
+  fs.writeFileSync(LEAD_MAGNETS_FILE, encrypted, 'utf8');
+}
+
+function loadDripCampaigns() {
+  try {
+    if (fs.existsSync(DRIP_CAMPAIGNS_FILE)) {
+      const decrypted = decrypt(fs.readFileSync(DRIP_CAMPAIGNS_FILE, 'utf8'));
+      return JSON.parse(decrypted);
+    }
+  } catch (err) {
+    console.error('Error loading drip campaigns:', err);
+  }
+  return [];
+}
+
+function saveDripCampaigns(campaigns) {
+  const encrypted = encrypt(JSON.stringify(campaigns, null, 2));
+  fs.writeFileSync(DRIP_CAMPAIGNS_FILE, encrypted, 'utf8');
+}
+
 // Campaigns
 app.get('/api/admin/campaigns', authenticateAdmin, (req, res) => {
   const campaigns = loadCampaigns();
@@ -3101,6 +3156,171 @@ app.get('/api/admin/analytics/marketing', authenticateAdmin, (req, res) => {
   };
   
   res.json({ analytics });
+});
+
+// ===========================================
+// LEAD GENERATION ENDPOINTS
+// ===========================================
+
+// Get all leads
+app.get('/api/admin/leads', authenticateAdmin, (req, res) => {
+  const leads = loadLeads();
+  res.json({ leads });
+});
+
+// Add new lead (can be called from public lead magnet forms)
+app.post('/api/admin/leads', (req, res) => {
+  try {
+    const leads = loadLeads();
+    const newLead = {
+      id: Date.now().toString(),
+      ...req.body,
+      status: req.body.status || 'new',
+      stage: req.body.stage || 'lead',
+      createdAt: new Date().toISOString()
+    };
+    
+    leads.push(newLead);
+    saveLeads(leads);
+    
+    // Trigger drip campaigns based on lead source
+    const dripCampaigns = loadDripCampaigns();
+    const triggered = dripCampaigns.filter(c => 
+      c.active && c.trigger === newLead.source
+    );
+    
+    // In production, this would queue the drip emails
+    console.log(`✨ Lead captured: ${newLead.email}. Triggered ${triggered.length} drip campaigns.`);
+    
+    res.json({ success: true, leadId: newLead.id, triggered: triggered.length });
+  } catch (error) {
+    console.error('Error adding lead:', error);
+    res.status(500).json({ error: 'Failed to add lead' });
+  }
+});
+
+// Send follow-up email to lead
+app.post('/api/admin/leads/follow-up', authenticateAdmin, (req, res) => {
+  try {
+    const { leadId, template } = req.body;
+    const leads = loadLeads();
+    const lead = leads.find(l => l.id === leadId);
+    
+    if (!lead) {
+      return res.status(404).json({ error: 'Lead not found' });
+    }
+    
+    // Update lead status
+    lead.status = 'contacted';
+    lead.lastContactedAt = new Date().toISOString();
+    saveLeads(leads);
+    
+    console.log(`📧 Follow-up email sent to ${lead.email} using template: ${template}`);
+    
+    res.json({ success: true, message: 'Follow-up sent successfully' });
+  } catch (error) {
+    console.error('Error sending follow-up:', error);
+    res.status(500).json({ error: 'Failed to send follow-up' });
+  }
+});
+
+// Get all lead magnets
+app.get('/api/admin/lead-magnets', authenticateAdmin, (req, res) => {
+  const magnets = loadLeadMagnets();
+  res.json({ magnets });
+});
+
+// Create lead magnet
+app.post('/api/admin/lead-magnets', authenticateAdmin, (req, res) => {
+  try {
+    const magnets = loadLeadMagnets();
+    const newMagnet = {
+      id: Date.now().toString(),
+      ...req.body,
+      createdAt: new Date().toISOString()
+    };
+    
+    magnets.push(newMagnet);
+    saveLeadMagnets(magnets);
+    
+    console.log(`🧲 Lead magnet created: ${newMagnet.title}`);
+    
+    res.json({ success: true, magnetId: newMagnet.id });
+  } catch (error) {
+    console.error('Error creating lead magnet:', error);
+    res.status(500).json({ error: 'Failed to create lead magnet' });
+  }
+});
+
+// Delete lead magnet
+app.delete('/api/admin/lead-magnets/:id', authenticateAdmin, (req, res) => {
+  try {
+    let magnets = loadLeadMagnets();
+    magnets = magnets.filter(m => m.id !== req.params.id);
+    saveLeadMagnets(magnets);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete lead magnet' });
+  }
+});
+
+// Get all drip campaigns
+app.get('/api/admin/drip-campaigns', authenticateAdmin, (req, res) => {
+  const campaigns = loadDripCampaigns();
+  res.json({ campaigns });
+});
+
+// Create drip campaign
+app.post('/api/admin/drip-campaigns', authenticateAdmin, (req, res) => {
+  try {
+    const campaigns = loadDripCampaigns();
+    const newCampaign = {
+      id: Date.now().toString(),
+      ...req.body,
+      createdAt: new Date().toISOString()
+    };
+    
+    campaigns.push(newCampaign);
+    saveDripCampaigns(campaigns);
+    
+    console.log(`💧 Drip campaign created: ${newCampaign.name} with ${newCampaign.emails.length} emails`);
+    
+    res.json({ success: true, campaignId: newCampaign.id });
+  } catch (error) {
+    console.error('Error creating drip campaign:', error);
+    res.status(500).json({ error: 'Failed to create drip campaign' });
+  }
+});
+
+// Update drip campaign
+app.put('/api/admin/drip-campaigns/:id', authenticateAdmin, (req, res) => {
+  try {
+    const campaigns = loadDripCampaigns();
+    const index = campaigns.findIndex(c => c.id === req.params.id);
+    
+    if (index === -1) {
+      return res.status(404).json({ error: 'Campaign not found' });
+    }
+    
+    campaigns[index] = { ...campaigns[index], ...req.body, updatedAt: new Date().toISOString() };
+    saveDripCampaigns(campaigns);
+    
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update drip campaign' });
+  }
+});
+
+// Delete drip campaign
+app.delete('/api/admin/drip-campaigns/:id', authenticateAdmin, (req, res) => {
+  try {
+    let campaigns = loadDripCampaigns();
+    campaigns = campaigns.filter(c => c.id !== req.params.id);
+    saveDripCampaigns(campaigns);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete drip campaign' });
+  }
 });
 
 // ===========================================

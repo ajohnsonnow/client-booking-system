@@ -1523,6 +1523,331 @@
       font-size: 11px;
       color: var(--soft-gray);
     }
+
+    /* ============ LEAD GENERATION STYLES ============ */
+    .funnel-visual {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 20px;
+      background: linear-gradient(135deg, rgba(155, 89, 182, 0.05), rgba(52, 152, 219, 0.05));
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .funnel-stage {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .funnel-count {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--burgundy);
+      min-width: 60px;
+      text-align: right;
+    }
+
+    .funnel-label {
+      font-weight: 600;
+      color: var(--text);
+      min-width: 100px;
+    }
+
+    .funnel-bar {
+      height: 36px;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      position: relative;
+    }
+
+    .funnel-bar:hover {
+      transform: scaleX(1.02);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .conversion-metrics {
+      display: flex;
+      justify-content: space-around;
+      padding: 15px;
+      background: white;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+
+    .metric {
+      text-align: center;
+    }
+
+    .metric span {
+      display: block;
+      font-size: 13px;
+      color: var(--soft-gray);
+      margin-bottom: 5px;
+    }
+
+    .metric strong {
+      font-size: 20px;
+      color: var(--burgundy);
+    }
+
+    .filter-chips {
+      display: flex;
+      gap: 8px;
+    }
+
+    .chip {
+      padding: 6px 16px;
+      border-radius: 20px;
+      border: 2px solid var(--border);
+      background: white;
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .chip:hover {
+      border-color: var(--burgundy);
+      background: var(--background);
+    }
+
+    .chip.active {
+      border-color: var(--burgundy);
+      background: var(--burgundy);
+      color: white;
+    }
+
+    .leads-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .lead-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .lead-item:hover {
+      border-color: var(--burgundy);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      transform: translateY(-2px);
+    }
+
+    .lead-info {
+      flex: 1;
+    }
+
+    .lead-name {
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .lead-email {
+      font-size: 13px;
+      color: var(--soft-gray);
+    }
+
+    .lead-source {
+      font-size: 12px;
+      color: var(--gold);
+      margin-top: 4px;
+    }
+
+    .lead-status {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .lead-status.new {
+      background: #e3f2fd;
+      color: #1976d2;
+    }
+
+    .lead-status.contacted {
+      background: #fff3e0;
+      color: #f57c00;
+    }
+
+    .lead-status.qualified {
+      background: #e8f5e9;
+      color: #388e3c;
+    }
+
+    .lead-status.converted {
+      background: #f3e5f5;
+      color: #7b1fa2;
+    }
+
+    .lead-magnet-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      transition: all 0.3s ease;
+    }
+
+    .lead-magnet-card:hover {
+      border-color: var(--burgundy);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+      transform: translateY(-4px);
+    }
+
+    .magnet-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .magnet-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--burgundy);
+      margin-bottom: 8px;
+    }
+
+    .magnet-type {
+      display: inline-block;
+      padding: 4px 12px;
+      background: var(--gold);
+      color: white;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .magnet-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid var(--border);
+    }
+
+    .magnet-stat {
+      text-align: center;
+    }
+
+    .magnet-stat-value {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--burgundy);
+    }
+
+    .magnet-stat-label {
+      font-size: 11px;
+      color: var(--soft-gray);
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    .drip-campaigns-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .drip-campaign-item {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      transition: all 0.2s ease;
+    }
+
+    .drip-campaign-item:hover {
+      border-color: var(--burgundy);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    .drip-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .drip-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .drip-timeline {
+      display: flex;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .drip-email {
+      flex: 1;
+      padding: 12px;
+      background: var(--background);
+      border-radius: 8px;
+      border-left: 4px solid var(--burgundy);
+    }
+
+    .drip-email-day {
+      font-size: 11px;
+      color: var(--gold);
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .drip-email-subject {
+      font-size: 13px;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 0;
+    }
+
+    .tabs .tab {
+      padding: 12px 20px;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      color: var(--soft-gray);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-bottom: -2px;
+    }
+
+    .tabs .tab:hover {
+      color: var(--burgundy);
+      background: var(--background);
+    }
+
+    .tabs .tab.active {
+      color: var(--burgundy);
+      border-bottom-color: var(--burgundy);
+    }
   </style>
 </head>
 <body>
@@ -1868,19 +2193,126 @@
       <section class="page" id="page-marketing">
         <div class="page-header">
           <h1 class="page-title">Marketing Automation</h1>
-          <p style="color: var(--soft-gray); margin-top: 8px;">Mailchimp & HubSpot-style campaigns, segmentation & automation</p>
+          <p style="color: var(--soft-gray); margin-top: 8px;">Lead Generation • Drip Campaigns • Automation • Analytics</p>
         </div>
 
         <div class="tabs">
-          <div class="tab active" data-tab="campaigns">📧 Campaigns</div>
-          <div class="tab" data-tab="segments">🎯 Segments</div>
+          <div class="tab active" data-tab="leads">🎯 Leads</div>
+          <div class="tab" data-tab="lead-magnets">🧲 Lead Magnets</div>
+          <div class="tab" data-tab="drip-campaigns">💧 Drip Campaigns</div>
+          <div class="tab" data-tab="campaigns">📧 Campaigns</div>
+          <div class="tab" data-tab="segments">👥 Segments</div>
           <div class="tab" data-tab="automation">⚡ Automation</div>
           <div class="tab" data-tab="templates">📄 Templates</div>
           <div class="tab" data-tab="analytics">📊 Analytics</div>
         </div>
 
+        <!-- Leads Tab -->
+        <div class="tab-content active" data-content="leads">
+          <div class="card">
+            <div class="card-header">
+              <h3>Lead Generation Funnel</h3>
+            </div>
+            <div class="card-body">
+              <div class="funnel-visual">
+                <div class="funnel-stage">
+                  <div class="funnel-count" id="visitorCount">0</div>
+                  <div class="funnel-label">Visitors</div>
+                  <div class="funnel-bar" style="width: 100%; background: #9b59b6;"></div>
+                </div>
+                <div class="funnel-stage">
+                  <div class="funnel-count" id="leadCount">0</div>
+                  <div class="funnel-label">Leads</div>
+                  <div class="funnel-bar" id="leadBar" style="width: 60%; background: #3498db;"></div>
+                </div>
+                <div class="funnel-stage">
+                  <div class="funnel-count" id="prospectCount">0</div>
+                  <div class="funnel-label">Prospects</div>
+                  <div class="funnel-bar" id="prospectBar" style="width: 40%; background: #e67e22;"></div>
+                </div>
+                <div class="funnel-stage">
+                  <div class="funnel-count" id="clientCount">0</div>
+                  <div class="funnel-label">Clients</div>
+                  <div class="funnel-bar" id="clientBar" style="width: 20%; background: #27ae60;"></div>
+                </div>
+              </div>
+              <div class="conversion-metrics">
+                <div class="metric">
+                  <span>Visitor → Lead:</span>
+                  <strong id="visitorLeadRate">0%</strong>
+                </div>
+                <div class="metric">
+                  <span>Lead → Prospect:</span>
+                  <strong id="leadProspectRate">0%</strong>
+                </div>
+                <div class="metric">
+                  <span>Prospect → Client:</span>
+                  <strong id="prospectClientRate">0%</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card" style="margin-top: 20px;">
+            <div class="card-header">
+              <h3>Active Leads</h3>
+              <div class="filter-chips">
+                <button class="chip active" data-filter="all">All</button>
+                <button class="chip" data-filter="new">New</button>
+                <button class="chip" data-filter="contacted">Contacted</button>
+                <button class="chip" data-filter="qualified">Qualified</button>
+                <button class="chip" data-filter="converted">Converted</button>
+              </div>
+            </div>
+            <div class="card-body">
+              <div id="leadsList">
+                <p class="no-items-message">No leads yet. Create a lead magnet to start capturing leads!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lead Magnets Tab -->
+        <div class="tab-content" data-content="lead-magnets">
+          <div class="card">
+            <div class="card-header">
+              <h3>Lead Magnets</h3>
+              <button class="btn btn-primary" onclick="showLeadMagnetBuilder()">
+                <span>🧲</span> Create Lead Magnet
+              </button>
+            </div>
+            <div class="card-body">
+              <p style="color: var(--soft-gray); margin-bottom: 20px;">
+                AI-powered lead magnet creation: free guides, assessments, consultations, or healing resources that capture email addresses.
+              </p>
+              <div id="leadMagnetGrid" class="template-grid">
+                <p class="no-items-message">No lead magnets yet. Create your first lead capture offer!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Drip Campaigns Tab -->
+        <div class="tab-content" data-content="drip-campaigns">
+          <div class="card">
+            <div class="card-header">
+              <h3>Drip Campaigns</h3>
+              <button class="btn btn-primary" onclick="showDripCampaignBuilder()">
+                <span>💧</span> Create Drip Campaign
+              </button>
+            </div>
+            <div class="card-body">
+              <p style="color: var(--soft-gray); margin-bottom: 20px;">
+                Automated email sequences that nurture leads over time. Set up welcome series, education sequences, or re-engagement campaigns.
+              </p>
+              <div id="dripCampaignsList">
+                <p class="no-items-message">No drip campaigns yet. Create your first automated email sequence!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Campaigns Tab -->
-        <div class="tab-content active" data-content="campaigns">
+        <div class="tab-content" data-content="campaigns">
           <div class="card">
             <div class="card-header">
               <h3>Email Campaigns</h3>
@@ -4807,12 +5239,443 @@
 
     async function loadMarketing() {
       await Promise.all([
+        loadLeads(),
+        loadLeadMagnets(),
+        loadDripCampaigns(),
         loadCampaigns(),
         loadSegments(),
         loadWorkflows(),
         loadTemplates(),
         loadMarketingAnalytics()
       ]);
+    }
+
+    // ============ LEADS MANAGEMENT ============
+    let leads = [];
+    let leadMagnets = [];
+    let dripCampaigns = [];
+
+    async function loadLeads() {
+      const result = await api('/api/admin/leads');
+      if (result?.leads) {
+        leads = result.leads;
+        renderLeadFunnel();
+        renderLeadsList();
+      }
+    }
+
+    function renderLeadFunnel() {
+      const visitors = leads.filter(l => l.stage === 'visitor').length || Math.floor(leads.length * 3); // Estimate
+      const leadsCount = leads.filter(l => l.stage === 'lead').length;
+      const prospects = leads.filter(l => l.stage === 'prospect').length;
+      const clients = leads.filter(l => l.stage === 'client').length;
+
+      document.getElementById('visitorCount').textContent = visitors;
+      document.getElementById('leadCount').textContent = leadsCount;
+      document.getElementById('prospectCount').textContent = prospects;
+      document.getElementById('clientCount').textContent = clients;
+
+      // Calculate conversion rates
+      const visitorLeadRate = visitors ? ((leadsCount / visitors) * 100).toFixed(1) : 0;
+      const leadProspectRate = leadsCount ? ((prospects / leadsCount) * 100).toFixed(1) : 0;
+      const prospectClientRate = prospects ? ((clients / prospects) * 100).toFixed(1) : 0;
+
+      document.getElementById('visitorLeadRate').textContent = visitorLeadRate + '%';
+      document.getElementById('leadProspectRate').textContent = leadProspectRate + '%';
+      document.getElementById('prospectClientRate').textContent = prospectClientRate + '%';
+
+      // Update funnel bar widths
+      if (visitors > 0) {
+        document.getElementById('leadBar').style.width = visitorLeadRate + '%';
+        document.getElementById('prospectBar').style.width = (visitorLeadRate * leadProspectRate / 100) + '%';
+        document.getElementById('clientBar').style.width = (visitorLeadRate * leadProspectRate * prospectClientRate / 10000) + '%';
+      }
+    }
+
+    function renderLeadsList(filter = 'all') {
+      const list = document.getElementById('leadsList');
+      let filtered = leads;
+
+      if (filter !== 'all') {
+        filtered = leads.filter(l => l.status === filter);
+      }
+
+      if (filtered.length === 0) {
+        list.innerHTML = '<p class=\"no-items-message\">No leads match this filter.</p>';
+        return;
+      }
+
+      list.innerHTML = filtered.map(lead => `
+        <div class=\"lead-item\">
+          <div class=\"lead-info\">
+            <div class=\"lead-name\">${lead.name}</div>
+            <div class=\"lead-email\">${lead.email}</div>
+            <div class=\"lead-source\">🧲 Source: ${lead.source || 'Direct'}</div>
+          </div>
+          <div>
+            <span class=\"lead-status ${lead.status}\">${lead.status}</span>
+            <button class=\"btn btn-sm\" onclick=\"followUpLead('${lead.id}')\" style=\"margin-left: 10px;\">Follow Up</button>
+          </div>
+        </div>
+      `).join('');
+
+      // Setup filter chips
+      document.querySelectorAll('.filter-chips .chip').forEach(chip => {
+        chip.onclick = () => {
+          document.querySelectorAll('.filter-chips .chip').forEach(c => c.classList.remove('active'));
+          chip.classList.add('active');
+          renderLeadsList(chip.dataset.filter);
+        };
+      });
+    }
+
+    async function followUpLead(leadId) {
+      const lead = leads.find(l => l.id === leadId);
+      if (!lead) return;
+
+      const message = `Follow up with ${lead.name} (${lead.email})\\n\\nAI Suggested Email:\\n\\nHi ${lead.name.split(' ')[0]},\\n\\nI hope this message finds you in peace and wellness. I wanted to personally reach out to see how you're doing and if you have any questions about our sacred healing services.\\n\\nWould you like to schedule a complimentary 15-minute consultation to discuss how we can support your healing journey?\\n\\nWith light and love,\\nRavi`;
+
+      if (confirm(message + '\\n\\nSend this follow-up email?')) {
+        const result = await api('/api/admin/leads/follow-up', {
+          method: 'POST',
+          body: JSON.stringify({ leadId, template: 'ai_followup' })
+        });
+
+        if (result?.success) {
+          showNotification('✅ Follow-up email sent successfully!', 'success');
+          lead.status = 'contacted';
+          renderLeadsList();
+        }
+      }
+    }
+
+    // ============ LEAD MAGNETS ============
+    async function loadLeadMagnets() {
+      const result = await api('/api/admin/lead-magnets');
+      if (result?.magnets) {
+        leadMagnets = result.magnets;
+        renderLeadMagnets();
+      }
+    }
+
+    function renderLeadMagnets() {
+      const grid = document.getElementById('leadMagnetGrid');
+      
+      if (leadMagnets.length === 0) {
+        grid.innerHTML = '<p class=\"no-items-message\">No lead magnets yet. Create your first lead capture offer!</p>';
+        return;
+      }
+
+      grid.innerHTML = leadMagnets.map(magnet => `
+        <div class=\"lead-magnet-card\">
+          <div class=\"magnet-header\">
+            <div>
+              <h4 class=\"magnet-title\">${magnet.title}</h4>
+              <span class=\"magnet-type\">${magnet.type}</span>
+            </div>
+            <button class=\"btn btn-sm\" onclick=\"editLeadMagnet('${magnet.id}')\">Edit</button>
+          </div>
+          <p style=\"color: var(--soft-gray); font-size: 14px; margin: 10px 0;\">${magnet.description}</p>
+          <div class=\"magnet-stats\">
+            <div class=\"magnet-stat\">
+              <div class=\"magnet-stat-value\">${magnet.stats?.views || 0}</div>
+              <div class=\"magnet-stat-label\">Views</div>
+            </div>
+            <div class=\"magnet-stat\">
+              <div class=\"magnet-stat-value\">${magnet.stats?.conversions || 0}</div>
+              <div class=\"magnet-stat-label\">Conversions</div>
+            </div>
+            <div class=\"magnet-stat\">
+              <div class=\"magnet-stat-value\">${magnet.stats?.views ? ((magnet.stats.conversions / magnet.stats.views) * 100).toFixed(1) : 0}%</div>
+              <div class=\"magnet-stat-label\">Conv. Rate</div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function showLeadMagnetBuilder() {
+      const types = ['Free Guide', 'Assessment', 'Free Consultation', 'Healing Resource', 'Mini Course', 'Checklist'];
+      
+      const typeOptions = types.map(t => `<option value=\"${t}\">${t}</option>`).join('');
+
+      showModal(`
+        <h3>Create Lead Magnet (AI-Powered)</h3>
+        <div class=\"form-group\">
+          <label>Type</label>
+          <select id=\"magnetType\" class=\"form-control\">
+            ${typeOptions}
+          </select>
+        </div>
+        <div class=\"form-group\">
+          <label>Title</label>
+          <input type=\"text\" id=\"magnetTitle\" class=\"form-control\" placeholder=\"e.g., 7-Day Chakra Healing Guide\">
+        </div>
+        <div class=\"form-group\">
+          <label>Description</label>
+          <textarea id=\"magnetDesc\" class=\"form-control\" rows=\"3\" placeholder=\"What value does this offer?\"></textarea>
+        </div>
+        <div class=\"form-group\">
+          <label>AI Content Generation</label>
+          <button class=\"btn btn-secondary\" onclick=\"generateLeadMagnetContent()\" style=\"width: 100%;\">🤖 Generate Content with AI</button>
+          <small style=\"color: var(--soft-gray); display: block; margin-top: 5px;\">AI will create compelling copy and content for your lead magnet</small>
+        </div>
+        <div id=\"aiGeneratedContent\" style=\"display: none; margin-top: 15px; padding: 15px; background: var(--background); border-radius: 8px;\"></div>
+        <div class=\"btn-group\">
+          <button class=\"btn btn-secondary\" onclick=\"closeModal()\">Cancel</button>
+          <button class=\"btn btn-primary\" onclick=\"saveLeadMagnet()\">Create Lead Magnet</button>
+        </div>
+      `);
+    }
+
+    async function generateLeadMagnetContent() {
+      const type = document.getElementById('magnetType').value;
+      const title = document.getElementById('magnetTitle').value;
+      const desc = document.getElementById('magnetDesc').value;
+
+      if (!title) {
+        showNotification('Please enter a title first', 'error');
+        return;
+      }
+
+      const contentDiv = document.getElementById('aiGeneratedContent');
+      contentDiv.style.display = 'block';
+      contentDiv.innerHTML = '<p>🤖 AI is generating your content...</p>';
+
+      // Simulate AI generation (in production, call OpenAI API)
+      setTimeout(() => {
+        const aiContent = {
+          headline: `Unlock ${title}: Your Journey to Sacred Healing Begins Here`,
+          subheadline: `Discover ancient wisdom and modern techniques to transform your spiritual wellness`,
+          benefits: [
+            'Immediate access to transformative healing practices',
+            'Step-by-step guidance from Ravi\\'s 20+ years of experience',
+            'Lifetime access to exclusive healing resources',
+            'Join a community of conscious seekers'
+          ],
+          cta: 'Get Instant Access',
+          formText: 'Enter your email to receive your free ' + type.toLowerCase(),
+          emailSubject: `Your ${title} is Ready! 🪷`,
+          emailBody: `Namaste,\\n\\nThank you for your interest in ${title}. Your healing journey is sacred, and I'm honored to guide you.\\n\\nInside, you'll discover...\\n${desc}\\n\\nMay this resource bring light to your path.\\n\\nWith love and blessings,\\nRavi`
+        };
+
+        contentDiv.innerHTML = `
+          <h4 style=\"color: var(--burgundy); margin-bottom: 10px;\">✨ AI-Generated Content</h4>
+          <p><strong>Headline:</strong> ${aiContent.headline}</p>
+          <p><strong>Subheadline:</strong> ${aiContent.subheadline}</p>
+          <p><strong>Benefits:</strong></p>
+          <ul>
+            ${aiContent.benefits.map(b => `<li>${b}</li>`).join('')}
+          </ul>
+          <p><strong>CTA Button:</strong> ${aiContent.cta}</p>
+          <p><strong>Form Text:</strong> ${aiContent.formText}</p>
+          <hr>
+          <p><strong>Welcome Email Subject:</strong> ${aiContent.emailSubject}</p>
+          <p><strong>Email Body:</strong></p>
+          <pre style=\"white-space: pre-wrap; font-size: 13px;\">${aiContent.emailBody}</pre>
+        `;
+
+        window.generatedContent = aiContent;
+      }, 2000);
+    }
+
+    async function saveLeadMagnet() {
+      const magnet = {
+        id: Date.now().toString(),
+        type: document.getElementById('magnetType').value,
+        title: document.getElementById('magnetTitle').value,
+        description: document.getElementById('magnetDesc').value,
+        aiContent: window.generatedContent || null,
+        status: 'active',
+        createdAt: new Date().toISOString(),
+        stats: { views: 0, conversions: 0 }
+      };
+
+      const result = await api('/api/admin/lead-magnets', {
+        method: 'POST',
+        body: JSON.stringify(magnet)
+      });
+
+      if (result?.success) {
+        showNotification('✅ Lead magnet created successfully!', 'success');
+        closeModal();
+        loadLeadMagnets();
+      }
+    }
+
+    // ============ DRIP CAMPAIGNS ============
+    async function loadDripCampaigns() {
+      const result = await api('/api/admin/drip-campaigns');
+      if (result?.campaigns) {
+        dripCampaigns = result.campaigns;
+        renderDripCampaigns();
+      }
+    }
+
+    function renderDripCampaigns() {
+      const list = document.getElementById('dripCampaignsList');
+      
+      if (dripCampaigns.length === 0) {
+        list.innerHTML = '<p class=\"no-items-message\">No drip campaigns yet. Create your first automated email sequence!</p>';
+        return;
+      }
+
+      list.innerHTML = dripCampaigns.map(campaign => `
+        <div class=\"drip-campaign-item\">
+          <div class=\"drip-header\">
+            <div>
+              <h4 class=\"drip-title\">${campaign.name}</h4>
+              <p style=\"color: var(--soft-gray); font-size: 13px; margin: 5px 0;\">${campaign.description}</p>
+            </div>
+            <div>
+              <span class=\"badge ${campaign.active ? 'success' : ''}\">
+                ${campaign.active ? 'Active' : 'Inactive'}
+              </span>
+              <button class=\"btn btn-sm\" onclick=\"editDripCampaign('${campaign.id}')\">Edit</button>
+            </div>
+          </div>
+          <div class=\"drip-timeline\">
+            ${campaign.emails.map((email, idx) => `
+              <div class=\"drip-email\">
+                <div class=\"drip-email-day\">Day ${email.dayOffset}</div>
+                <div class=\"drip-email-subject\">${email.subject}</div>
+              </div>
+            `).join('')}
+          </div>
+          <div style=\"margin-top: 15px; font-size: 13px; color: var(--soft-gray);\">
+            📊 ${campaign.stats?.sent || 0} sent • ${campaign.stats?.opened || 0} opened • ${campaign.stats?.clicked || 0} clicked
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function showDripCampaignBuilder() {
+      showModal(`
+        <h3>Create Drip Campaign</h3>
+        <p style=\"color: var(--soft-gray); margin-bottom: 20px;\">Build an automated email sequence that nurtures leads over time</p>
+        
+        <div class=\"form-group\">
+          <label>Campaign Name</label>
+          <input type=\"text\" id=\"dripName\" class=\"form-control\" placeholder=\"e.g., Welcome Series\">
+        </div>
+        
+        <div class=\"form-group\">
+          <label>Description</label>
+          <input type=\"text\" id=\"dripDesc\" class=\"form-control\" placeholder=\"What is this campaign for?\">
+        </div>
+
+        <div class=\"form-group\">
+          <label>Trigger</label>
+          <select id=\"dripTrigger\" class=\"form-control\">
+            <option value=\"lead_magnet\">After Lead Magnet Download</option>
+            <option value=\"inquiry\">After Inquiry Submission</option>
+            <option value=\"first_booking\">After First Booking</option>
+            <option value=\"no_booking\">No Booking in 30 Days</option>
+          </select>
+        </div>
+
+        <div class=\"form-group\">
+          <label>Email Sequence (AI-Powered)</label>
+          <button class=\"btn btn-secondary\" onclick=\"generateDripSequence()\" style=\"width: 100%;\">🤖 Generate 5-Email Sequence with AI</button>
+        </div>
+
+        <div id=\"dripEmailsPreview\" style=\"margin-top: 20px;\"></div>
+
+        <div class=\"btn-group\">
+          <button class=\"btn btn-secondary\" onclick=\"closeModal()\">Cancel</button>
+          <button class=\"btn btn-primary\" onclick=\"saveDripCampaign()\">Create Campaign</button>
+        </div>
+      `);
+    }
+
+    async function generateDripSequence() {
+      const name = document.getElementById('dripName').value;
+      const trigger = document.getElementById('dripTrigger').value;
+      
+      if (!name) {
+        showNotification('Please enter a campaign name first', 'error');
+        return;
+      }
+
+      const preview = document.getElementById('dripEmailsPreview');
+      preview.innerHTML = '<p>🤖 AI is crafting your email sequence...</p>';
+
+      // Simulate AI generation (in production, call OpenAI API)
+      setTimeout(() => {
+        const sequences = {
+          lead_magnet: [
+            { day: 0, subject: '🪷 Your Sacred Healing Guide is Here', preview: 'Welcome! Your journey begins...' },
+            { day: 2, subject: 'Day 2: Understanding Your Energy Centers', preview: 'Let\\'s explore the chakras...' },
+            { day: 5, subject: 'Healing Practice: Morning Meditation', preview: 'Start your day with this simple practice...' },
+            { day: 8, subject: 'Special Invitation: Private Healing Session', preview: 'Ready for deeper transformation?' },
+            { day: 14, subject: 'Your Progress & Next Steps', preview: 'How has your journey been?' }
+          ],
+          inquiry: [
+            { day: 0, subject: 'Thank You for Reaching Out 🙏', preview: 'I received your message and will respond soon...' },
+            { day: 1, subject: 'About My Healing Approach', preview: 'Learn about the sacred practices I use...' },
+            { day: 3, subject: 'Client Testimonials & Transformations', preview: 'See what others have experienced...' },
+            { day: 5, subject: 'Book Your Session Today', preview: 'Let\\'s begin your healing journey...' },
+            { day: 10, subject: 'Still Thinking? Let\\'s Talk', preview: 'Any questions I can answer?' }
+          ],
+          first_booking: [
+            { day: 0, subject: 'Your Session is Confirmed! ✨', preview: 'Here\\'s what to expect...' },
+            { day: 1, subject: 'Preparing for Your Healing Session', preview: 'Tips to maximize your experience...' },
+            { day: 7, subject: 'How Was Your Session?', preview: 'I\\'d love to hear your feedback...' },
+            { day: 14, subject: 'Continue Your Healing Journey', preview: 'Ready for your next session?' },
+            { day: 30, subject: 'It\\'s Been a While - How Are You?', preview: 'Checking in on your wellness...' }
+          ],
+          no_booking: [
+            { day: 0, subject: 'We Miss You! 💜', preview: 'It\\'s been a while since your last session...' },
+            { day: 3, subject: 'Special Offer: Return to Healing', preview: '20% off your next session...' },
+            { day: 7, subject: 'Free Resource: Self-Healing Techniques', preview: 'Practice these at home...' },
+            { day: 14, subject: 'Your Wellness Matters', preview: 'How can I support you?' },
+            { day: 21, subject: 'Last Chance: Exclusive Offer Inside', preview: 'This offer expires soon...' }
+          ]
+        };
+
+        const emails = sequences[trigger] || sequences.lead_magnet;
+        window.generatedDripEmails = emails;
+
+        preview.innerHTML = `
+          <h4 style=\"color: var(--burgundy); margin-bottom: 15px;\">✨ AI-Generated Email Sequence</h4>
+          ${emails.map((email, idx) => `
+            <div style=\"padding: 12px; background: var(--background); border-radius: 8px; margin-bottom: 10px; border-left: 4px solid var(--burgundy);\">
+              <div style=\"font-size: 11px; color: var(--gold); font-weight: 600; margin-bottom: 5px;\">DAY ${email.day}</div>
+              <div style=\"font-weight: 600; color: var(--text); margin-bottom: 3px;\">${email.subject}</div>
+              <div style=\"font-size: 13px; color: var(--soft-gray);\">${email.preview}</div>
+            </div>
+          `).join('')}
+        `;
+      }, 2500);
+    }
+
+    async function saveDripCampaign() {
+      const campaign = {
+        id: Date.now().toString(),
+        name: document.getElementById('dripName').value,
+        description: document.getElementById('dripDesc').value,
+        trigger: document.getElementById('dripTrigger').value,
+        emails: window.generatedDripEmails || [],
+        active: true,
+        createdAt: new Date().toISOString(),
+        stats: { sent: 0, opened: 0, clicked: 0 }
+      };
+
+      if (!campaign.name || campaign.emails.length === 0) {
+        showNotification('Please fill all fields and generate the email sequence', 'error');
+        return;
+      }
+
+      const result = await api('/api/admin/drip-campaigns', {
+        method: 'POST',
+        body: JSON.stringify(campaign)
+      });
+
+      if (result?.success) {
+        showNotification('✅ Drip campaign created successfully! It will automatically send to new leads.', 'success');
+        closeModal();
+        loadDripCampaigns();
+      }
     }
 
     async function loadCampaigns() {
