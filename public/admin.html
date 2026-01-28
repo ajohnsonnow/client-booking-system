@@ -630,6 +630,17 @@
       text-overflow: ellipsis;
       white-space: nowrap;
     }
+    
+    .calendar-event.pending {
+      background: #ffc107;
+      color: #333;
+      border: 1px dashed #ff9800;
+    }
+    
+    .calendar-event.confirmed {
+      background: var(--burgundy);
+      color: white;
+    }
 
     /* ============ CLIENT LIST ============ */
     .client-card {
@@ -858,9 +869,167 @@
       }
     }
 
+    /* ============ CALENDLY-STYLE AVAILABILITY ============ */
+    .weekly-availability-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .availability-day-card {
+      background: white;
+      border: 2px solid #e0d6cc;
+      border-radius: 12px;
+      padding: 20px;
+      transition: all 0.3s;
+    }
+
+    .availability-day-card.disabled {
+      background: #f5f5f5;
+      opacity: 0.6;
+    }
+
+    .day-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #e0d6cc;
+    }
+
+    .day-name {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--charcoal);
+    }
+
+    .day-toggle {
+      position: relative;
+      width: 52px;
+      height: 28px;
+    }
+
+    .day-toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: 0.3s;
+      border-radius: 28px;
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 20px;
+      width: 20px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: 0.3s;
+      border-radius: 50%;
+    }
+
+    .day-toggle input:checked + .toggle-slider {
+      background-color: var(--burgundy);
+    }
+
+    .day-toggle input:checked + .toggle-slider:before {
+      transform: translateX(24px);
+    }
+
+    .time-slots-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .time-slot-btn {
+      padding: 10px 12px;
+      background: white;
+      border: 2px solid #e0d6cc;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--charcoal);
+      text-align: center;
+      transition: all 0.2s;
+      font-weight: 500;
+    }
+
+    .time-slot-btn:hover:not(.selected) {
+      border-color: var(--burgundy);
+      background: var(--gold-light);
+    }
+
+    .time-slot-btn.selected {
+      background: var(--burgundy);
+      color: white;
+      border-color: var(--burgundy);
+    }
+
+    .time-slot-btn.disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .slot-duration-selector {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding: 12px;
+      background: var(--gold-light);
+      border-radius: 8px;
+    }
+
+    .slot-duration-selector label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--charcoal);
+      margin-right: 8px;
+    }
+
+    .slot-duration-selector input[type="radio"] {
+      margin-right: 6px;
+    }
+
+    .availability-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 2px solid #e0d6cc;
+    }
+
+    .availability-summary {
+      background: var(--gold-light);
+      padding: 16px;
+      border-radius: 8px;
+      margin-top: 16px;
+      font-size: 14px;
+      color: var(--charcoal);
+    }
+
+    .availability-summary strong {
+      color: var(--burgundy);
+    }
+
     /* ============ PRINT STYLES ============ */
     @media print {
-      .sidebar, .mobile-menu-btn, .btn, .toast-container {
+      .sidebar, .mobile-menu-btn, .btn, .toast-container, .page-header, .card-header {
         display: none !important;
       }
 
@@ -870,7 +1039,62 @@
 
       .card {
         box-shadow: none;
-        border: 1px solid #ddd;
+        border: none;
+      }
+      
+      .business-card {
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+      
+      /* Remove screen-only elements from print */
+      body * {
+        visibility: hidden;
+      }
+      
+      #printableCards, #printableCards * {
+        visibility: visible;
+      }
+      
+      #printableCards {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+      }
+    }
+    
+    /* Business Card Styles */
+    .business-card {
+      width: 3.5in;
+      height: 2in;
+      border: 2px solid #D4AF37;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px;
+      display: inline-block;
+      background: linear-gradient(135deg, #ffffff 0%, #fdfaf5 50%, #fff8f0 100%);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      page-break-inside: avoid;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .business-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(212, 175, 55, 0.05) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    
+    @media print {
+      .business-card {
+        margin: 0.25in;
+        box-shadow: none;
       }
     }
 
@@ -1135,6 +1359,16 @@
       <section class="page" id="page-calendar">
         <div class="page-header">
           <h1 class="page-title">Calendar</h1>
+          <div style="display: flex; gap: 16px; font-size: 12px; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <div style="width: 16px; height: 16px; background: var(--burgundy); border-radius: 3px;"></div>
+              <span>Confirmed</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <div style="width: 16px; height: 16px; background: #ffc107; border: 1px dashed #ff9800; border-radius: 3px;"></div>
+              <span>Pending</span>
+            </div>
+          </div>
         </div>
 
         <div class="card">
@@ -1414,23 +1648,13 @@
         <div class="tab-content" id="tab-availability">
           <div class="card">
             <div class="card-header">
-              <h3 class="card-title">Availability Settings</h3>
+              <h3 class="card-title">Weekly Availability</h3>
+              <p style="color: var(--soft-gray); font-size: 14px; margin-top: 8px;">Set your recurring weekly schedule</p>
             </div>
             <div class="card-body">
-              <form id="availabilityForm">
-                <div class="form-group">
-                  <label class="form-label">Available Days</label>
-                  <div id="availableDaysCheckboxes" class="available-days-checkboxes">
-                    <!-- Populated by JS -->
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Available Time Slots</label>
-                  <textarea class="form-textarea" id="availableSlots" rows="4" placeholder="9:00 AM&#10;10:30 AM&#10;12:00 PM"></textarea>
-                  <small class="time-input-hint">One time slot per line</small>
-                </div>
-                <button type="submit" class="btn btn-primary">Save Availability</button>
-              </form>
+              <div id="weeklyAvailability">
+                <!-- Populated by JS with day-by-day time slot picker -->
+              </div>
             </div>
           </div>
 
@@ -1710,6 +1934,7 @@
       <section class="page" id="page-help">
         <div class="page-header">
           <h1 class="page-title">📚 Admin User Guide</h1>
+          <button class="btn btn-primary" onclick="showPage('overview')">← Back to Dashboard</button>
         </div>
 
         <div class="card" style="padding: 32px; max-width: 900px; margin: 0 auto;">
@@ -2481,7 +2706,10 @@
           showPage(page);
         }
         // Close mobile menu
-        document.getElementById('sidebar').classList.remove('open');
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar) {
+          sidebar.classList.remove('open');
+        }
       });
     });
 
@@ -2517,9 +2745,14 @@
     }
 
     // Mobile menu
-    document.getElementById('mobileMenuBtn').addEventListener('click', () => {
-      document.getElementById('sidebar').classList.toggle('open');
-    });
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const sidebar = document.getElementById('sidebar');
+    
+    if (mobileMenuBtn && sidebar) {
+      mobileMenuBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('open');
+      });
+    }
 
     // Tabs
     document.querySelectorAll('.tab').forEach(tab => {
@@ -2925,7 +3158,7 @@
         html += `
           <div class="${classes.join(' ')}" onclick="${isBlocked ? '' : `calendarDayClick('${dateStr}')`}">
             <div>${day}</div>
-            ${dayEvents.slice(0, 2).map(e => `<div class="calendar-event">${e.time || ''} ${e.clientName}</div>`).join('')}
+            ${dayEvents.slice(0, 2).map(e => `<div class="calendar-event ${e.status}">${e.time || ''} ${e.clientName}${e.status === 'pending' ? ' (?)' : ''}</div>`).join('')}
             ${dayEvents.length > 2 ? `<div style="font-size: 10px; color: var(--soft-gray);">+${dayEvents.length - 2} more</div>` : ''}
           </div>
         `;
@@ -3193,17 +3426,28 @@
 
       document.getElementById('printPreview').style.display = 'block';
       document.getElementById('printableCards').innerHTML = available.map(c => `
-        <div style="border: 2px dashed var(--gold); padding: 24px; border-radius: 12px; text-align: center; background: linear-gradient(135deg, #fff 0%, #fdf8f3 100%);">
-          <div style="font-size: 32px; margin-bottom: 8px;">🪷</div>
-          <div style="font-family: Georgia, serif; color: var(--burgundy); font-size: 16px; margin-bottom: 16px;">Ravi ~ Sacred Healing</div>
-          <div style="font-size: 12px; color: var(--soft-gray); margin-bottom: 8px;">YOUR INVITATION CODE</div>
-          <div style="background: var(--burgundy); color: white; padding: 12px 20px; border-radius: 8px; font-size: 20px; letter-spacing: 3px; font-weight: 600;">
-            ${c.code}
+        <div class="business-card">
+          <div style="text-align: center;">
+            <div style="font-size: 48px; margin-bottom: 12px;">🪷</div>
+            <div style="font-family: Georgia, serif; color: #722F37; font-size: 22px; font-weight: 600; margin-bottom: 6px;">Ravi</div>
+            <div style="font-size: 14px; color: #483434; margin-bottom: 24px; font-style: italic;">Intuitive Healer & Sensual Bodyworker</div>
+            
+            <div style="border-top: 2px solid #D4AF37; border-bottom: 2px solid #D4AF37; padding: 16px 0; margin: 20px 0;">
+              <div style="font-size: 11px; color: #666; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1.5px;">Your Private Invitation Code</div>
+              <div style="background: linear-gradient(135deg, #722F37 0%, #5a2429 100%); color: white; padding: 14px 24px; border-radius: 8px; font-size: 24px; letter-spacing: 4px; font-weight: 700; font-family: 'Courier New', monospace; box-shadow: 0 4px 8px rgba(114, 47, 55, 0.3);">
+                ${c.code}
+              </div>
+            </div>
+            
+            <div style="margin-top: 20px; font-size: 13px; color: #666;">
+              <div style="margin-bottom: 8px;">
+                <strong style="color: #722F37;">Book Your Session:</strong><br>
+                <span style="font-size: 12px;">localhost:3000</span>
+              </div>
+              ${c.label ? `<div style="font-size: 10px; color: #999; margin-top: 12px; font-style: italic;">${c.label}</div>` : ''}
+              ${c.expiresAt ? `<div style="font-size: 10px; color: #999; margin-top: 8px;">Valid until: ${new Date(c.expiresAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>` : ''}
+            </div>
           </div>
-          <div style="margin-top: 16px; font-size: 12px; color: var(--soft-gray);">
-            Visit: <strong>portal.ravisacredhealing.com</strong>
-          </div>
-          ${c.expiresAt ? `<div style="font-size: 10px; color: var(--soft-gray); margin-top: 8px;">Expires: ${new Date(c.expiresAt).toLocaleDateString()}</div>` : ''}
         </div>
       `).join('');
 
@@ -3620,29 +3864,26 @@
 
     function renderSettings() {
       // Services
-      document.getElementById('servicesList').innerHTML = settings.services?.map(s => `
+      document.getElementById('servicesList').innerHTML = settings.services?.map((s, index) => `
         <div class="content-item ${s.active ? '' : 'inactive'}">
           <div class="content-item-header">
             <h4>${s.name}</h4>
             <div class="content-item-actions">
-              <span style="font-weight: 600; color: var(--burgundy);">$${s.price}</span>
-              <span style="color: var(--soft-gray);">${s.duration} min</span>
+              <button class="action-btn" onclick="editService(${index})" title="Edit">✏️</button>
+              <button class="action-btn" onclick="toggleServiceActive(${index})" title="${s.active ? 'Hide' : 'Show'}">${s.active ? '👁️' : '👁️‍🗨️'}</button>
+              <button class="action-btn" onclick="deleteService(${index})" title="Delete" style="color: #dc3545;">🗑️</button>
             </div>
+          </div>
+          <p style="margin-bottom: 8px;">${s.description || ''}</p>
+          <div style="display: flex; gap: 16px; font-size: 14px; color: var(--soft-gray);">
+            <span style="font-weight: 600; color: var(--burgundy);">$${s.price}</span>
+            <span>${s.duration} min</span>
           </div>
         </div>
       `).join('') || '<p>No services configured</p>';
 
-      // Availability days
-      const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-      document.getElementById('availableDaysCheckboxes').innerHTML = days.map(d => `
-        <label style="display: flex; align-items: center; gap: 8px;">
-          <input type="checkbox" name="availableDay" value="${d}" ${settings.availableDays?.includes(d) ? 'checked' : ''}>
-          ${d.charAt(0).toUpperCase() + d.slice(1)}
-        </label>
-      `).join('');
-
-      // Slots
-      document.getElementById('availableSlots').value = settings.availableSlots?.join('\n') || '';
+      // Render Calendly-style availability interface
+      renderWeeklyAvailability();
 
       // Blocked dates
       document.getElementById('blockedDatesList').innerHTML = settings.blockedDates?.length ?
@@ -3663,7 +3904,9 @@
       document.getElementById('reminderHours').value = settings.reminderHours || 24;
     }
 
-    // Availability form
+    // OLD AVAILABILITY FORM (replaced by Calendly-style interface)
+    // Keeping for reference - can be removed after testing
+    /*
     document.getElementById('availabilityForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const availableDays = Array.from(document.querySelectorAll('input[name="availableDay"]:checked')).map(c => c.value);
@@ -3681,6 +3924,7 @@
         settings = result.settings;
       }
     });
+    */
 
     // Email settings form
     document.getElementById('emailSettingsForm').addEventListener('submit', async (e) => {
@@ -3738,6 +3982,265 @@
         showToast('Date unblocked!', 'success');
         settings.blockedDates = result.blockedDates;
         renderSettings();
+      }
+    }
+
+    // ===========================================
+    // CALENDLY-STYLE AVAILABILITY
+    // ===========================================
+    function renderWeeklyAvailability() {
+      const container = document.getElementById('weeklyAvailability');
+      if (!container) return;
+
+      const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+      const dayKeys = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+      
+      // Get current availability data or initialize
+      if (!settings.weeklyAvailability) {
+        settings.weeklyAvailability = {};
+        dayKeys.forEach(key => {
+          settings.weeklyAvailability[key] = {
+            enabled: settings.availableDays?.includes(key) || false,
+            slots: []
+          };
+        });
+      }
+
+      // Generate time slots (9am - 6pm in 30min intervals by default)
+      const generateTimeSlots = (startHour = 9, endHour = 18, interval = 30) => {
+        const slots = [];
+        for (let hour = startHour; hour < endHour; hour++) {
+          for (let min = 0; min < 60; min += interval) {
+            const timeStr = `${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}`;
+            slots.push(timeStr);
+          }
+        }
+        return slots;
+      };
+
+      const allTimeSlots = generateTimeSlots();
+
+      container.innerHTML = `
+        <div class="slot-duration-selector">
+          <label>Time Slot Interval:</label>
+          <label><input type="radio" name="slotInterval" value="15" ${settings.slotInterval === 15 ? 'checked' : ''}> 15 min</label>
+          <label><input type="radio" name="slotInterval" value="30" ${!settings.slotInterval || settings.slotInterval === 30 ? 'checked' : ''}> 30 min</label>
+          <label><input type="radio" name="slotInterval" value="60" ${settings.slotInterval === 60 ? 'checked' : ''}> 60 min</label>
+        </div>
+        <div class="weekly-availability-container">
+          ${days.map((day, index) => {
+            const dayKey = dayKeys[index];
+            const dayData = settings.weeklyAvailability[dayKey] || { enabled: false, slots: [] };
+            
+            return `
+              <div class="availability-day-card ${!dayData.enabled ? 'disabled' : ''}">
+                <div class="day-header">
+                  <span class="day-name">${day}</span>
+                  <label class="day-toggle">
+                    <input type="checkbox" ${dayData.enabled ? 'checked' : ''} 
+                           onchange="toggleDay('${dayKey}', this.checked)">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                ${dayData.enabled ? `
+                  <div class="time-slots-container" id="slots-${dayKey}">
+                    ${allTimeSlots.map(slot => `
+                      <button class="time-slot-btn ${dayData.slots.includes(slot) ? 'selected' : ''}"
+                              onclick="toggleTimeSlot('${dayKey}', '${slot}')">
+                        ${formatTime(slot)}
+                      </button>
+                    `).join('')}
+                  </div>
+                ` : '<p style="color: var(--soft-gray); margin-top: 12px; font-style: italic;">Day is disabled</p>'}
+              </div>
+            `;
+          }).join('')}
+        </div>
+        <div class="availability-summary">
+          <strong>Quick Actions:</strong><br>
+          <button class="btn btn-secondary" onclick="selectBusinessHours()" style="margin-top: 8px; padding: 8px 16px;">
+            Select Business Hours (9am-5pm)
+          </button>
+          <button class="btn btn-secondary" onclick="clearAllSlots()" style="margin-top: 8px; padding: 8px 16px; margin-left: 8px;">
+            Clear All
+          </button>
+        </div>
+        <div class="availability-actions">
+          <button class="btn btn-primary" onclick="saveAvailability()">💾 Save Availability</button>
+          <button class="btn btn-secondary" onclick="renderWeeklyAvailability()">↻ Reset Changes</button>
+        </div>
+      `;
+
+      // Add interval change listener
+      document.querySelectorAll('input[name="slotInterval"]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+          settings.slotInterval = parseInt(e.target.value);
+          renderWeeklyAvailability();
+        });
+      });
+    }
+
+    function formatTime(time24) {
+      const [hours, minutes] = time24.split(':').map(Number);
+      const period = hours >= 12 ? 'PM' : 'AM';
+      const hours12 = hours % 12 || 12;
+      return `${hours12}:${minutes.toString().padStart(2, '0')} ${period}`;
+    }
+
+    function toggleDay(dayKey, enabled) {
+      if (!settings.weeklyAvailability) settings.weeklyAvailability = {};
+      if (!settings.weeklyAvailability[dayKey]) settings.weeklyAvailability[dayKey] = { enabled: false, slots: [] };
+      settings.weeklyAvailability[dayKey].enabled = enabled;
+      renderWeeklyAvailability();
+    }
+
+    function toggleTimeSlot(dayKey, slot) {
+      if (!settings.weeklyAvailability[dayKey].slots) settings.weeklyAvailability[dayKey].slots = [];
+      const slots = settings.weeklyAvailability[dayKey].slots;
+      const index = slots.indexOf(slot);
+      
+      if (index > -1) {
+        slots.splice(index, 1);
+      } else {
+        slots.push(slot);
+        slots.sort();
+      }
+      
+      // Update button visual
+      const btn = event.target;
+      btn.classList.toggle('selected');
+    }
+
+    function selectBusinessHours() {
+      const businessDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+      const businessHours = [];
+      
+      // Generate 9am-5pm slots
+      for (let hour = 9; hour < 17; hour++) {
+        const interval = settings.slotInterval || 30;
+        for (let min = 0; min < 60; min += interval) {
+          businessHours.push(`${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}`);
+        }
+      }
+      
+      businessDays.forEach(day => {
+        if (!settings.weeklyAvailability[day]) settings.weeklyAvailability[day] = { enabled: false, slots: [] };
+        settings.weeklyAvailability[day].enabled = true;
+        settings.weeklyAvailability[day].slots = [...businessHours];
+      });
+      
+      renderWeeklyAvailability();
+      showToast('Business hours selected (Mon-Fri, 9am-5pm)', 'success');
+    }
+
+    function clearAllSlots() {
+      if (!confirm('Clear all availability? This will disable all days and remove all time slots.')) return;
+      
+      const dayKeys = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+      dayKeys.forEach(day => {
+        if (!settings.weeklyAvailability[day]) settings.weeklyAvailability[day] = { enabled: false, slots: [] };
+        settings.weeklyAvailability[day].enabled = false;
+        settings.weeklyAvailability[day].slots = [];
+      });
+      
+      renderWeeklyAvailability();
+      showToast('All availability cleared', 'info');
+    }
+
+    async function saveAvailability() {
+      showLoading(true);
+      
+      // Convert new format to legacy format for backward compatibility
+      const availableDays = [];
+      const availableSlots = [];
+      
+      Object.keys(settings.weeklyAvailability).forEach(day => {
+        const dayData = settings.weeklyAvailability[day];
+        if (dayData.enabled) {
+          availableDays.push(day);
+          // Convert time slots to readable format for legacy field
+          dayData.slots.forEach(slot => {
+            const formatted = `${day.charAt(0).toUpperCase() + day.slice(1)} ${formatTime(slot)}`;
+            if (!availableSlots.includes(formatted)) {
+              availableSlots.push(formatted);
+            }
+          });
+        }
+      });
+      
+      settings.availableDays = availableDays;
+      settings.availableSlots = availableSlots;
+      
+      const result = await api('/api/admin/settings', {
+        method: 'PUT',
+        body: JSON.stringify(settings)
+      });
+      
+      showLoading(false);
+
+      if (result?.success) {
+        showToast('Availability saved successfully!', 'success');
+        settings = result.settings;
+      } else {
+        showToast('Failed to save availability', 'error');
+      }
+    }
+
+    // ===========================================
+    // SERVICE MANAGEMENT
+    // ===========================================
+    function editService(index) {
+      const service = settings.services[index];
+      const newName = prompt('Service Name:', service.name);
+      if (newName === null) return;
+      
+      const newPrice = prompt('Price ($):', service.price);
+      if (newPrice === null) return;
+      
+      const newDuration = prompt('Duration (minutes):', service.duration);
+      if (newDuration === null) return;
+      
+      const newDescription = prompt('Description (optional):', service.description || '');
+      if (newDescription === null) return;
+      
+      settings.services[index] = {
+        ...service,
+        name: newName.trim(),
+        price: parseInt(newPrice),
+        duration: parseInt(newDuration),
+        description: newDescription.trim()
+      };
+      
+      saveSettings();
+    }
+
+    async function toggleServiceActive(index) {
+      settings.services[index].active = !settings.services[index].active;
+      await saveSettings();
+    }
+
+    async function deleteService(index) {
+      const service = settings.services[index];
+      if (!confirm(`Delete "${service.name}"? This cannot be undone.`)) return;
+      
+      settings.services.splice(index, 1);
+      await saveSettings();
+    }
+
+    async function saveSettings() {
+      showLoading(true);
+      const result = await api('/api/admin/settings', {
+        method: 'PUT',
+        body: JSON.stringify(settings)
+      });
+      showLoading(false);
+
+      if (result?.success) {
+        showToast('Settings saved!', 'success');
+        settings = result.settings;
+        renderSettings();
+      } else {
+        showToast('Failed to save settings', 'error');
       }
     }
 

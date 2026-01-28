@@ -1129,13 +1129,20 @@ app.get('/api/admin/calendar', authenticateAdmin, (req, res) => {
   const bookings = loadBookings();
   const settings = loadSettings();
   
+  // Include both confirmed bookings and pending bookings
   const calendarEvents = bookings
-    .filter(b => b.status === 'confirmed' && b.confirmedDate)
+    .filter(b => {
+      // Show confirmed bookings with date
+      if (b.status === 'confirmed' && b.confirmedDate) return true;
+      // Show pending bookings with requested date
+      if (b.status === 'pending' && b.requestedDate) return true;
+      return false;
+    })
     .map(b => ({
       id: b.id,
       title: `${b.name} - ${b.serviceName}`,
-      date: b.confirmedDate,
-      time: b.confirmedTime,
+      date: b.status === 'confirmed' ? b.confirmedDate : b.requestedDate,
+      time: b.status === 'confirmed' ? b.confirmedTime : b.requestedTime,
       status: b.status,
       duration: b.serviceDuration,
       clientName: b.name,
