@@ -1671,22 +1671,48 @@ app.put('/api/admin/settings', authenticateAdmin, (req, res) => {
 
 // Block/unblock dates
 app.post('/api/admin/settings/block-date', authenticateAdmin, (req, res) => {
-  const { date, reason } = req.body;
-  if (!date) return res.status(400).json({ error: 'Date required' });
+  const blockData = sanitizeObject(req.body);
+  const { startDate, startTime, endDate, endTime, reason, isRange } = blockData;
+  
+  if (!startDate || !endDate) {
+    return res.status(400).json({ error: 'Start and end dates required' });
+  }
   
   const settings = loadSettings();
-  if (!settings.blockedDates.find(d => d.date === date)) {
-    settings.blockedDates.push({ date, reason: reason || 'Blocked' });
-    saveSettings(settings);
+  
+  // Create block entry with enhanced data
+  const blockEntry = {
+    startDate,
+    startTime: startTime || null,
+    endDate,
+    endTime: endTime || null,
+    reason: reason || 'Blocked',
+    isRange,
+    createdAt: new Date().toISOString()
+  };
+  
+  // For backward compatibility, also add 'date' field if it's a single date
+  if (!isRange && startDate === endDate && !startTime && !endTime) {
+    blockEntry.date = startDate;
   }
+  
+  settings.blockedDates.push(blockEntry);
+  saveSettings(settings);
+  
   res.json({ success: true, blockedDates: settings.blockedDates });
 });
 
-app.delete('/api/admin/settings/block-date/:date', authenticateAdmin, (req, res) => {
+app.delete('/api/admin/settings/block-date/:index', authenticateAdmin, (req, res) => {
+  const index = parseInt(req.params.index);
   const settings = loadSettings();
-  settings.blockedDates = settings.blockedDates.filter(d => d.date !== req.params.date);
-  saveSettings(settings);
-  res.json({ success: true, blockedDates: settings.blockedDates });
+  
+  if (index >= 0 && index < settings.blockedDates.length) {
+    settings.blockedDates.splice(index, 1);
+    saveSettings(settings);
+    res.json({ success: true, blockedDates: settings.blockedDates });
+  } else {
+    res.status(404).json({ error: 'Blocked date not found' });
+  }
 });
 
 // ===========================================

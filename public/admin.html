@@ -2847,24 +2847,43 @@
 
   <!-- BLOCK DATE MODAL -->
   <div class="modal-overlay" id="blockDateModal">
-    <div class="modal" style="max-width: 400px;">
+    <div class="modal" style="max-width: 500px;">
       <div class="modal-header">
-        <h2 class="modal-title">Block Date</h2>
+        <h2 class="modal-title">Block Date/Time Range</h2>
         <button class="modal-close" onclick="closeModal('blockDateModal')">&times;</button>
       </div>
       <div class="modal-body">
-        <div class="form-group">
-          <label class="form-label">Date</label>
-          <input type="date" class="form-input" id="blockDate" required>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+          <div class="form-group">
+            <label class="form-label">Start Date</label>
+            <input type="date" class="form-input" id="blockStartDate" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Start Time (optional)</label>
+            <input type="time" class="form-input" id="blockStartTime">
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+          <div class="form-group">
+            <label class="form-label">End Date</label>
+            <input type="date" class="form-input" id="blockEndDate" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">End Time (optional)</label>
+            <input type="time" class="form-input" id="blockEndTime">
+          </div>
         </div>
         <div class="form-group">
           <label class="form-label">Reason (optional)</label>
-          <input type="text" class="form-input" id="blockReason" placeholder="e.g., Holiday, Personal day">
+          <input type="text" class="form-input" id="blockReason" placeholder="e.g., Holiday, Vacation, Conference">
+        </div>
+        <div style="background: var(--gold-light); padding: 12px; border-radius: 8px; font-size: 13px; color: var(--charcoal);">
+          <strong>Note:</strong> Leave times blank to block entire day(s). Specify times to block specific hours.
         </div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-outline" onclick="closeModal('blockDateModal')">Cancel</button>
-        <button class="btn btn-primary" onclick="saveBlockedDate()">Block Date</button>
+        <button class="btn btn-primary" onclick="saveBlockedDate()">Block Date Range</button>
       </div>
     </div>
   </div>
@@ -4376,15 +4395,28 @@
 
       // Blocked dates
       document.getElementById('blockedDatesList').innerHTML = settings.blockedDates?.length ?
-        settings.blockedDates.map(b => `
-          <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; border: 1px solid #eee; border-radius: 8px; margin-bottom: 8px;">
-            <div>
-              <strong>${new Date(b.date).toLocaleDateString()}</strong>
-              ${b.reason ? `<span style="color: var(--soft-gray);"> - ${b.reason}</span>` : ''}
+        settings.blockedDates.map((b, index) => {
+          const formatDateTime = (date, time) => {
+            const dateStr = new Date(date).toLocaleDateString();
+            return time ? `${dateStr} ${time}` : dateStr;
+          };
+          
+          const isRange = b.startDate && b.endDate && (b.startDate !== b.endDate || b.startTime || b.endTime);
+          const displayText = isRange 
+            ? `${formatDateTime(b.startDate, b.startTime)} → ${formatDateTime(b.endDate, b.endTime)}`
+            : formatDateTime(b.date || b.startDate, b.startTime);
+          
+          return `
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; border: 1px solid #eee; border-radius: 8px; margin-bottom: 8px;">
+              <div>
+                <strong>${displayText}</strong>
+                ${b.reason ? `<span style="color: var(--soft-gray);"> - ${b.reason}</span>` : ''}
+                ${isRange ? '<span style="color: var(--burgundy); font-size: 12px; margin-left: 8px;">📅 RANGE</span>' : ''}
+              </div>
+              <button class="action-btn" onclick="unblockDate(${index})" style="color: var(--danger);">Remove</button>
             </div>
-            <button class="action-btn" onclick="unblockDate('${b.date}')" style="color: var(--danger);">Remove</button>
-          </div>
-        `).join('') : '<p style="color: var(--soft-gray);">No blocked dates</p>';
+          `;
+        }).join('') : '<p style="color: var(--soft-gray);">No blocked dates</p>';
 
       // Email settings
       document.getElementById('emailNotifications').checked = settings.emailNotifications !== false;
@@ -4436,35 +4468,61 @@
     });
 
     function openBlockDateModal() {
-      document.getElementById('blockDate').value = '';
+      document.getElementById('blockStartDate').value = '';
+      document.getElementById('blockStartTime').value = '';
+      document.getElementById('blockEndDate').value = '';
+      document.getElementById('blockEndTime').value = '';
       document.getElementById('blockReason').value = '';
       openModal('blockDateModal');
     }
 
     async function saveBlockedDate() {
-      const date = document.getElementById('blockDate').value;
+      const startDate = document.getElementById('blockStartDate').value;
+      const startTime = document.getElementById('blockStartTime').value;
+      const endDate = document.getElementById('blockEndDate').value;
+      const endTime = document.getElementById('blockEndTime').value;
       const reason = document.getElementById('blockReason').value;
       
-      if (!date) return;
+      if (!startDate || !endDate) {
+        showToast('Please enter start and end dates', 'error');
+        return;
+      }
+
+      // Validate date range
+      if (new Date(endDate) < new Date(startDate)) {
+        showToast('End date must be after start date', 'error');
+        return;
+      }
+
+      const blockData = {
+        startDate,
+        startTime: startTime || null,
+        endDate,
+        endTime: endTime || null,
+        reason: reason || null,
+        isRange: startDate !== endDate || startTime || endTime
+      };
 
       showLoading(true);
       const result = await api('/api/admin/settings/block-date', {
         method: 'POST',
-        body: JSON.stringify({ date, reason })
+        body: JSON.stringify(blockData)
       });
       showLoading(false);
 
       if (result?.success) {
-        showToast('Date blocked!', 'success');
+        showToast('Date range blocked!', 'success');
         closeModal('blockDateModal');
         settings.blockedDates = result.blockedDates;
         renderSettings();
       }
     }
 
-    async function unblockDate(date) {
+    async function unblockDate(index) {
+      if (!confirm('Remove this blocked date/time range?')) return;
+      
       showLoading(true);
-      const result = await api(`/api/admin/settings/block-date/${date}`, { method: 'DELETE' });
+      const result = await api(`/api/admin/settings/block-date/${index}`, { method: 'DELETE' });
       showLoading(false);
 
       if (result?.success) {
@@ -4515,6 +4573,8 @@
           <label><input type="radio" name="slotInterval" value="15" ${settings.slotInterval === 15 ? 'checked' : ''}> 15 min</label>
           <label><input type="radio" name="slotInterval" value="30" ${!settings.slotInterval || settings.slotInterval === 30 ? 'checked' : ''}> 30 min</label>
           <label><input type="radio" name="slotInterval" value="60" ${settings.slotInterval === 60 ? 'checked' : ''}> 60 min</label>
+          <label><input type="radio" name="slotInterval" value="90" ${settings.slotInterval === 90 ? 'checked' : ''}> 90 min</label>
+          <label><input type="radio" name="slotInterval" value="120" ${settings.slotInterval === 120 ? 'checked' : ''}> 2 hours</label>
         </div>
         <div class="weekly-availability-container">
           ${days.map((day, index) => {
