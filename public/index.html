@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="Sacred Pelvic Healing & BlissFlow Rituals with Ravi - Intuitive Healer & Sensual Bodyworker in Portland, OR">
+  <meta name="theme-color" content="#722F37">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>Ravi ~ Intuitive Healer & Sensual Bodyworker</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Skip Link for Accessibility -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- WELCOME GATE - Contact Form -->
+  <div id="password-gate" class="gate-overlay" role="dialog" aria-modal="true" aria-labelledby="gate-title">
+    <div class="gate-container">
+      <div class="gate-content">
+        <div class="lotus-icon" aria-hidden="true">🪷</div>
+        <h1 id="gate-title">Welcome to<br>Sacred Space</h1>
+        <p class="gate-subtitle">Ravi ~ Intuitive Healer & Sensual Bodyworker</p>
+        <p class="gate-subtitle gate-location">Portland, Oregon</p>
+        
+        <!-- Contact Form for New Visitors -->
+        <div id="contact-section">
+          <p class="gate-instruction">I'd love to connect with you. Share a little about yourself:</p>
+          <form id="inquiry-form">
+            <div class="form-group">
+              <input type="text" id="inquiry-name" class="gate-input" placeholder="Your name" required>
+            </div>
+            <div class="form-group">
+              <input type="email" id="inquiry-email" class="gate-input" placeholder="Your email" required>
+            </div>
+            <div class="form-group">
+              <input type="tel" id="inquiry-phone" class="gate-input" placeholder="Phone (optional)">
+            </div>
+            <div class="form-group form-group-textarea">
+              <textarea id="inquiry-message" class="gate-input" placeholder="What brings you to seek healing? Share what feels right..." rows="4" required></textarea>
+            </div>
+            <button type="submit" class="btn-enter btn-full-width" id="inquiry-btn">✨ Get in Touch with Ravi</button>
+            <p id="inquiry-error" class="error-message" role="alert" aria-live="polite"></p>
+          </form>
+        </div>
+        
+        <!-- Success Message (hidden initially) -->
+        <div id="inquiry-success" class="success-message display-none">
+          <div class="success-icon">💌</div>
+          <h2 class="success-title">Thank You!</h2>
+          <p class="success-text">Your message has been received. Ravi will review your inquiry and reach out soon.</p>
+          <p class="success-subtext">Check your email for next steps.</p>
+        </div>
+        
+        <!-- Divider -->
+        <div class="divider">
+          <div class="divider-line"></div>
+          <span class="divider-text">or</span>
+          <div class="divider-line"></div>
+        </div>
+        
+        <!-- Invitation Code Entry -->
+        <div id="invitation-section">
+          <p class="invitation-text">Already have an invitation code from Ravi?</p>
+          <a href="/portal.html" class="btn-secondary">
+            🎟️ Enter Your Invitation Code
+          </a>
+        </div>
+        
+        <p class="gate-footer">🔒 Your privacy is sacred. This site does not track or store cookies.<br><a href="/privacy.html">Privacy Policy</a></p>
+        <a href="/admin.html" class="hidden-admin-link" aria-label="Admin access">🪷 Ravi Admin</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN SITE (Hidden until authenticated) -->
+  <div id="main-site" class="hidden">
+    <!-- Navigation -->
+    <nav class="main-nav" role="navigation" aria-label="Main navigation">
+      <div class="nav-container">
+        <a href="#hero" class="nav-logo" aria-label="Ravi - Home">🪷 Ravi</a>
+        <button class="mobile-menu-btn" aria-expanded="false" aria-controls="nav-links" aria-label="Toggle navigation menu">
+          <span aria-hidden="true">☰</span>
+        </button>
+        <ul class="nav-links" id="nav-links" role="menubar">
+          <li role="none"><a href="#about" role="menuitem">About</a></li>
+          <li role="none"><a href="#services" role="menuitem">Services</a></li>
+          <li role="none"><a href="#faq" role="menuitem">FAQ</a></li>
+          <li role="none"><a href="#testimonials" role="menuitem">Testimonials</a></li>
+          <li role="none"><a href="#booking" role="menuitem" class="nav-cta">Book a Session</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+      <!-- Hero Section -->
+      <section id="hero" class="hero-section hero-bg-image" aria-labelledby="hero-title">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+          <p class="hero-location">Portland, Oregon</p>
+          <h1 id="hero-title" class="hero-title">Ravi</h1>
+          <p class="hero-subtitle">Intuitive Healer & Sensual Bodyworker</p>
+          <p class="hero-tagline">Reclaim your sacred sensual energy and rediscover your passion for life</p>
+          <a href="#booking" class="btn-primary">Begin Your Journey</a>
+        </div>
+        <div class="scroll-indicator" aria-hidden="true">
+          <span>Scroll to explore</span>
+          <div class="scroll-arrow">↓</div>
+        </div>
+      </section>
+
+    <!-- Invitation Section -->
+    <section id="invitation" class="invitation-section" aria-labelledby="invitation-title">
+      <div class="container">
+        <div class="invitation-layout">
+          <div class="invitation-image">
+            <img src="Ravi-Intuitive-Healer-Sensual-Bodyworker.webp" alt="Peaceful healing space with warm lighting and sacred atmosphere" class="section-image">
+          </div>
+          <div class="invitation-text">
+            <div class="section-header">
+              <span class="section-icon" aria-hidden="true">✨</span>
+              <h2 id="invitation-title">An Invitation</h2>
+            </div>
+            <div class="invitation-content">
+              <p class="lead-text">Do you feel a deep, sensual desire to express your sacred sexuality?</p>
+          <p>You long to feel unconditional love and to be seen in all your vulnerability, but a quiet disconnect has settled between your spirit and your body. Maybe you've felt it for a long time—a whisper of something more, a yearning to be touched in ways that heal and nurture not just your body but your spirit too.</p>
+              <p><strong>This is an invitation to reclaim that connection.</strong> To move beyond cultural conditioning, shedding what no longer brings you joy.</p>
+              <p>In our time together, we'll attune our energy fields to co-create a compassionate, grounded space. I exude a very maternal divine feminine presence, and I hope to help you feel worthy of unconditional nurturing, and especially of your own self love.</p>
+              <p>I want you to feel like the hero of your own story, reclaiming your sacred sexual sovereignty and joyful self expression. I am simply a guide here to help you relearn how to receive and share sensual touch.</p>
+              <div class="lotus-divider">🪷</div>
+              <p>We'll work together to unravel the threads of sexual shame and cultural conditioning, and to rebalance the flow of masculine and feminine energies within you. This is your journey toward a new kind of freedom—one where your body is a sacred temple and your spirit is free to soar.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about-section" aria-labelledby="about-title">
+      <div class="container">
+        <div class="about-grid">
+          <div class="about-image">
+            <div class="image-frame">
+              <img src="Ravi-Intuitive-Healer-Sensual-Bodyworker-Portland-1024x831.webp" alt="Portrait of Ravi, a warm and welcoming intuitive healer" class="ravi-photo">
+            </div>
+          </div>
+          <div class="about-content">
+            <span class="section-icon" aria-hidden="true">🌸</span>
+            <h2 id="about-title">About Me</h2>
+            <p>The first profession I ever wanted was to be a masseuse. My parents, who nicknamed me "magic fingers," gently steered me away from bodywork. Forty years later, I've rediscovered my true calling to bring healing and joy through sensual touch.</p>
+            <p>My journey here began in the long process of ending my 18-year marriage. For years, like so many others, after birthing three babies I felt disconnected from my own sexual energy. Then, a heart chakra opening and a kundalini reawakening supercharged my spirit.</p>
+            <p>I found myself drawn to tantric bodywork, not just as a practitioner, but as a student of my own healing. In my first pelvic ritual, I experienced a heart chakra opening so massive it was followed by a third eye opening and a hand chakra activation. It felt like hummingbirds buzzing at the molecular level, filling my hands with energy.</p>
+            <div class="about-highlight">
+              <p>I believe this energy is a sacred gift that I am meant to share with others.</p>
+            </div>
+            <p>With both Venus and Mars in Taurus in the eighth house of sexuality, my energy is a mix of fierce masculine and flowy feminine, all rooted in an earthy nurturing groundedness. My astrological readings have always told me I have intuitive gifts and that I would one day heal with my hands. <em>I believe that time is now.</em></p>
+            <p>I am attuned to second degree reiki from the Usui/Tibetan Reiki Ryoho lineage. I feel honored and grateful to feel and share such healing energy.</p>
+            <p class="credit-note">I want to give credit to Amara Karuna, who I apprenticed with for over two years and who teaches the unique Sacred Pelvic Healing Rituals and BlissFlow modalities that inspire and guide my sessions.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="services-section" aria-labelledby="services-title">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-icon" aria-hidden="true">💫</span>
+          <h2 id="services-title">Sacred Services</h2>
+          <p class="section-intro">I offer Sacred Pelvic Healing and BlissFlow Rituals, a unique blend of tantric bodywork and reiki. No two people are alike, so no two sessions are exactly alike.</p>
+        </div>
+        
+        <div class="session-process">
+          <h3>What to Expect</h3>
+          <div class="process-steps">
+            <div class="process-step">
+              <div class="step-number">1</div>
+              <h4>Discovery & Attunement</h4>
+              <p>We begin with warm hugs and a brief guided meditation to help ground and attune our energy. We'll explore your desires, boundaries, and set an intention for the session.</p>
+            </div>
+            <div class="process-step">
+              <div class="step-number">2</div>
+              <h4>Sensual Touch</h4>
+              <p>Sessions begin with sensual touch of your back and buttocks. As desired, I'll use my hands, breasts, and body weight to ease you into relaxation.</p>
+            </div>
+            <div class="process-step">
+              <div class="step-number">3</div>
+              <h4>Sacred Surrender</h4>
+              <p>As your body releases into surrender, we transition with your full consent to deeper healing work. Throughout, I serve as a channel for divine love and healing energy.</p>
+            </div>
+            <div class="process-step">
+              <div class="step-number">4</div>
+              <h4>Integration & Aftercare</h4>
+              <p>We close with nurturing aftercare—resting together, gentle holding, allowing the energy to integrate into your being.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="services-grid">
+          <div class="service-card">
+            <div class="service-price">$111</div>
+            <h3>Tantric Coaching</h3>
+            <p class="service-duration">30 minutes • Video Call</p>
+            <p>A brand new offering, especially for people who can't meet in person. Connect, explore, and receive guidance from wherever you are.</p>
+          </div>
+          <div class="service-card">
+            <div class="service-price">$333</div>
+            <h3>"Angel" Session</h3>
+            <p class="service-duration">1 hour • In Person</p>
+            <p>For those needing more frequent loving care or experiencing scarcity. While shorter, I will do my best to guide you into sacred surrender. 🙌🙏😇</p>
+          </div>
+          <div class="service-card featured">
+            <div class="service-badge">Most Popular</div>
+            <div class="service-price">$444</div>
+            <h3>Standard Session</h3>
+            <p class="service-duration">90 minutes • In Person</p>
+            <p>Typically gives enough time to enjoy and not rush the ritual, with time for the full experience though less aftercare.</p>
+          </div>
+          <div class="service-card">
+            <div class="service-price">$555</div>
+            <h3>Extended Session</h3>
+            <p class="service-duration">2 hours • In Person</p>
+            <p>The length I was originally trained to give—time to attune our energy, enjoy aftercare, integrate, and connect more deeply. 💗</p>
+          </div>
+          <div class="service-card">
+            <div class="service-price">$666</div>
+            <h3>Couples Session</h3>
+            <p class="service-duration">2 hours • In Person</p>
+            <p>A sacred experience for couples to explore together, deepen connection, and share in healing energy. 💕💕</p>
+          </div>
+          <div class="service-card">
+            <div class="service-price">$777</div>
+            <h3>Duo Session</h3>
+            <p class="service-duration">2 hours • In Person</p>
+            <p>I invite a second person, female or male, to assist me in giving you even more loving and healing attention. 🥰</p>
+          </div>
+        </div>
+
+        <div class="pricing-note">
+          <p><strong>About the Numbers:</strong> Money is an exchange of energy, life force. 3s are an Angelic number, 4s are the number of foundation, 5s are the number of transformation and change, 6s are for rebirth, and 7s are for creating heaven on Earth.</p>
+          <p>My hope is that our exchange transcends and elevates you into a new state of self love and inner bliss. 🙌🙏💖</p>
+          <p class="payment-note">I accept cash or Venmo. Payment in advance or at the session. 24-hour cancellation notice required.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="faq-section" aria-labelledby="faq-title">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-icon" aria-hidden="true">🙏</span>
+          <h2 id="faq-title">Frequently Asked Questions</h2>
+        </div>
+
+        <div class="faq-grid" role="list">
+          <div class="faq-item" role="listitem">
+            <button class="faq-question" aria-expanded="false" aria-controls="faq-answer-1">
+              <span>What should I expect in a session?</span>
+              <span class="faq-icon" aria-hidden="true">+</span>
+            </button>
+            <div class="faq-answer" id="faq-answer-1" hidden>
+              <p>I enjoy beginning sessions with warm hugs and a brief guided meditation to help ground and begin to attune our energy. I also want to know your desires and boundaries, and to voice an intention for the session. 🙌🙏💗</p>
+              <p>Sessions will begin with a sensual touch of your back and buttocks, before rolling over to sensually touch your sexual organs. Throughout the session I will do my best to be responsive to your sensitivity level, going as slow/gentle as you need (please speak up or give hand gestures).</p>
+              <p>Even with gentle touch, sessions can trigger deep emotional release. I expect that you may cry or have an emotional release, and I will do my best to hold space and pause in place, unless there is a voiced desire to stop.</p>
+              <p>You may become aroused to the point of orgasm. Please note that orgasm doesn't need to be a goal of sessions. From my perspective, it can be very powerful to use your breath and intention to move your erotic energy into the rest of your body, especially when you start at the heart chakra.</p>
+              <p>Honestly, I love being a witness to your deep and expansive pleasure, and yet seeing your heart open and spirit lift is my greatest hope and gift. 💝</p>
+            </div>
+          </div>
+
+          <div class="faq-item" role="listitem">
+            <button class="faq-question" aria-expanded="false" aria-controls="faq-answer-2">
+              <span>What are your boundaries?</span>
+              <span class="faq-icon" aria-hidden="true">+</span>
+            </button>
+            <div class="faq-answer" id="faq-answer-2" hidden>
+              <p>My firm boundaries are that I keep on my bottom underwear, and there's no kissing on the mouth or touching of my yoni. 🙏</p>
+              <p>I also want to feel that I'm respected and I find consent both essential and sexy. So, I expect and appreciate when you ask before touching me. Aside from me feeling good, my hope is that this will help you be more mindful. 💕</p>
+            </div>
+          </div>
+
+          <div class="faq-item" role="listitem">
+            <button class="faq-question" aria-expanded="false" aria-controls="faq-answer-3">
+              <span>Where are sessions located?</span>
+              <span class="faq-icon" aria-hidden="true">+</span>
+            </button>
+            <div class="faq-answer" id="faq-answer-3" hidden>
+              <p>The location is not far from I-5 off the Alberta exit in North Portland. I will give you directions once you have fully booked your session. 🙏</p>
+              <p>In my humble opinion, my temple is really beautiful and welcoming. 🌹</p>
+            </div>
+          </div>
+
+          <div class="faq-item" role="listitem">
+            <button class="faq-question" aria-expanded="false" aria-controls="faq-answer-4">
+              <span>When are sessions available?</span>
+              <span class="faq-icon" aria-hidden="true">+</span>
+            </button>
+            <div class="faq-answer" id="faq-answer-4" hidden>
+              <p>I mostly offer sessions during weekdays. My preferred time is in the morning, when we are fresh (and you bask in the energy all day!) or in the early evening to send you into sweet slumber, but lunch time is great too. 😊</p>
+              <p>Please be patient with booking sessions. I currently have more inquiries than I can fill in a week. Priority is given to people who want biweekly or monthly sessions. 🙏</p>
+            </div>
+          </div>
+
+          <div class="faq-item" role="listitem">
+            <button class="faq-question" aria-expanded="false" aria-controls="faq-answer-5">
+              <span>Why work with you specifically?</span>
+              <span class="faq-icon" aria-hidden="true">+</span>
+            </button>
+            <div class="faq-answer" id="faq-answer-5" hidden>
+              <p>Even though I cannot guarantee chakra clearing or any specific healing, I offer a unique presence of humility and humor. With both Venus and Mars in Taurus in the eighth house of sexuality, my energy is a mix of flowy feminine and fierce masculine that's rooted in earthy groundedness.</p>
+              <p>In a Soul Plan reading, I was told that I have a strong drive to bring spirituality into the physical realm, and that I am meant to serve as a bridge. In every astrology reading, I've been told that I have intuitive gifts and that at some point I would heal with my hands.</p>
+              <p>I believe that time is now, and if you're still reading this, then we're meant to explore working together. 🙏💖🙌</p>
+            </div>
+          </div>
+
+          <div class="faq-item" role="listitem">
+            <button class="faq-question" aria-expanded="false" aria-controls="faq-answer-6">
+              <span>What called you to this work?</span>
+              <span class="faq-icon" aria-hidden="true">+</span>
+            </button>
+            <div class="faq-answer" id="faq-answer-6" hidden>
+              <p>I was first called to sexual healing in the long process of ending my 18-year marriage. Like many married couples, our sex was routine and primarily focused on pleasing him. And like many women, after years of feeling sexually unsatisfied, birthing three children, plus more years of never having my yoni savored, I became disconnected with my sexual energy.</p>
+              <p>Then I experienced a heart chakra opening, followed by a kundalini reawakening, which supercharged my sexual energy. I already enjoyed a daily meditation practice, so I decided to search up "orgasmic meditation" and found OMing.</p>
+              <p>When I was invited to join a Sacred Pelvic Healing Massage retreat with neo-tantric leaders, Amara Karuna and Ray Cohen, I was excited to learn the modality. With my first pelvic massage, I experienced a massive heart chakra opening…then a third eye opening…then more heart opening, followed by hand chakra activation.</p>
+              <p>As an apprentice, I've been humbled to learn how to serve as a channel of divine love and energy healing. I also recently received Level I and Level II reiki attunements.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="testimonials-section" aria-labelledby="testimonials-title">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-icon" aria-hidden="true">💖</span>
+          <h2 id="testimonials-title">Sacred Testimonials</h2>
+        </div>
+
+        <div class="testimonials-grid" role="list" aria-label="Client testimonials">
+          <article class="testimonial-card" role="listitem">
+            <div class="testimonial-quote" aria-hidden="true">"</div>
+            <p>I have worked with Ravi over the past two years and have found her to be enthusiastic, talented, intuitive and a committed practitioner. Her passion for this work is obvious and helps to create a nurturing and safe container to open and explore what will bring healing and a fuller expression of yourself as a sexual being. I highly recommend working with Ravi to anyone who seeks to be held in a loving and nurturing embrace to open, heal and experience deeper pleasure and joy through sacred touch.</p>
+            <div class="testimonial-author">~ Ray Cohen</div>
+          </article>
+
+          <article class="testimonial-card" role="listitem">
+            <div class="testimonial-quote" aria-hidden="true">"</div>
+            <p>I was experiencing debilitating pain, and I went to see my physician, began pelvic floor physical therapy, and saw Ravi to help resolve my pain. The trifecta of approaches worked. I appreciate Ravi's willingness to work with me. I highly recommend her respectful, caring, healing touch. 💖</p>
+            <div class="testimonial-author">~ Sarah R.</div>
+          </article>
+
+          <article class="testimonial-card featured" role="listitem">
+            <div class="testimonial-quote" aria-hidden="true">"</div>
+            <p>The experience was pivotal for me as my first introduction to a pelvic massage. I'd never experienced anything like it. Now I will always remember how Ravi made the experience feel. It could not have been more comfortable, relaxing, and enjoyable.</p>
+            <p>Ravi's co-creating presence helped bring in a nurturing aura of connection, through breath work, touch, eye contact, expressions and movements. Her practice in co-creating a bond resulted in deep connection, a pleasurable healing container that allowed the movement of energy and emotional release.</p>
+            <p>As a result I now know what I truly yearn for when engaged in intimate sensual and sexual moments… a deep sacred connection that is abundant with a wholesomeness of energetic awareness, flow and syncretism. I now have a framework practice of how to co-create a bond with future partners, thanks to Ravi.</p>
+            <p><strong>Plainly speaking I loved it, it was beautiful and breathtaking and giving. Thank you Ravi.</strong></p>
+            <div class="testimonial-author">~ Marc</div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Booking Section -->
+    <section id="booking" class="booking-section" aria-labelledby="booking-title">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-icon" aria-hidden="true">🌹</span>
+          <h2 id="booking-title">Begin Your Journey</h2>
+          <p class="section-intro">Sacred Pelvic Healing and BlissFlow Rituals are highly intimate and often deeply relaxing and sensual experiences. Please be honest with yourself and with me. This is a consensual journey of healing.</p>
+        </div>
+
+        <div class="booking-notice">
+          <h3>Important Note</h3>
+          <p>I am not a licensed masseuse and this is not traditional pelvic therapy. While this session may be outside your typical comfort zone, it is essential that you feel a sense of free will and that our session be completely consensual.</p>
+        </div>
+
+        <form id="booking-form" class="booking-form">
+          <!-- Personal Information -->
+          <div class="form-section">
+            <h3>Your Information</h3>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="name">Full Name <span class="required">*</span></label>
+                <input type="text" id="name" name="name" required>
+              </div>
+              <div class="form-group">
+                <label for="email">Email <span class="required">*</span></label>
+                <input type="email" id="email" name="email" required>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="phone">Phone Number <span class="required">*</span></label>
+                <input type="tel" id="phone" name="phone" placeholder="(555) 123-4567" required>
+              </div>
+              <div class="form-group">
+                <label for="gender">Gender <span class="required">*</span></label>
+                <select id="gender" name="gender" required>
+                  <option value="">Select gender...</option>
+                  <option value="Woman">Woman</option>
+                  <option value="Man">Man</option>
+                  <option value="Non-binary">Non-binary</option>
+                  <option value="Genderqueer">Genderqueer</option>
+                  <option value="Genderfluid">Genderfluid</option>
+                  <option value="Agender">Agender</option>
+                  <option value="Two-Spirit">Two-Spirit</option>
+                  <option value="Prefer not to say">Prefer not to say</option>
+                  <option value="Other">Other/Self-describe</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="pronouns">Pronouns <span class="required">*</span></label>
+                <select id="pronouns" name="pronouns" required>
+                  <option value="">Select pronouns...</option>
+                  <option value="she/her">she/her</option>
+                  <option value="he/him">he/him</option>
+                  <option value="they/them">they/them</option>
+                  <option value="she/they">she/they</option>
+                  <option value="he/they">he/they</option>
+                  <option value="ze/zir">ze/zir</option>
+                  <option value="xe/xem">xe/xem</option>
+                  <option value="Any pronouns">Any pronouns</option>
+                  <option value="Ask me">Ask me</option>
+                  <option value="Prefer not to say">Prefer not to say</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <!-- Empty to maintain grid alignment -->
+              </div>
+            </div>
+            <div class="form-row checkboxes">
+              <label class="checkbox-label">
+                <input type="checkbox" name="textPermission" checked>
+                <span>Permission to text</span>
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" name="newsletter">
+                <span>Add me to the newsletter (if/when created)</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Service Selection -->
+          <div class="form-section">
+            <h3>Select Your Service</h3>
+            <div class="service-options" id="service-options">
+              <!-- Populated by JavaScript -->
+            </div>
+          </div>
+
+          <!-- Scheduling -->
+          <div class="form-section">
+            <h3>Scheduling Preferences</h3>
+            <div class="availability-display" id="availabilityDisplay">
+              <p class="availability-title">📅 Ravi's Typical Availability</p>
+              <div id="availableDaysDisplay" class="available-days-display">
+                <!-- Populated by JavaScript -->
+              </div>
+              <div id="availableTimesDisplay" class="available-times-display">
+                <!-- Populated by JavaScript -->
+              </div>
+            </div>
+            <p class="form-note">Please share your general availability so we can find a time that works for both of us.</p>
+            <div class="form-group">
+              <label for="availability">Your Availability</label>
+              <textarea id="availability" name="availability" rows="3" placeholder="e.g., Weekday mornings work best, or I'm flexible Tuesday-Thursday afternoons..."></textarea>
+            </div>
+          </div>
+
+          <!-- Intentions & Healing -->
+          <div class="form-section">
+            <h3>Your Intentions</h3>
+            <div class="form-group">
+              <label for="intentions">What are your intentions for this session?</label>
+              <textarea id="intentions" name="intentions" rows="4" placeholder="Share what you hope to experience, explore, or heal..."></textarea>
+            </div>
+            <div class="form-group">
+              <label for="concerns">Do you have any concerns about receiving this service?</label>
+              <textarea id="concerns" name="concerns" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="healthNotes">Please list any sexual traumas or health challenges you are currently experiencing</label>
+              <textarea id="healthNotes" name="healthNotes" rows="3" placeholder="If you would prefer to discuss this in person, please say so here..."></textarea>
+            </div>
+            <div class="form-group">
+              <label for="sensitivities">Do you have sensory sensitivities? (Lights, smell, sound...)</label>
+              <textarea id="sensitivities" name="sensitivities" rows="2" placeholder="Please note: I am highly sensitive/adverse to cigarette smoke"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="additionalInfo">Any other questions or information that would be helpful?</label>
+              <textarea id="additionalInfo" name="additionalInfo" rows="3"></textarea>
+            </div>
+          </div>
+
+          <!-- Agreements -->
+          <div class="form-section agreements-section">
+            <h3>Agreements & Consent</h3>
+            
+            <div class="agreement-box">
+              <h4>Age Confirmation <span class="required">*</span></h4>
+              <label class="checkbox-label">
+                <input type="checkbox" name="ageConfirmed" required>
+                <span>I confirm that I am a legal adult, over the age of 18.</span>
+              </label>
+            </div>
+
+            <div class="agreement-box">
+              <h4>Understanding Boundaries <span class="required">*</span></h4>
+              <p>Do you understand the following?</p>
+              <ul class="boundaries-list">
+                <li>This is not a date.</li>
+                <li>This is not an intimate relationship.</li>
+                <li>This is not a hand job.</li>
+                <li>This is not sex.</li>
+              </ul>
+              <p>You understand and agree that this is a service and does not mean an agreement of connection beyond this service. You agree to not send any flirtatious messages or nude photos.</p>
+              <label class="checkbox-label">
+                <input type="checkbox" name="boundariesAgreed" required>
+                <span>Yes, I agree and understand these boundaries</span>
+              </label>
+            </div>
+
+            <div class="agreement-box">
+              <h4>Payment & Cancellation</h4>
+              <p>I understand that payments need to be made via Venmo in advance or by cash, and I need to give 24 hour notice to cancel.</p>
+            </div>
+
+            <div class="agreement-box signature-box">
+              <h4>Electronic Signature <span class="required">*</span></h4>
+              <p>By typing your name and selecting today's date, you provide your electronic signature and consent to this agreement.</p>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="consentSignature">Your Legal Name <span class="required">*</span></label>
+                  <input type="text" id="consentSignature" name="consentSignature" placeholder="e.g., Jane Doe" required>
+                </div>
+                <div class="form-group">
+                  <label for="signatureDate">Date <span class="required">*</span></label>
+                  <input type="date" id="signatureDate" name="signatureDate" required>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-submit">
+            <button type="submit" class="btn-primary btn-large">Submit Application 🌹</button>
+            <p class="submit-note">After you submit, Ravi will reach out via email or text to schedule a discovery video call.</p>
+          </div>
+        </form>
+
+        <div id="booking-success" class="booking-success hidden" role="alert" aria-live="polite" tabindex="-1">
+          <div class="success-icon" aria-hidden="true">🙏</div>
+          <h3>Your Application Has Been Received</h3>
+          <p>Thank you for your vulnerability in opening your heart to this work. Ravi will reach out to you soon to schedule your discovery call.</p>
+          <p>Trust that if we're meant to work together, divine timing will guide us. 🌹</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Final Note Section -->
+    <section class="final-note-section">
+      <div class="container">
+        <div class="final-note-content">
+          <div class="lotus-large">🪷</div>
+          <h2>You Are Worthy</h2>
+          <p>You are worthy of nurturing touch, unconditional love, and sacred healing. If you're still reading this, it's because a part of you already knows this to be true.</p>
+          <p>I deeply appreciate your vulnerability in opening your heart to this work, and I will do my very best to meet you exactly where you are.</p>
+          <p class="signature">I look forward to serving you on your path to expressing your unique sexual spirit.</p>
+          <p class="signature-name">~ Ravi 💖</p>
+        </div>
+      </div>
+    </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer" role="contentinfo">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-info">
+            <p class="footer-title">Ravi ~ Intuitive Healer</p>
+            <p>Portland, Oregon</p>
+            <p><a href="mailto:RavishingRavi77@gmail.com">RavishingRavi77@gmail.com</a></p>
+          </div>
+          <div class="footer-services">
+            <p>Services: Yoni Massage • Lingam Massage • Sensual Massage</p>
+            <p>Sacred Pelvic Healing • BlissFlow Rituals • Tantric Bodywork</p>
+          </div>
+          <div class="footer-privacy">
+            <p>🔒 Your privacy is sacred</p>
+            <p>This site does not use cookies or tracking</p>
+            <p>All data encrypted with AES-256-GCM</p>
+            <p><a href="/privacy.html" class="privacy-link">Privacy Policy</a></p>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>I welcome individuals of all genders and orientations, couples and poly relationships.</p>
+          <a href="/admin.html" class="hidden-admin-link">🪷 Ravi Admin</a>
+        </div>
+        <div class="developer-credit">
+          <p>Built by <a href="mailto:Anth@StructuredForGrowth.com">Anth@StructuredForGrowth.com</a></p>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

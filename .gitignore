@@ -1,0 +1,29 @@
+# Environment files (CRITICAL - never expose secrets)
+.env
+.env.local
+.env.production
+
+# Data files (contain sensitive client info)
+data/
+*.json
+!package.json
+!package-lock.json
+
+# Dependencies
+node_modules/
+
+# Logs
+logs/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Build outputs
+dist/
+build/

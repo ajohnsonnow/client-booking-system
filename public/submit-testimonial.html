@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Share Your Experience | Ravi Sacred Healing</title>
+  <style>
+    :root {
+      --burgundy: #722F37;
+      --burgundy-light: #8B3A44;
+      --cream: #FDF8F3;
+      --charcoal: #3D3630;
+      --soft-gray: #9E9890;
+      --gold: #D4AF37;
+      --success: #4CAF50;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--cream);
+      color: var(--charcoal);
+      line-height: 1.8;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 40px 24px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .logo {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      font-family: Georgia, 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+      font-size: 32px;
+      color: var(--burgundy);
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: var(--soft-gray);
+      font-size: 16px;
+    }
+
+    .card {
+      background: white;
+      padding: 32px;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    .form-group {
+      margin-bottom: 24px;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--charcoal);
+    }
+
+    .label-hint {
+      font-weight: 400;
+      color: var(--soft-gray);
+      font-size: 14px;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid #e0d6cc;
+      border-radius: 8px;
+      font-size: 16px;
+      font-family: inherit;
+      transition: border-color 0.3s;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--burgundy);
+    }
+
+    textarea {
+      min-height: 180px;
+      resize: vertical;
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .checkbox-group input {
+      width: auto;
+      margin-top: 4px;
+    }
+
+    .checkbox-group label {
+      font-weight: 400;
+      margin-bottom: 0;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 16px 24px;
+      background: var(--burgundy);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn:hover {
+      background: var(--burgundy-light);
+      transform: translateY(-2px);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .message {
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+      display: none;
+    }
+
+    .message.error {
+      background: #ffebee;
+      color: #c62828;
+      display: block;
+    }
+
+    .message.success {
+      background: #e8f5e9;
+      color: #2e7d32;
+      display: block;
+    }
+
+    .success-container {
+      text-align: center;
+      padding: 40px 20px;
+      display: none;
+    }
+
+    .success-container.show {
+      display: block;
+    }
+
+    .success-icon {
+      font-size: 64px;
+      margin-bottom: 24px;
+    }
+
+    .success-container h2 {
+      font-family: Georgia, 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+      color: var(--burgundy);
+      margin-bottom: 16px;
+    }
+
+    .privacy-note {
+      background: #f5f0eb;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+      font-size: 14px;
+      color: var(--soft-gray);
+    }
+
+    .privacy-note strong {
+      color: var(--charcoal);
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      padding-top: 24px;
+      border-top: 1px solid #e0d6cc;
+    }
+
+    footer a {
+      color: var(--burgundy);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 24px 16px;
+      }
+
+      .card {
+        padding: 24px;
+      }
+
+      h1 {
+        font-size: 26px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">🪷</div>
+      <h1>Share Your Experience</h1>
+      <p class="subtitle">Your words help others find their path to healing</p>
+    </header>
+
+    <div class="card">
+      <div id="formContainer">
+        <div class="privacy-note">
+          <strong>🔒 Your Privacy Matters</strong><br>
+          Your testimonial will be reviewed by Ravi before being published. You can choose to remain anonymous or use a pseudonym. Your contact information is never shared publicly.
+        </div>
+
+        <div id="message" class="message"></div>
+
+        <form id="testimonialForm">
+          <div class="form-group">
+            <label for="displayName">Display Name <span class="label-hint">(how you'd like to be identified)</span></label>
+            <input type="text" id="displayName" name="displayName" placeholder="e.g., Sarah R., Anonymous, First name only" required>
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email <span class="label-hint">(optional, for Ravi to follow up if needed)</span></label>
+            <input type="email" id="email" name="email" placeholder="your@email.com">
+          </div>
+
+          <div class="form-group">
+            <label for="sessionType">Type of Session</label>
+            <select id="sessionType" name="sessionType">
+              <option value="">Prefer not to say</option>
+              <option value="pelvic">Pelvic Healing</option>
+              <option value="blissflow">BlissFlow Ritual</option>
+              <option value="both">Both</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="testimonial">Your Experience</label>
+            <textarea id="testimonial" name="testimonial" placeholder="Share how your session(s) with Ravi impacted you. What did you experience? How has it helped your healing journey?" required></textarea>
+          </div>
+
+          <div class="form-group">
+            <div class="checkbox-group">
+              <input type="checkbox" id="consent" name="consent" required>
+              <label for="consent">I give permission for Ravi to publish this testimonial on her website. I understand it may be edited for length or clarity while preserving my message.</label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="checkbox-group">
+              <input type="checkbox" id="featured" name="featured">
+              <label for="featured">I'm open to this being featured as a highlighted testimonial</label>
+            </div>
+          </div>
+
+          <button type="submit" class="btn" id="submitBtn">Submit Testimonial 💝</button>
+        </form>
+      </div>
+
+      <div class="success-container" id="successContainer">
+        <div class="success-icon">💖</div>
+        <h2>Thank You!</h2>
+        <p>Your testimonial has been submitted and is awaiting Ravi's review. Your willingness to share your experience helps others find their path to healing.</p>
+        <p style="margin-top: 24px; color: var(--soft-gray);">With gratitude,<br>🪷 Ravi</p>
+      </div>
+    </div>
+
+    <footer>
+      <p>🪷 Ravi ~ Intuitive Healer & Sensual Bodyworker</p>
+      <p style="margin-top: 8px;"><a href="/">Return to Sacred Space</a></p>
+    </footer>
+  </div>
+
+  <script>
+    document.getElementById('testimonialForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const submitBtn = document.getElementById('submitBtn');
+      const message = document.getElementById('message');
+      
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Submitting...';
+      message.className = 'message';
+      message.style.display = 'none';
+
+      const formData = {
+        displayName: document.getElementById('displayName').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        sessionType: document.getElementById('sessionType').value,
+        testimonial: document.getElementById('testimonial').value.trim(),
+        consent: document.getElementById('consent').checked,
+        featured: document.getElementById('featured').checked
+      };
+
+      try {
+        const response = await fetch('/api/testimonials/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          document.getElementById('formContainer').style.display = 'none';
+          document.getElementById('successContainer').classList.add('show');
+        } else {
+          message.textContent = data.error || 'Something went wrong. Please try again.';
+          message.className = 'message error';
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Submit Testimonial 💝';
+        }
+      } catch (err) {
+        message.textContent = 'Connection error. Please try again.';
+        message.className = 'message error';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Submit Testimonial 💝';
+      }
+    });
+  </script>
+
+  <!-- Admin Link -->
+  <a href="/admin.html" class="hidden-admin-link" style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); color: #722F37;" aria-label="Admin access">🪷 Ravi Admin</a>
+  <div style="text-align: center; padding: 20px; font-size: 12px; color: #9E9890; background: #FDF8F3;">
+    <p style="margin: 0;">Built by <a href="mailto:Anth@StructuredForGrowth.com" style="color: #722F37; text-decoration: none;">Anth@StructuredForGrowth.com</a></p>
+  </div>
+</body>
+</html>

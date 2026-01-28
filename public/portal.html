@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>My Portal | Ravi Sacred Healing</title>
+  <style>
+    :root {
+      --burgundy: #722F37;
+      --burgundy-light: #8B3A44;
+      --cream: #FDF8F3;
+      --cream-dark: #F5EDE4;
+      --gold: #D4AF37;
+      --charcoal: #3D3630;
+      --soft-gray: #9E9890;
+      --success: #4CAF50;
+      --warning: #FF9800;
+      --danger: #f44336;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--cream);
+      color: var(--charcoal);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, var(--burgundy) 0%, var(--burgundy-light) 100%);
+      color: white;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .header-logo {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+
+    .header h1 {
+      font-family: Georgia, 'Palatino Linotype', serif;
+      font-size: 24px;
+      font-weight: normal;
+    }
+
+    .header-welcome {
+      margin-top: 8px;
+      opacity: 0.9;
+    }
+
+    /* Container */
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    /* Cards */
+    .card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+
+    .card-header {
+      background: var(--cream-dark);
+      padding: 16px 24px;
+      border-bottom: 1px solid #e0d6cc;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-header h2 {
+      font-family: Georgia, serif;
+      font-size: 18px;
+      color: var(--burgundy);
+    }
+
+    .card-body {
+      padding: 24px;
+    }
+
+    /* Appointment Cards */
+    .appointment {
+      background: var(--cream);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+      border-left: 4px solid var(--gold);
+    }
+
+    .appointment:last-child {
+      margin-bottom: 0;
+    }
+
+    .appointment.pending {
+      border-left-color: var(--warning);
+    }
+
+    .appointment.confirmed {
+      border-left-color: var(--success);
+    }
+
+    .appointment.awaiting-response {
+      border-left-color: var(--burgundy);
+      background: linear-gradient(135deg, rgba(114, 47, 55, 0.05) 0%, rgba(212, 175, 55, 0.05) 100%);
+    }
+
+    .appointment-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .appointment-service {
+      font-weight: 600;
+      font-size: 16px;
+      color: var(--charcoal);
+    }
+
+    .appointment-status {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .status-pending { background: #fff3cd; color: #856404; }
+    .status-confirmed { background: #d4edda; color: #155724; }
+    .status-awaiting { background: #e8d5f9; color: #6f42c1; }
+    .status-completed { background: #cce5ff; color: #004085; }
+
+    .appointment-details {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .appointment-detail {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: var(--soft-gray);
+    }
+
+    .appointment-detail strong {
+      color: var(--charcoal);
+    }
+
+    /* Action Buttons */
+    .appointment-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.3s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-accept {
+      background: var(--success);
+      color: white;
+    }
+
+    .btn-accept:hover {
+      background: #43a047;
+      transform: translateY(-2px);
+    }
+
+    .btn-reschedule {
+      background: var(--warning);
+      color: white;
+    }
+
+    .btn-reschedule:hover {
+      background: #f57c00;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 2px solid var(--burgundy);
+      color: var(--burgundy);
+    }
+
+    .btn-outline:hover {
+      background: var(--burgundy);
+      color: white;
+    }
+
+    .btn-primary {
+      background: var(--burgundy);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--burgundy-light);
+    }
+
+    /* Proposed Time Highlight */
+    .proposed-time {
+      background: linear-gradient(135deg, var(--burgundy) 0%, var(--burgundy-light) 100%);
+      color: white;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    .proposed-time-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      opacity: 0.8;
+      margin-bottom: 4px;
+    }
+
+    .proposed-time-value {
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--soft-gray);
+    }
+
+    .empty-state-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    /* Quick Actions */
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 16px;
+    }
+
+    .quick-action {
+      background: white;
+      border: 2px solid #e0d6cc;
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+      color: var(--charcoal);
+    }
+
+    .quick-action:hover {
+      border-color: var(--burgundy);
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(114, 47, 55, 0.15);
+    }
+
+    .quick-action-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+
+    .quick-action-label {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    /* History */
+    .history-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 0;
+      border-bottom: 1px solid #e0d6cc;
+    }
+
+    .history-item:last-child {
+      border-bottom: none;
+    }
+
+    /* Notification Preferences */
+    .pref-group {
+      margin-bottom: 20px;
+    }
+
+    .pref-label {
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .pref-options {
+      display: flex;
+      gap: 16px;
+    }
+
+    .pref-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .pref-option input {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* Login Screen */
+    .login-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: linear-gradient(135deg, var(--cream) 0%, var(--cream-dark) 100%);
+    }
+
+    .login-card {
+      background: white;
+      padding: 48px;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(114, 47, 55, 0.15);
+      text-align: center;
+      max-width: 420px;
+      width: 100%;
+    }
+
+    .login-logo {
+      font-size: 64px;
+      margin-bottom: 16px;
+    }
+
+    .login-title {
+      font-family: Georgia, serif;
+      font-size: 28px;
+      color: var(--burgundy);
+      margin-bottom: 8px;
+    }
+
+    .login-subtitle {
+      color: var(--soft-gray);
+      margin-bottom: 32px;
+    }
+
+    .login-input {
+      width: 100%;
+      padding: 16px;
+      border: 2px solid #e0d6cc;
+      border-radius: 8px;
+      font-size: 16px;
+      margin-bottom: 16px;
+      transition: border-color 0.3s;
+    }
+
+    .login-input:focus {
+      outline: none;
+      border-color: var(--burgundy);
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 16px;
+      background: var(--burgundy);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .login-btn:hover {
+      background: var(--burgundy-light);
+      transform: translateY(-2px);
+    }
+
+    .login-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .login-divider {
+      margin: 24px 0;
+      color: var(--soft-gray);
+      font-size: 14px;
+    }
+
+    .login-note {
+      font-size: 13px;
+      color: var(--soft-gray);
+      margin-top: 24px;
+    }
+
+    .magic-link-sent {
+      display: none;
+      text-align: center;
+    }
+
+    .magic-link-sent.show {
+      display: block;
+    }
+
+    .magic-link-icon {
+      font-size: 64px;
+      margin-bottom: 16px;
+    }
+
+    /* Messages */
+    .message {
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    .message.show {
+      display: block;
+    }
+
+    .message.error {
+      background: #ffebee;
+      color: #c62828;
+    }
+
+    .message.success {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 24px;
+      color: var(--soft-gray);
+      font-size: 14px;
+    }
+
+    .footer a {
+      color: var(--burgundy);
+      text-decoration: none;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .container {
+        padding: 16px;
+      }
+
+      .card-body {
+        padding: 16px;
+      }
+
+      .login-card {
+        padding: 32px 24px;
+      }
+
+      .appointment-actions {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+    /* Hide sections */
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <!-- Login Screen -->
+  <div id="loginScreen" class="login-container">
+    <div class="login-card">
+      <div id="loginForm">
+        <div class="login-logo">🪷</div>
+        <h1 class="login-title">Client Portal</h1>
+        <p class="login-subtitle">Access your appointments and manage your healing journey</p>
+        
+        <!-- Login Tabs -->
+        <div class="login-tabs" style="display: flex; margin-bottom: 24px; border-radius: 8px; overflow: hidden; border: 2px solid #e0d6cc;">
+          <button type="button" id="tabExisting" class="login-tab active" onclick="showTab('existing')" style="flex: 1; padding: 12px; border: none; background: var(--burgundy); color: white; font-weight: 600; cursor: pointer; transition: all 0.3s;">
+            Returning Client
+          </button>
+          <button type="button" id="tabInvitation" class="login-tab" onclick="showTab('invitation')" style="flex: 1; padding: 12px; border: none; background: white; color: var(--burgundy); font-weight: 600; cursor: pointer; transition: all 0.3s;">
+            Have Invitation Code
+          </button>
+        </div>
+        
+        <div id="loginMessage" class="message"></div>
+        
+        <!-- Existing Client - Magic Link -->
+        <form id="magicLinkForm" class="login-form-section">
+          <input type="email" class="login-input" id="loginEmail" placeholder="Enter your email" required>
+          <button type="submit" class="login-btn" id="loginBtn">
+            ✨ Send Magic Link
+          </button>
+          <p class="login-note">
+            🔒 We'll send a secure link to your email.<br>No password needed!
+          </p>
+        </form>
+        
+        <!-- New Client - Invitation Code -->
+        <form id="invitationForm" class="login-form-section" style="display: none;">
+          <input type="text" class="login-input" id="invitationCode" placeholder="Enter invitation code (e.g., SACRED-7X9K)" required style="text-transform: uppercase; letter-spacing: 2px; text-align: center; font-weight: 600;">
+          <input type="email" class="login-input" id="invitationEmail" placeholder="Enter your email" required>
+          <button type="submit" class="login-btn" id="invitationBtn" style="background: linear-gradient(135deg, #D4AF37 0%, #c9a227 100%);">
+            🎟️ Redeem Invitation
+          </button>
+          <p class="login-note">
+            🌟 Enter the invitation code from Ravi<br>to access your client portal!
+          </p>
+        </form>
+      </div>
+
+      <div id="magicLinkSent" class="magic-link-sent">
+        <div class="magic-link-icon">📧</div>
+        <h2 style="color: var(--burgundy); margin-bottom: 8px;">Check Your Email!</h2>
+        <p style="color: var(--soft-gray); margin-bottom: 24px;">
+          We've sent a magic link to <strong id="sentToEmail"></strong>
+        </p>
+        <p style="font-size: 14px; color: var(--soft-gray);">
+          Click the link in your email to access your portal.<br>
+          The link expires in 15 minutes.
+        </p>
+        <button class="btn btn-outline" style="margin-top: 24px;" onclick="showLoginForm()">
+          ← Use a different email
+        </button>
+      </div>
+      
+      <div id="invitationSuccess" class="magic-link-sent">
+        <div class="magic-link-icon">🎉</div>
+        <h2 style="color: var(--burgundy); margin-bottom: 8px;">Welcome!</h2>
+        <p style="color: var(--soft-gray); margin-bottom: 24px;">
+          Your invitation has been accepted. Entering your portal...
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Portal -->
+  <div id="portalMain" class="hidden">
+    <header class="header">
+      <div class="header-logo">🪷</div>
+      <h1>Welcome to Your Sacred Space</h1>
+      <p class="header-welcome" id="welcomeName">Hello, Beautiful Soul</p>
+    </header>
+
+    <div class="container">
+      <!-- Action Required -->
+      <div id="actionRequiredSection" class="card hidden">
+        <div class="card-header">
+          <h2>✨ Action Required</h2>
+        </div>
+        <div class="card-body" id="actionRequiredList">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="card">
+        <div class="card-header">
+          <h2>Quick Actions</h2>
+        </div>
+        <div class="card-body">
+          <div class="quick-actions">
+            <a href="/#booking" class="quick-action">
+              <div class="quick-action-icon">📅</div>
+              <div class="quick-action-label">Book Session</div>
+            </a>
+            <a href="/submit-testimonial.html" class="quick-action">
+              <div class="quick-action-icon">💝</div>
+              <div class="quick-action-label">Share Experience</div>
+            </a>
+            <a href="#" class="quick-action" onclick="showPreferences()">
+              <div class="quick-action-icon">⚙️</div>
+              <div class="quick-action-label">Preferences</div>
+            </a>
+            <a href="#" class="quick-action" onclick="logout()">
+              <div class="quick-action-icon">🚪</div>
+              <div class="quick-action-label">Sign Out</div>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Upcoming Appointments -->
+      <div class="card">
+        <div class="card-header">
+          <h2>📅 Upcoming Appointments</h2>
+        </div>
+        <div class="card-body" id="upcomingAppointments">
+          <div class="empty-state">
+            <div class="empty-state-icon">🌸</div>
+            <p>No upcoming appointments</p>
+            <a href="/#booking" class="btn btn-primary" style="margin-top: 16px;">Book a Session</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Session History -->
+      <div class="card">
+        <div class="card-header">
+          <h2>📜 Session History</h2>
+        </div>
+        <div class="card-body" id="sessionHistory">
+          <div class="empty-state">
+            <div class="empty-state-icon">🌱</div>
+            <p>Your healing journey begins with your first session</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notification Preferences (hidden by default) -->
+      <div id="preferencesCard" class="card hidden">
+        <div class="card-header">
+          <h2>⚙️ Notification Preferences</h2>
+        </div>
+        <div class="card-body">
+          <div class="pref-group">
+            <div class="pref-label">How would you like to receive notifications?</div>
+            <div class="pref-options">
+              <label class="pref-option">
+                <input type="checkbox" id="prefEmail" checked>
+                <span>📧 Email</span>
+              </label>
+              <label class="pref-option">
+                <input type="checkbox" id="prefSMS">
+                <span>📱 Text Message</span>
+              </label>
+            </div>
+          </div>
+          <div class="pref-group">
+            <div class="pref-label">Remind me before appointments</div>
+            <div class="pref-options">
+              <label class="pref-option">
+                <input type="radio" name="reminder" value="24" checked>
+                <span>24 hours</span>
+              </label>
+              <label class="pref-option">
+                <input type="radio" name="reminder" value="48">
+                <span>48 hours</span>
+              </label>
+              <label class="pref-option">
+                <input type="radio" name="reminder" value="both">
+                <span>Both</span>
+              </label>
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="savePreferences()">Save Preferences</button>
+        </div>
+      </div>
+    </div>
+
+    <footer class="footer">
+      <p>🪷 Ravi ~ Intuitive Healer & Sensual Bodyworker</p>
+      <p style="margin-top: 8px;">Portland, Oregon | <a href="/privacy.html">Privacy Policy</a></p>
+    </footer>
+  </div>
+
+  <script>
+    let clientToken = null;
+    let clientData = null;
+
+    // Check for magic link token in URL
+    document.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const token = urlParams.get('token');
+      
+      if (token) {
+        validateToken(token);
+      } else {
+        // Check for stored session
+        const stored = sessionStorage.getItem('clientToken');
+        if (stored) {
+          clientToken = stored;
+          loadPortal();
+        }
+      }
+    });
+
+    // Magic Link Form
+    document.getElementById('magicLinkForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const email = document.getElementById('loginEmail').value.trim();
+      const btn = document.getElementById('loginBtn');
+      const message = document.getElementById('loginMessage');
+      
+      btn.disabled = true;
+      btn.textContent = 'Sending...';
+      message.className = 'message';
+      
+      try {
+        const response = await fetch('/api/client/magic-link', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+          document.getElementById('sentToEmail').textContent = email;
+          document.getElementById('loginForm').style.display = 'none';
+          document.getElementById('magicLinkSent').classList.add('show');
+        } else {
+          message.textContent = data.error || 'Something went wrong. Please try again.';
+          message.className = 'message error show';
+        }
+      } catch (err) {
+        message.textContent = 'Connection error. Please try again.';
+        message.className = 'message error show';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '✨ Send Magic Link';
+      }
+    });
+
+    // Invitation Code Form
+    document.getElementById('invitationForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const code = document.getElementById('invitationCode').value.trim();
+      const email = document.getElementById('invitationEmail').value.trim();
+      const btn = document.getElementById('invitationBtn');
+      const message = document.getElementById('loginMessage');
+      
+      btn.disabled = true;
+      btn.textContent = 'Verifying...';
+      message.className = 'message';
+      
+      try {
+        // Check for demo code first
+        if (code.toUpperCase() === 'DEMO-2026') {
+          const demoResponse = await fetch('/api/client/validate-demo', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code })
+          });
+          
+          if (demoResponse.ok) {
+            const demoData = await demoResponse.json();
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('invitationSuccess').classList.add('show');
+            
+            // For demo, redirect to main site
+            setTimeout(() => {
+              window.location.href = '/?demo=true';
+            }, 1500);
+            return;
+          }
+        }
+        
+        const response = await fetch('/api/client/validate-invitation', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code, email })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.sessionToken) {
+          // Show success message briefly
+          document.getElementById('loginForm').style.display = 'none';
+          document.getElementById('invitationSuccess').classList.add('show');
+          
+          // Store token and load portal
+          clientToken = data.sessionToken;
+          sessionStorage.setItem('clientToken', clientToken);
+          
+          setTimeout(() => {
+            loadPortal();
+          }, 1500);
+        } else {
+          message.textContent = data.error || 'Invalid invitation code.';
+          message.className = 'message error show';
+        }
+      } catch (err) {
+        message.textContent = 'Connection error. Please try again.';
+        message.className = 'message error show';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '🎟️ Redeem Invitation';
+      }
+    });
+
+    // Tab switching
+    function showTab(tab) {
+      const tabExisting = document.getElementById('tabExisting');
+      const tabInvitation = document.getElementById('tabInvitation');
+      const magicForm = document.getElementById('magicLinkForm');
+      const inviteForm = document.getElementById('invitationForm');
+      const message = document.getElementById('loginMessage');
+      
+      message.className = 'message'; // Hide any error
+      
+      if (tab === 'existing') {
+        tabExisting.style.background = 'var(--burgundy)';
+        tabExisting.style.color = 'white';
+        tabInvitation.style.background = 'white';
+        tabInvitation.style.color = 'var(--burgundy)';
+        magicForm.style.display = 'block';
+        inviteForm.style.display = 'none';
+      } else {
+        tabInvitation.style.background = 'var(--burgundy)';
+        tabInvitation.style.color = 'white';
+        tabExisting.style.background = 'white';
+        tabExisting.style.color = 'var(--burgundy)';
+        magicForm.style.display = 'none';
+        inviteForm.style.display = 'block';
+      }
+    }
+
+    function showLoginForm() {
+      document.getElementById('loginForm').style.display = 'block';
+      document.getElementById('magicLinkSent').classList.remove('show');
+      document.getElementById('invitationSuccess').classList.remove('show');
+    }
+
+    async function validateToken(token) {
+      try {
+        const response = await fetch('/api/client/validate-token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+          clientToken = data.sessionToken;
+          sessionStorage.setItem('clientToken', clientToken);
+          // Clean URL
+          window.history.replaceState({}, document.title, '/portal.html');
+          loadPortal();
+        } else {
+          showError('This link has expired or is invalid. Please request a new one.');
+        }
+      } catch (err) {
+        showError('Connection error. Please try again.');
+      }
+    }
+
+    function showError(message) {
+      const msg = document.getElementById('loginMessage');
+      msg.textContent = message;
+      msg.className = 'message error show';
+    }
+
+    async function loadPortal() {
+      document.getElementById('loginScreen').classList.add('hidden');
+      document.getElementById('portalMain').classList.remove('hidden');
+      
+      try {
+        const response = await fetch('/api/client/portal', {
+          headers: { 'Authorization': `Bearer ${clientToken}` }
+        });
+        
+        if (response.status === 401) {
+          logout();
+          return;
+        }
+        
+        clientData = await response.json();
+        renderPortal();
+      } catch (err) {
+        console.error('Failed to load portal:', err);
+      }
+    }
+
+    function renderPortal() {
+      // Welcome message
+      if (clientData.name) {
+        document.getElementById('welcomeName').textContent = `Hello, ${clientData.name.split(' ')[0]} 💫`;
+      }
+      
+      // Action required (pending proposals)
+      const actionRequired = clientData.bookings?.filter(b => b.proposedDate && b.status === 'pending') || [];
+      if (actionRequired.length > 0) {
+        document.getElementById('actionRequiredSection').classList.remove('hidden');
+        document.getElementById('actionRequiredList').innerHTML = actionRequired.map(b => `
+          <div class="appointment awaiting-response">
+            <div class="appointment-header">
+              <div class="appointment-service">${b.serviceName}</div>
+              <span class="appointment-status status-awaiting">Response Needed</span>
+            </div>
+            <div class="proposed-time">
+              <div class="proposed-time-label">Ravi has proposed:</div>
+              <div class="proposed-time-value">📅 ${formatDate(b.proposedDate)} at ${b.proposedTime}</div>
+            </div>
+            <div class="appointment-actions">
+              <button class="btn btn-accept" onclick="acceptAppointment('${b.id}')">
+                ✓ Accept This Time
+              </button>
+              <button class="btn btn-reschedule" onclick="requestReschedule('${b.id}')">
+                🔄 Request Different Time
+              </button>
+            </div>
+          </div>
+        `).join('');
+      }
+      
+      // Upcoming appointments
+      const upcoming = clientData.bookings?.filter(b => 
+        b.status === 'confirmed' || (b.status === 'pending' && !b.proposedDate)
+      ) || [];
+      
+      if (upcoming.length > 0) {
+        document.getElementById('upcomingAppointments').innerHTML = upcoming.map(b => `
+          <div class="appointment ${b.status}">
+            <div class="appointment-header">
+              <div class="appointment-service">${b.serviceName}</div>
+              <span class="appointment-status status-${b.status}">${b.status}</span>
+            </div>
+            <div class="appointment-details">
+              ${b.confirmedDate ? `
+                <div class="appointment-detail">
+                  <span>📅</span>
+                  <strong>${formatDate(b.confirmedDate)} at ${b.confirmedTime}</strong>
+                </div>
+              ` : `
+                <div class="appointment-detail">
+                  <span>⏳</span>
+                  <span>Awaiting scheduling - Ravi will reach out soon</span>
+                </div>
+              `}
+              <div class="appointment-detail">
+                <span>💰</span>
+                <span>$${b.servicePrice}</span>
+              </div>
+            </div>
+            ${b.status === 'confirmed' ? `
+              <div class="appointment-actions">
+                <button class="btn btn-outline" onclick="requestReschedule('${b.id}')">
+                  Request Reschedule
+                </button>
+              </div>
+            ` : ''}
+          </div>
+        `).join('');
+      }
+      
+      // Session history
+      const history = clientData.bookings?.filter(b => b.status === 'completed') || [];
+      if (history.length > 0) {
+        document.getElementById('sessionHistory').innerHTML = history.map(b => `
+          <div class="history-item">
+            <div>
+              <div style="font-weight: 600;">${b.serviceName}</div>
+              <div style="font-size: 14px; color: var(--soft-gray);">
+                ${formatDate(b.confirmedDate || b.createdAt)}
+              </div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-weight: 600; color: var(--burgundy);">$${b.servicePrice}</div>
+              <span class="appointment-status status-completed">Completed</span>
+            </div>
+          </div>
+        `).join('');
+      }
+      
+      // Load preferences
+      if (clientData.preferences) {
+        document.getElementById('prefEmail').checked = clientData.preferences.email !== false;
+        document.getElementById('prefSMS').checked = clientData.preferences.sms === true;
+      }
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '';
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('en-US', { 
+        weekday: 'long', 
+        month: 'long', 
+        day: 'numeric',
+        year: 'numeric'
+      });
+    }
+
+    async function acceptAppointment(bookingId) {
+      if (!confirm('Confirm this appointment time?')) return;
+      
+      try {
+        const response = await fetch(`/api/client/bookings/${bookingId}/accept`, {
+          method: 'POST',
+          headers: { 
+            'Authorization': `Bearer ${clientToken}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (response.ok) {
+          alert('✨ Appointment confirmed! You will receive a confirmation email shortly.');
+          loadPortal();
+        } else {
+          const data = await response.json();
+          alert(data.error || 'Failed to confirm appointment');
+        }
+      } catch (err) {
+        alert('Connection error. Please try again.');
+      }
+    }
+
+    async function requestReschedule(bookingId) {
+      const newAvailability = prompt('Please share your updated availability:');
+      if (!newAvailability) return;
+      
+      try {
+        const response = await fetch(`/api/client/bookings/${bookingId}/reschedule`, {
+          method: 'POST',
+          headers: { 
+            'Authorization': `Bearer ${clientToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ availability: newAvailability })
+        });
+        
+        if (response.ok) {
+          alert('Your reschedule request has been sent to Ravi. She will propose a new time soon.');
+          loadPortal();
+        } else {
+          const data = await response.json();
+          alert(data.error || 'Failed to send request');
+        }
+      } catch (err) {
+        alert('Connection error. Please try again.');
+      }
+    }
+
+    function showPreferences() {
+      document.getElementById('preferencesCard').classList.toggle('hidden');
+    }
+
+    async function savePreferences() {
+      const prefs = {
+        email: document.getElementById('prefEmail').checked,
+        sms: document.getElementById('prefSMS').checked,
+        reminder: document.querySelector('input[name="reminder"]:checked')?.value || '24'
+      };
+      
+      try {
+        const response = await fetch('/api/client/preferences', {
+          method: 'PUT',
+          headers: { 
+            'Authorization': `Bearer ${clientToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(prefs)
+        });
+        
+        if (response.ok) {
+          alert('Preferences saved!');
+          document.getElementById('preferencesCard').classList.add('hidden');
+        }
+      } catch (err) {
+        alert('Failed to save preferences');
+      }
+    }
+
+    function logout() {
+      sessionStorage.removeItem('clientToken');
+      clientToken = null;
+      clientData = null;
+      document.getElementById('portalMain').classList.add('hidden');
+      document.getElementById('loginScreen').classList.remove('hidden');
+      showLoginForm();
+    }
+  </script>
+
+  <!-- Admin Link -->
+  <a href="/admin.html" class="hidden-admin-link" style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); color: #722F37;" aria-label="Admin access">🪷 Ravi Admin</a>
+  <div style="text-align: center; padding: 20px; font-size: 12px; color: #9E9890; background: #FDF8F3;">
+    <p style="margin: 0;">Built by <a href="mailto:Anth@StructuredForGrowth.com" style="color: #722F37; text-decoration: none;">Anth@StructuredForGrowth.com</a></p>
+  </div>
+</body>
+</html>
