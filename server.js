@@ -2847,6 +2847,263 @@ app.get('/api/client/quick-accept/:bookingId/:token', async (req, res) => {
 });
 
 // ===========================================
+// MARKETING AUTOMATION ENDPOINTS
+// ===========================================
+
+// Helper functions for marketing data
+function loadCampaigns() {
+  try {
+    if (fs.existsSync(CAMPAIGNS_FILE)) {
+      const decrypted = decrypt(fs.readFileSync(CAMPAIGNS_FILE, 'utf8'));
+      return JSON.parse(decrypted);
+    }
+  } catch (err) {
+    console.error('Error loading campaigns:', err);
+  }
+  return [];
+}
+
+function saveCampaigns(campaigns) {
+  const encrypted = encrypt(JSON.stringify(campaigns, null, 2));
+  fs.writeFileSync(CAMPAIGNS_FILE, encrypted, 'utf8');
+}
+
+function loadSegments() {
+  try {
+    if (fs.existsSync(SEGMENTS_FILE)) {
+      const decrypted = decrypt(fs.readFileSync(SEGMENTS_FILE, 'utf8'));
+      return JSON.parse(decrypted);
+    }
+  } catch (err) {
+    console.error('Error loading segments:', err);
+  }
+  return [];
+}
+
+function saveSegments(segments) {
+  const encrypted = encrypt(JSON.stringify(segments, null, 2));
+  fs.writeFileSync(SEGMENTS_FILE, encrypted, 'utf8');
+}
+
+function loadWorkflows() {
+  try {
+    if (fs.existsSync(WORKFLOWS_FILE)) {
+      const decrypted = decrypt(fs.readFileSync(WORKFLOWS_FILE, 'utf8'));
+      return JSON.parse(decrypted);
+    }
+  } catch (err) {
+    console.error('Error loading workflows:', err);
+  }
+  return [];
+}
+
+function saveWorkflows(workflows) {
+  const encrypted = encrypt(JSON.stringify(workflows, null, 2));
+  fs.writeFileSync(WORKFLOWS_FILE, encrypted, 'utf8');
+}
+
+function loadTemplates() {
+  try {
+    if (fs.existsSync(TEMPLATES_FILE)) {
+      const decrypted = decrypt(fs.readFileSync(TEMPLATES_FILE, 'utf8'));
+      return JSON.parse(decrypted);
+    }
+  } catch (err) {
+    console.error('Error loading templates:', err);
+  }
+  return [];
+}
+
+function saveTemplates(templates) {
+  const encrypted = encrypt(JSON.stringify(templates, null, 2));
+  fs.writeFileSync(TEMPLATES_FILE, encrypted, 'utf8');
+}
+
+// Campaigns
+app.get('/api/admin/campaigns', authenticateAdmin, (req, res) => {
+  const campaigns = loadCampaigns();
+  res.json({ campaigns });
+});
+
+app.post('/api/admin/campaigns', authenticateAdmin, (req, res) => {
+  const campaigns = loadCampaigns();
+  const newCampaign = sanitizeObject(req.body);
+  newCampaign.createdDate = new Date().toISOString();
+  campaigns.push(newCampaign);
+  saveCampaigns(campaigns);
+  res.json({ success: true, campaign: newCampaign });
+});
+
+app.post('/api/admin/campaigns/send', authenticateAdmin, async (req, res) => {
+  const campaigns = loadCampaigns();
+  const campaign = sanitizeObject(req.body);
+  const clients = loadClients();
+  
+  // Determine recipients based on segment
+  let recipients = clients;
+  if (campaign.segment && campaign.segment !== 'all') {
+    const segments = loadSegments();
+    const targetSegment = segments.find(s => s.id === campaign.segment);
+    if (targetSegment) {
+      // Filter clients based on segment criteria
+      // This is simplified - real implementation would apply all filters
+      recipients = clients.slice(0, Math.min(clients.length, targetSegment.count || clients.length));
+    }
+  }
+  
+  campaign.recipientCount = recipients.length;
+  campaign.status = 'sent';
+  campaign.sentDate = new Date().toISOString();
+  campaign.stats = {
+    openRate: Math.floor(Math.random() * 30 + 20), // Simulate 20-50% open rate
+    clickRate: Math.floor(Math.random() * 10 + 5) // Simulate 5-15% click rate
+  };
+  
+  // In production, would send emails here via nodemailer
+  if (EMAIL_ENABLED && transporter) {
+    // Send emails to all recipients
+    for (const client of recipients) {
+      const personalizedBody = campaign.body
+        .replace(/{{firstName}}/g, client.name?.split(' ')[0] || client.name)
+        .replace(/{{lastName}}/g, client.name?.split(' ').slice(1).join(' ') || '')
+        .replace(/{{email}}/g, client.email)
+        .replace(/{{businessName}}/g, 'Ravi\'s Sacred Healing');
+      
+      try {
+        await transporter.sendMail({
+          from: EMAIL_USER,
+          to: client.email,
+          subject: campaign.subject,
+          html: personalizedBody.replace(/\n/g, '<br>')
+        });
+      } catch (err) {
+        console.error(`Failed to send to ${client.email}:`, err.message);
+      }
+    }
+  }
+  
+  campaigns.push(campaign);
+  saveCampaigns(campaigns);
+  res.json({ success: true, campaign, recipientCount: recipients.length });
+});
+
+app.delete('/api/admin/campaigns/:id', authenticateAdmin, (req, res) => {
+  let campaigns = loadCampaigns();
+  campaigns = campaigns.filter(c => c.id !== req.params.id);
+  saveCampaigns(campaigns);
+  res.json({ success: true });
+});
+
+// Segments
+app.get('/api/admin/segments', authenticateAdmin, (req, res) => {
+  const segments = loadSegments();
+  const clients = loadClients();
+  
+  // Update counts dynamically
+  segments.forEach(segment => {
+    // Simplified count calculation - real implementation would apply filters
+    segment.count = clients.length;
+  });
+  
+  res.json({ segments });
+});
+
+app.post('/api/admin/segments', authenticateAdmin, (req, res) => {
+  const segments = loadSegments();
+  const clients = loadClients();
+  const newSegment = sanitizeObject(req.body);
+  
+  // Calculate actual count based on filters
+  // This is simplified - real implementation would apply all filter logic
+  newSegment.count = Math.floor(clients.length * (Math.random() * 0.5 + 0.3)); // 30-80% of clients
+  
+  segments.push(newSegment);
+  saveSegments(segments);
+  res.json({ success: true, segment: newSegment });
+});
+
+app.delete('/api/admin/segments/:id', authenticateAdmin, (req, res) => {
+  let segments = loadSegments();
+  segments = segments.filter(s => s.id !== req.params.id);
+  saveSegments(segments);
+  res.json({ success: true });
+});
+
+// Automation/Workflows
+app.get('/api/admin/automation', authenticateAdmin, (req, res) => {
+  const workflows = loadWorkflows();
+  res.json({ workflows });
+});
+
+app.post('/api/admin/automation', authenticateAdmin, (req, res) => {
+  const workflows = loadWorkflows();
+  const newWorkflow = sanitizeObject(req.body);
+  workflows.push(newWorkflow);
+  saveWorkflows(workflows);
+  res.json({ success: true, workflow: newWorkflow });
+});
+
+app.put('/api/admin/automation/:id', authenticateAdmin, (req, res) => {
+  const workflows = loadWorkflows();
+  const index = workflows.findIndex(w => w.id === req.params.id);
+  if (index !== -1) {
+    workflows[index] = sanitizeObject(req.body);
+    saveWorkflows(workflows);
+    res.json({ success: true, workflow: workflows[index] });
+  } else {
+    res.status(404).json({ error: 'Workflow not found' });
+  }
+});
+
+app.delete('/api/admin/automation/:id', authenticateAdmin, (req, res) => {
+  let workflows = loadWorkflows();
+  workflows = workflows.filter(w => w.id !== req.params.id);
+  saveWorkflows(workflows);
+  res.json({ success: true });
+});
+
+// Templates
+app.get('/api/admin/templates', authenticateAdmin, (req, res) => {
+  const templates = loadTemplates();
+  res.json({ templates });
+});
+
+// Marketing Analytics
+app.get('/api/admin/analytics/marketing', authenticateAdmin, (req, res) => {
+  const campaigns = loadCampaigns();
+  const clients = loadClients();
+  const days = parseInt(req.query.days) || 30;
+  const cutoffDate = new Date();
+  cutoffDate.setDate(cutoffDate.getDate() - days);
+  
+  const recentCampaigns = campaigns.filter(c => 
+    c.sentDate && new Date(c.sentDate) >= cutoffDate
+  );
+  
+  const analytics = {
+    totalSubscribers: clients.length,
+    emailsSent: recentCampaigns.reduce((sum, c) => sum + (c.recipientCount || 0), 0),
+    totalOpens: recentCampaigns.reduce((sum, c) => {
+      const opens = Math.floor((c.recipientCount || 0) * (c.stats?.openRate || 0) / 100);
+      return sum + opens;
+    }, 0),
+    totalClicks: recentCampaigns.reduce((sum, c) => {
+      const clicks = Math.floor((c.recipientCount || 0) * (c.stats?.clickRate || 0) / 100);
+      return sum + clicks;
+    }, 0),
+    lifecycle: {
+      'New Lead': Math.floor(clients.length * 0.15),
+      'Active Client': Math.floor(clients.length * 0.45),
+      'Returning Client': Math.floor(clients.length * 0.25),
+      'At Risk': Math.floor(clients.length * 0.10),
+      'Inactive': Math.floor(clients.length * 0.05)
+    }
+  };
+  
+  res.json({ analytics });
+});
+
+// ===========================================
 // SERVE STATIC FILES
 // ===========================================
 
@@ -3315,263 +3572,6 @@ app.get('/api/admin/backups/stats', authenticateAdmin, (req, res) => {
   } catch (err) {
     res.status(500).json({ error: 'Failed to get backup stats: ' + err.message });
   }
-});
-
-// ===========================================
-// MARKETING AUTOMATION ENDPOINTS
-// ===========================================
-
-// Helper functions for marketing data
-function loadCampaigns() {
-  try {
-    if (fs.existsSync(CAMPAIGNS_FILE)) {
-      const decrypted = decrypt(fs.readFileSync(CAMPAIGNS_FILE, 'utf8'));
-      return JSON.parse(decrypted);
-    }
-  } catch (err) {
-    console.error('Error loading campaigns:', err);
-  }
-  return [];
-}
-
-function saveCampaigns(campaigns) {
-  const encrypted = encrypt(JSON.stringify(campaigns, null, 2));
-  fs.writeFileSync(CAMPAIGNS_FILE, encrypted, 'utf8');
-}
-
-function loadSegments() {
-  try {
-    if (fs.existsSync(SEGMENTS_FILE)) {
-      const decrypted = decrypt(fs.readFileSync(SEGMENTS_FILE, 'utf8'));
-      return JSON.parse(decrypted);
-    }
-  } catch (err) {
-    console.error('Error loading segments:', err);
-  }
-  return [];
-}
-
-function saveSegments(segments) {
-  const encrypted = encrypt(JSON.stringify(segments, null, 2));
-  fs.writeFileSync(SEGMENTS_FILE, encrypted, 'utf8');
-}
-
-function loadWorkflows() {
-  try {
-    if (fs.existsSync(WORKFLOWS_FILE)) {
-      const decrypted = decrypt(fs.readFileSync(WORKFLOWS_FILE, 'utf8'));
-      return JSON.parse(decrypted);
-    }
-  } catch (err) {
-    console.error('Error loading workflows:', err);
-  }
-  return [];
-}
-
-function saveWorkflows(workflows) {
-  const encrypted = encrypt(JSON.stringify(workflows, null, 2));
-  fs.writeFileSync(WORKFLOWS_FILE, encrypted, 'utf8');
-}
-
-function loadTemplates() {
-  try {
-    if (fs.existsSync(TEMPLATES_FILE)) {
-      const decrypted = decrypt(fs.readFileSync(TEMPLATES_FILE, 'utf8'));
-      return JSON.parse(decrypted);
-    }
-  } catch (err) {
-    console.error('Error loading templates:', err);
-  }
-  return [];
-}
-
-function saveTemplates(templates) {
-  const encrypted = encrypt(JSON.stringify(templates, null, 2));
-  fs.writeFileSync(TEMPLATES_FILE, encrypted, 'utf8');
-}
-
-// Campaigns
-app.get('/api/admin/campaigns', authenticateAdmin, (req, res) => {
-  const campaigns = loadCampaigns();
-  res.json({ campaigns });
-});
-
-app.post('/api/admin/campaigns', authenticateAdmin, (req, res) => {
-  const campaigns = loadCampaigns();
-  const newCampaign = sanitizeObject(req.body);
-  newCampaign.createdDate = new Date().toISOString();
-  campaigns.push(newCampaign);
-  saveCampaigns(campaigns);
-  res.json({ success: true, campaign: newCampaign });
-});
-
-app.post('/api/admin/campaigns/send', authenticateAdmin, async (req, res) => {
-  const campaigns = loadCampaigns();
-  const campaign = sanitizeObject(req.body);
-  const clients = loadClients();
-  
-  // Determine recipients based on segment
-  let recipients = clients;
-  if (campaign.segment && campaign.segment !== 'all') {
-    const segments = loadSegments();
-    const targetSegment = segments.find(s => s.id === campaign.segment);
-    if (targetSegment) {
-      // Filter clients based on segment criteria
-      // This is simplified - real implementation would apply all filters
-      recipients = clients.slice(0, Math.min(clients.length, targetSegment.count || clients.length));
-    }
-  }
-  
-  campaign.recipientCount = recipients.length;
-  campaign.status = 'sent';
-  campaign.sentDate = new Date().toISOString();
-  campaign.stats = {
-    openRate: Math.floor(Math.random() * 30 + 20), // Simulate 20-50% open rate
-    clickRate: Math.floor(Math.random() * 10 + 5) // Simulate 5-15% click rate
-  };
-  
-  // In production, would send emails here via nodemailer
-  if (EMAIL_ENABLED && transporter) {
-    // Send emails to all recipients
-    for (const client of recipients) {
-      const personalizedBody = campaign.body
-        .replace(/{{firstName}}/g, client.name?.split(' ')[0] || client.name)
-        .replace(/{{lastName}}/g, client.name?.split(' ').slice(1).join(' ') || '')
-        .replace(/{{email}}/g, client.email)
-        .replace(/{{businessName}}/g, 'Ravi\'s Sacred Healing');
-      
-      try {
-        await transporter.sendMail({
-          from: EMAIL_USER,
-          to: client.email,
-          subject: campaign.subject,
-          html: personalizedBody.replace(/\n/g, '<br>')
-        });
-      } catch (err) {
-        console.error(`Failed to send to ${client.email}:`, err.message);
-      }
-    }
-  }
-  
-  campaigns.push(campaign);
-  saveCampaigns(campaigns);
-  res.json({ success: true, campaign, recipientCount: recipients.length });
-});
-
-app.delete('/api/admin/campaigns/:id', authenticateAdmin, (req, res) => {
-  let campaigns = loadCampaigns();
-  campaigns = campaigns.filter(c => c.id !== req.params.id);
-  saveCampaigns(campaigns);
-  res.json({ success: true });
-});
-
-// Segments
-app.get('/api/admin/segments', authenticateAdmin, (req, res) => {
-  const segments = loadSegments();
-  const clients = loadClients();
-  
-  // Update counts dynamically
-  segments.forEach(segment => {
-    // Simplified count calculation - real implementation would apply filters
-    segment.count = clients.length;
-  });
-  
-  res.json({ segments });
-});
-
-app.post('/api/admin/segments', authenticateAdmin, (req, res) => {
-  const segments = loadSegments();
-  const clients = loadClients();
-  const newSegment = sanitizeObject(req.body);
-  
-  // Calculate actual count based on filters
-  // This is simplified - real implementation would apply all filter logic
-  newSegment.count = Math.floor(clients.length * (Math.random() * 0.5 + 0.3)); // 30-80% of clients
-  
-  segments.push(newSegment);
-  saveSegments(segments);
-  res.json({ success: true, segment: newSegment });
-});
-
-app.delete('/api/admin/segments/:id', authenticateAdmin, (req, res) => {
-  let segments = loadSegments();
-  segments = segments.filter(s => s.id !== req.params.id);
-  saveSegments(segments);
-  res.json({ success: true });
-});
-
-// Automation/Workflows
-app.get('/api/admin/automation', authenticateAdmin, (req, res) => {
-  const workflows = loadWorkflows();
-  res.json({ workflows });
-});
-
-app.post('/api/admin/automation', authenticateAdmin, (req, res) => {
-  const workflows = loadWorkflows();
-  const newWorkflow = sanitizeObject(req.body);
-  workflows.push(newWorkflow);
-  saveWorkflows(workflows);
-  res.json({ success: true, workflow: newWorkflow });
-});
-
-app.put('/api/admin/automation/:id', authenticateAdmin, (req, res) => {
-  const workflows = loadWorkflows();
-  const index = workflows.findIndex(w => w.id === req.params.id);
-  if (index !== -1) {
-    workflows[index] = sanitizeObject(req.body);
-    saveWorkflows(workflows);
-    res.json({ success: true, workflow: workflows[index] });
-  } else {
-    res.status(404).json({ error: 'Workflow not found' });
-  }
-});
-
-app.delete('/api/admin/automation/:id', authenticateAdmin, (req, res) => {
-  let workflows = loadWorkflows();
-  workflows = workflows.filter(w => w.id !== req.params.id);
-  saveWorkflows(workflows);
-  res.json({ success: true });
-});
-
-// Templates
-app.get('/api/admin/templates', authenticateAdmin, (req, res) => {
-  const templates = loadTemplates();
-  res.json({ templates });
-});
-
-// Marketing Analytics
-app.get('/api/admin/analytics/marketing', authenticateAdmin, (req, res) => {
-  const campaigns = loadCampaigns();
-  const clients = loadClients();
-  const days = parseInt(req.query.days) || 30;
-  const cutoffDate = new Date();
-  cutoffDate.setDate(cutoffDate.getDate() - days);
-  
-  const recentCampaigns = campaigns.filter(c => 
-    c.sentDate && new Date(c.sentDate) >= cutoffDate
-  );
-  
-  const analytics = {
-    totalSubscribers: clients.length,
-    emailsSent: recentCampaigns.reduce((sum, c) => sum + (c.recipientCount || 0), 0),
-    totalOpens: recentCampaigns.reduce((sum, c) => {
-      const opens = Math.floor((c.recipientCount || 0) * (c.stats?.openRate || 0) / 100);
-      return sum + opens;
-    }, 0),
-    totalClicks: recentCampaigns.reduce((sum, c) => {
-      const clicks = Math.floor((c.recipientCount || 0) * (c.stats?.clickRate || 0) / 100);
-      return sum + clicks;
-    }, 0),
-    lifecycle: {
-      'New Lead': Math.floor(clients.length * 0.15),
-      'Active Client': Math.floor(clients.length * 0.45),
-      'Returning Client': Math.floor(clients.length * 0.25),
-      'At Risk': Math.floor(clients.length * 0.10),
-      'Inactive': Math.floor(clients.length * 0.05)
-    }
-  };
-  
-  res.json({ analytics });
 });
 
 // ===========================================

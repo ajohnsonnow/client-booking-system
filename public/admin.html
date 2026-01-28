@@ -3272,7 +3272,10 @@
         parent.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
         
         tab.classList.add('active');
-        document.getElementById(`tab-${tabId}`).classList.add('active');
+        const tabContent = document.querySelector(`[data-content="${tabId}"]`);
+        if (tabContent) {
+          tabContent.classList.add('active');
+        }
       });
     });
 
