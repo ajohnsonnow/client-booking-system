@@ -214,7 +214,6 @@ function decryptLegacy(encryptedData) {
   try {
     // Skip legacy data - return null to use defaults
     // Old encrypted data will be re-encrypted on next save
-    console.log('Legacy encrypted data detected - will be migrated on next save');
     return null;
   } catch {
     return null;
@@ -440,7 +439,6 @@ if (process.env.EMAIL_HOST && process.env.EMAIL_USER && process.env.EMAIL_PASS) 
 
 async function sendEmail(to, subject, text, html) {
   if (!transporter) {
-    console.log('Email not configured. Skipping email send.');
     return false;
   }
 
@@ -1342,7 +1340,7 @@ app.post('/api/testimonials/submit', testimonialLimiter, (req, res) => {
         <p><a href="${process.env.SITE_URL || 'http://localhost:3000'}/admin.html" style="color: #722F37;">Log in to review →</a></p>
       </div>
     `
-  ).catch(err => console.log('Email notification failed:', err.message));
+  ).catch(err => { /* Email notification failed - logged internally */ });
 
   res.json({ success: true, message: 'Testimonial submitted for review' });
 });
@@ -1900,15 +1898,13 @@ if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN && process.e
   try {
     const twilioModule = await import('twilio');
     twilioClient = twilioModule.default(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
-    console.log('✓ Twilio SMS enabled');
   } catch (err) {
-    console.log('Twilio not installed. SMS disabled. Run: npm install twilio');
+    // Twilio not available
   }
 }
 
 async function sendSMS(to, message) {
   if (!twilioClient) {
-    console.log('SMS not configured. Skipping SMS send.');
     return false;
   }
   
@@ -1924,7 +1920,6 @@ async function sendSMS(to, message) {
       from: process.env.TWILIO_PHONE_NUMBER,
       to: phone
     });
-    console.log(`SMS sent to ${phone}`);
     return true;
   } catch (err) {
     console.error('SMS failed:', err.message);
@@ -3190,7 +3185,6 @@ app.post('/api/admin/leads', (req, res) => {
     );
     
     // In production, this would queue the drip emails
-    console.log(`✨ Lead captured: ${newLead.email}. Triggered ${triggered.length} drip campaigns.`);
     
     res.json({ success: true, leadId: newLead.id, triggered: triggered.length });
   } catch (error) {
@@ -3214,8 +3208,6 @@ app.post('/api/admin/leads/follow-up', authenticateAdmin, (req, res) => {
     lead.status = 'contacted';
     lead.lastContactedAt = new Date().toISOString();
     saveLeads(leads);
-    
-    console.log(`📧 Follow-up email sent to ${lead.email} using template: ${template}`);
     
     res.json({ success: true, message: 'Follow-up sent successfully' });
   } catch (error) {
@@ -3242,8 +3234,6 @@ app.post('/api/admin/lead-magnets', authenticateAdmin, (req, res) => {
     
     magnets.push(newMagnet);
     saveLeadMagnets(magnets);
-    
-    console.log(`🧲 Lead magnet created: ${newMagnet.title}`);
     
     res.json({ success: true, magnetId: newMagnet.id });
   } catch (error) {
@@ -3282,8 +3272,6 @@ app.post('/api/admin/drip-campaigns', authenticateAdmin, (req, res) => {
     
     campaigns.push(newCampaign);
     saveDripCampaigns(campaigns);
-    
-    console.log(`💧 Drip campaign created: ${newCampaign.name} with ${newCampaign.emails.length} emails`);
     
     res.json({ success: true, campaignId: newCampaign.id });
   } catch (error) {

@@ -1848,6 +1848,31 @@
       color: var(--burgundy);
       border-bottom-color: var(--burgundy);
     }
+
+    /* Additional utility classes */
+    .badge-gold {
+      background: var(--gold);
+    }
+
+    .btn-gold {
+      background: var(--gold) !important;
+    }
+
+    .text-muted {
+      color: var(--soft-gray);
+    }
+
+    .mt-8 {
+      margin-top: 8px;
+    }
+
+    .mt-20 {
+      margin-top: 20px;
+    }
+
+    .mb-20 {
+      margin-bottom: 20px;
+    }
   </style>
 </head>
 <body>
@@ -1893,7 +1918,7 @@
         </li>
         <li class="nav-divider" aria-hidden="true"></li>
         <li class="nav-item" data-page="marketing">
-          <span class="nav-icon">📧</span> Marketing <span class="badge" style="background: var(--gold);">NEW</span>
+          <span class="nav-icon">📧</span> Marketing <span class="badge badge-gold">NEW</span>
         </li>
         <li class="nav-item" data-page="content">
           <span class="nav-icon">✏️</span> Content
@@ -2193,7 +2218,7 @@
       <section class="page" id="page-marketing">
         <div class="page-header">
           <h1 class="page-title">Marketing Automation</h1>
-          <p style="color: var(--soft-gray); margin-top: 8px;">Lead Generation • Drip Campaigns • Automation • Analytics</p>
+          <p class="text-muted mt-8">Lead Generation • Drip Campaigns • Automation • Analytics</p>
         </div>
 
         <div class="tabs">
@@ -2252,7 +2277,7 @@
               </div>
             </div>
           </div>
-          <div class="card" style="margin-top: 20px;">
+          <div class="card mt-20">
             <div class="card-header">
               <h3>Active Leads</h3>
               <div class="filter-chips">
@@ -2281,7 +2306,7 @@
               </button>
             </div>
             <div class="card-body">
-              <p style="color: var(--soft-gray); margin-bottom: 20px;">
+              <p class="text-muted mb-20">
                 AI-powered lead magnet creation: free guides, assessments, consultations, or healing resources that capture email addresses.
               </p>
               <div id="leadMagnetGrid" class="template-grid">
@@ -2301,7 +2326,7 @@
               </button>
             </div>
             <div class="card-body">
-              <p style="color: var(--soft-gray); margin-bottom: 20px;">
+              <p class="text-muted mb-20">
                 Automated email sequences that nurture leads over time. Set up welcome series, education sequences, or re-engagement campaigns.
               </p>
               <div id="dripCampaignsList">
@@ -2321,7 +2346,7 @@
               </button>
             </div>
             <div class="card-body">
-              <div class="stats-grid" style="margin-bottom: 20px;">
+              <div class="stats-grid" class="mb-20">
                 <div class="stat-card">
                   <div class="stat-label">Total Campaigns</div>
                   <div class="stat-value" id="totalCampaigns">0</div>
@@ -2356,7 +2381,7 @@
               </button>
             </div>
             <div class="card-body">
-              <p style="color: var(--soft-gray); margin-bottom: 20px;">
+              <p class="text-muted mb-20">
                 Group clients by behavior, booking history, service preferences, or engagement level for targeted campaigns.
               </p>
               <div id="segmentsList">
@@ -2376,7 +2401,7 @@
               </button>
             </div>
             <div class="card-body">
-              <p style="color: var(--soft-gray); margin-bottom: 20px;">
+              <p class="text-muted mb-20">
                 Set up automated email sequences triggered by client actions: new bookings, follow-ups, re-engagement, birthdays.
               </p>
               <div id="workflowsList">
@@ -3454,7 +3479,7 @@
       </div>
       <div class="modal-footer">
         <button class="btn btn-outline" onclick="closeModal('proposeTimeModal')">Cancel</button>
-        <button class="btn btn-primary" onclick="sendProposal()" style="background: var(--gold);">📧 Send Proposal</button>
+        <button class="btn btn-primary btn-gold" onclick="sendProposal()">📧 Send Proposal</button>
       </div>
     </div>
   </div>
@@ -3516,7 +3541,7 @@
       </div>
       <div class="modal-footer">
         <button class="btn btn-outline" onclick="closeModal('generateCodesModal')">Cancel</button>
-        <button class="btn btn-primary" onclick="generateCodes()" style="background: var(--gold);">🎟️ Generate Codes</button>
+        <button class="btn btn-primary btn-gold" onclick="generateCodes()">🎟️ Generate Codes</button>
       </div>
     </div>
   </div>
