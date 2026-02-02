@@ -2777,6 +2777,497 @@ app.post('/api/admin/inquiries/:id/invite', authenticateAdmin, async (req, res) 
 });
 
 // ===========================================
+// DISCOVERY CALLS API
+// ===========================================
+
+const DISCOVERY_CALLS_FILE = path.join(DATA_DIR, 'discovery_calls.enc');
+
+function loadDiscoveryCalls() {
+  if (fs.existsSync(DISCOVERY_CALLS_FILE)) {
+    try {
+      const encrypted = fs.readFileSync(DISCOVERY_CALLS_FILE, 'utf8');
+      const decrypted = decrypt(encrypted);
+      return JSON.parse(decrypted);
+    } catch (err) {
+      console.error('Error loading discovery calls:', err);
+      return [];
+    }
+  }
+  return [];
+}
+
+function saveDiscoveryCalls(calls) {
+  try {
+    const json = JSON.stringify(calls, null, 2);
+    const encrypted = encrypt(json);
+    fs.writeFileSync(DISCOVERY_CALLS_FILE, encrypted, 'utf8');
+    return true;
+  } catch (err) {
+    console.error('Error saving discovery calls:', err);
+    return false;
+  }
+}
+
+// Get all discovery calls
+app.get('/api/admin/discovery-calls', authenticateAdmin, (req, res) => {
+  const calls = loadDiscoveryCalls();
+  
+  // Enrich with inquiry data
+  const inquiries = loadInquiries();
+  const enrichedCalls = calls.map(call => {
+    const inquiry = inquiries.find(i => i.id === call.inquiryId);
+    return {
+      ...call,
+      inquiry: inquiry ? {
+        name: inquiry.name,
+        email: inquiry.email,
+        phone: inquiry.phone,
+        message: inquiry.message
+      } : null
+    };
+  });
+  
+  res.json({ success: true, calls: enrichedCalls });
+});
+
+// Create/schedule a discovery call
+app.post('/api/admin/discovery-calls', authenticateAdmin, async (req, res) => {
+  const { inquiryId, scheduledDate, scheduledTime, duration, notes, meetingLink } = req.body;
+  
+  if (!inquiryId) {
+    return res.status(400).json({ error: 'Inquiry ID required' });
+  }
+  
+  const inquiries = loadInquiries();
+  const inquiry = inquiries.find(i => i.id === inquiryId);
+  
+  if (!inquiry) {
+    return res.status(404).json({ error: 'Inquiry not found' });
+  }
+  
+  const calls = loadDiscoveryCalls();
+  
+  // Load content for default meeting link
+  const content = loadContent();
+  const defaultMeetingLink = meetingLink || content.siteSettings?.videoChatLink || '';
+  
+  const newCall = {
+    id: uuidv4(),
+    inquiryId,
+    scheduledDate: scheduledDate || null,
+    scheduledTime: scheduledTime || null,
+    duration: duration || 30,
+    meetingLink: defaultMeetingLink,
+    notes: notes || '',
+    status: scheduledDate ? 'scheduled' : 'pending',
+    outcome: null,
+    outcomeNotes: '',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    reminderSent: false,
+    confirmationSent: false
+  };
+  
+  calls.push(newCall);
+  saveDiscoveryCalls(calls);
+  
+  // Update inquiry status
+  inquiry.status = 'call_scheduled';
+  inquiry.discoveryCallId = newCall.id;
+  inquiry.discoveryCallScheduledAt = new Date().toISOString();
+  saveInquiries(inquiries);
+  
+  // Send confirmation email if scheduled
+  if (scheduledDate && scheduledTime) {
+    await sendDiscoveryCallConfirmation(inquiry, newCall);
+  }
+  
+  res.json({ success: true, call: newCall });
+});
+
+// Update discovery call
+app.put('/api/admin/discovery-calls/:id', authenticateAdmin, async (req, res) => {
+  const { id } = req.params;
+  const updates = req.body;
+  
+  const calls = loadDiscoveryCalls();
+  const callIndex = calls.findIndex(c => c.id === id);
+  
+  if (callIndex === -1) {
+    return res.status(404).json({ error: 'Discovery call not found' });
+  }
+  
+  const oldCall = calls[callIndex];
+  const wasUnscheduled = !oldCall.scheduledDate;
+  
+  calls[callIndex] = {
+    ...oldCall,
+    ...updates,
+    id, // Preserve ID
+    updatedAt: new Date().toISOString()
+  };
+  
+  saveDiscoveryCalls(calls);
+  
+  // Send confirmation if just scheduled
+  if (wasUnscheduled && updates.scheduledDate && updates.scheduledTime) {
+    const inquiries = loadInquiries();
+    const inquiry = inquiries.find(i => i.id === oldCall.inquiryId);
+    if (inquiry) {
+      await sendDiscoveryCallConfirmation(inquiry, calls[callIndex]);
+    }
+  }
+  
+  res.json({ success: true, call: calls[callIndex] });
+});
+
+// Record call outcome
+app.post('/api/admin/discovery-calls/:id/outcome', authenticateAdmin, async (req, res) => {
+  const { id } = req.params;
+  const { outcome, notes, sendInvitation } = req.body;
+  
+  if (!['approved', 'follow_up', 'declined', 'no_show'].includes(outcome)) {
+    return res.status(400).json({ error: 'Invalid outcome' });
+  }
+  
+  const calls = loadDiscoveryCalls();
+  const call = calls.find(c => c.id === id);
+  
+  if (!call) {
+    return res.status(404).json({ error: 'Discovery call not found' });
+  }
+  
+  call.status = 'completed';
+  call.outcome = outcome;
+  call.outcomeNotes = notes || '';
+  call.completedAt = new Date().toISOString();
+  call.updatedAt = new Date().toISOString();
+  
+  saveDiscoveryCalls(calls);
+  
+  // Update inquiry status based on outcome
+  const inquiries = loadInquiries();
+  const inquiry = inquiries.find(i => i.id === call.inquiryId);
+  
+  if (inquiry) {
+    if (outcome === 'approved') {
+      inquiry.status = 'approved';
+      inquiry.approvedAt = new Date().toISOString();
+      
+      // Auto-send invitation if requested
+      if (sendInvitation) {
+        const codes = loadInvitationCodes();
+        let code;
+        do {
+          code = generateInvitationCode('RAVI');
+        } while (codes.some(c => c.code === code));
+        
+        const newCode = {
+          id: uuidv4(),
+          code,
+          label: `Discovery Call: ${inquiry.name}`,
+          createdAt: new Date().toISOString(),
+          expiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
+          usedBy: null,
+          usedAt: null,
+          active: true
+        };
+        
+        codes.push(newCode);
+        saveInvitationCodes(codes);
+        
+        inquiry.status = 'invited';
+        inquiry.invitationCode = code;
+        inquiry.invitedAt = new Date().toISOString();
+        
+        // Send invitation email
+        await sendInvitationEmail(inquiry, code);
+      }
+    } else if (outcome === 'declined') {
+      inquiry.status = 'declined';
+      inquiry.declinedAt = new Date().toISOString();
+      inquiry.declineReason = notes || 'After discovery call';
+    } else if (outcome === 'follow_up') {
+      inquiry.status = 'follow_up';
+      inquiry.followUpNotes = notes;
+    } else if (outcome === 'no_show') {
+      inquiry.status = 'no_show';
+      inquiry.noShowAt = new Date().toISOString();
+    }
+    
+    saveInquiries(inquiries);
+  }
+  
+  res.json({ success: true, call, inquiry });
+});
+
+// Delete discovery call
+app.delete('/api/admin/discovery-calls/:id', authenticateAdmin, (req, res) => {
+  const { id } = req.params;
+  
+  const calls = loadDiscoveryCalls();
+  const filtered = calls.filter(c => c.id !== id);
+  
+  if (filtered.length === calls.length) {
+    return res.status(404).json({ error: 'Discovery call not found' });
+  }
+  
+  saveDiscoveryCalls(filtered);
+  res.json({ success: true });
+});
+
+// Send discovery call reminder
+app.post('/api/admin/discovery-calls/:id/remind', authenticateAdmin, async (req, res) => {
+  const { id } = req.params;
+  
+  const calls = loadDiscoveryCalls();
+  const call = calls.find(c => c.id === id);
+  
+  if (!call) {
+    return res.status(404).json({ error: 'Discovery call not found' });
+  }
+  
+  const inquiries = loadInquiries();
+  const inquiry = inquiries.find(i => i.id === call.inquiryId);
+  
+  if (!inquiry) {
+    return res.status(404).json({ error: 'Inquiry not found' });
+  }
+  
+  await sendDiscoveryCallReminder(inquiry, call);
+  
+  call.reminderSent = true;
+  call.lastReminderAt = new Date().toISOString();
+  call.updatedAt = new Date().toISOString();
+  saveDiscoveryCalls(calls);
+  
+  res.json({ success: true });
+});
+
+// Get discovery call stats
+app.get('/api/admin/discovery-calls/stats', authenticateAdmin, (req, res) => {
+  const calls = loadDiscoveryCalls();
+  
+  const stats = {
+    total: calls.length,
+    pending: calls.filter(c => c.status === 'pending').length,
+    scheduled: calls.filter(c => c.status === 'scheduled').length,
+    completed: calls.filter(c => c.status === 'completed').length,
+    approved: calls.filter(c => c.outcome === 'approved').length,
+    declined: calls.filter(c => c.outcome === 'declined').length,
+    followUp: calls.filter(c => c.outcome === 'follow_up').length,
+    noShow: calls.filter(c => c.outcome === 'no_show').length,
+    conversionRate: calls.filter(c => c.status === 'completed').length > 0 
+      ? Math.round((calls.filter(c => c.outcome === 'approved').length / calls.filter(c => c.status === 'completed').length) * 100) 
+      : 0
+  };
+  
+  // Upcoming calls (next 7 days)
+  const now = new Date();
+  const nextWeek = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+  stats.upcoming = calls.filter(c => {
+    if (c.status !== 'scheduled' || !c.scheduledDate) return false;
+    const callDate = new Date(c.scheduledDate);
+    return callDate >= now && callDate <= nextWeek;
+  }).length;
+  
+  res.json({ success: true, stats });
+});
+
+// Helper: Send discovery call confirmation email
+async function sendDiscoveryCallConfirmation(inquiry, call) {
+  const formattedDate = new Date(call.scheduledDate).toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+  
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #FDF8F3; padding: 40px; }
+    .container { max-width: 520px; margin: 0 auto; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 30px rgba(114, 47, 55, 0.15); }
+    .header { background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; padding: 32px; text-align: center; }
+    .header h1 { font-family: Georgia, serif; margin: 0; font-size: 24px; }
+    .content { padding: 32px; }
+    .details { background: #f8f5f0; padding: 20px; border-radius: 12px; margin: 20px 0; }
+    .details-row { display: flex; justify-content: space-between; margin: 8px 0; }
+    .details-label { color: #9E9890; }
+    .details-value { font-weight: 600; color: #3D3630; }
+    .button { display: block; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white !important; text-decoration: none; padding: 18px 32px; border-radius: 8px; text-align: center; font-weight: 600; margin: 24px 0; font-size: 16px; }
+    .footer { text-align: center; padding: 24px; background: #f8f5f0; color: #9E9890; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📹 Discovery Call Confirmed!</h1>
+    </div>
+    <div class="content">
+      <p>Dear ${inquiry.name},</p>
+      <p>Your discovery call with Ravi has been scheduled! Here are your appointment details:</p>
+      
+      <div class="details">
+        <div class="details-row">
+          <span class="details-label">📅 Date</span>
+          <span class="details-value">${formattedDate}</span>
+        </div>
+        <div class="details-row">
+          <span class="details-label">🕐 Time</span>
+          <span class="details-value">${call.scheduledTime}</span>
+        </div>
+        <div class="details-row">
+          <span class="details-label">⏱️ Duration</span>
+          <span class="details-value">${call.duration} minutes</span>
+        </div>
+      </div>
+      
+      ${call.meetingLink ? `
+      <a href="${call.meetingLink}" class="button">Join Video Call</a>
+      <p style="text-align: center; font-size: 14px; color: #666;">Click the button above at your scheduled time to join the video call.</p>
+      ` : `<p style="text-align: center; color: #666;">Ravi will reach out with the meeting link before your call.</p>`}
+      
+      <p>This call is an opportunity for us to connect, discuss your intentions, and see if we're aligned for this sacred work together.</p>
+      
+      <p style="margin-top: 24px;">Looking forward to meeting you,<br><strong>Ravi 🪷</strong></p>
+    </div>
+    <div class="footer">
+      <p>If you need to reschedule, please reply to this email.</p>
+    </div>
+  </div>
+</body>
+</html>
+`;
+
+  await sendEmail(
+    inquiry.email,
+    `📹 Discovery Call Confirmed - ${formattedDate} at ${call.scheduledTime}`,
+    `Your discovery call with Ravi is confirmed for ${formattedDate} at ${call.scheduledTime}.`,
+    html
+  );
+}
+
+// Helper: Send discovery call reminder
+async function sendDiscoveryCallReminder(inquiry, call) {
+  const formattedDate = new Date(call.scheduledDate).toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+  
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #FDF8F3; padding: 40px; }
+    .container { max-width: 520px; margin: 0 auto; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 30px rgba(114, 47, 55, 0.15); }
+    .header { background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%); color: white; padding: 32px; text-align: center; }
+    .header h1 { font-family: Georgia, serif; margin: 0; font-size: 24px; }
+    .content { padding: 32px; }
+    .reminder-box { background: #fff3e0; border-left: 4px solid #ff9800; padding: 16px; margin: 20px 0; border-radius: 8px; }
+    .button { display: block; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white !important; text-decoration: none; padding: 18px 32px; border-radius: 8px; text-align: center; font-weight: 600; margin: 24px 0; font-size: 16px; }
+    .footer { text-align: center; padding: 24px; background: #f8f5f0; color: #9E9890; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>⏰ Reminder: Discovery Call Tomorrow</h1>
+    </div>
+    <div class="content">
+      <p>Dear ${inquiry.name},</p>
+      
+      <div class="reminder-box">
+        <strong>Your call is tomorrow!</strong><br>
+        📅 ${formattedDate}<br>
+        🕐 ${call.scheduledTime}
+      </div>
+      
+      ${call.meetingLink ? `
+      <a href="${call.meetingLink}" class="button">Join Video Call</a>
+      ` : ''}
+      
+      <p>Looking forward to connecting with you!</p>
+      <p style="margin-top: 24px;">With warmth,<br><strong>Ravi 🪷</strong></p>
+    </div>
+    <div class="footer">
+      <p>If you need to reschedule, please reply to this email.</p>
+    </div>
+  </div>
+</body>
+</html>
+`;
+
+  await sendEmail(
+    inquiry.email,
+    `⏰ Reminder: Discovery Call Tomorrow at ${call.scheduledTime}`,
+    `Reminder: Your discovery call with Ravi is tomorrow, ${formattedDate} at ${call.scheduledTime}.`,
+    html
+  );
+}
+
+// Helper: Send invitation email (after approved call)
+async function sendInvitationEmail(inquiry, code) {
+  const content = loadContent();
+  const portalUrl = content.siteSettings?.siteUrl || 'http://localhost:3000';
+  
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #FDF8F3; padding: 40px; }
+    .container { max-width: 520px; margin: 0 auto; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 30px rgba(114, 47, 55, 0.15); }
+    .header { background: linear-gradient(135deg, #722F37 0%, #8B3A44 100%); color: white; padding: 32px; text-align: center; }
+    .content { padding: 32px; }
+    .code-box { background: linear-gradient(135deg, #722F37 0%, #5a2429 100%); color: white; padding: 20px; border-radius: 12px; text-align: center; margin: 24px 0; }
+    .code { font-size: 28px; letter-spacing: 4px; font-weight: 700; font-family: monospace; }
+    .button { display: block; background: linear-gradient(135deg, #D4AF37 0%, #c9a227 100%); color: #3D3630 !important; text-decoration: none; padding: 18px 32px; border-radius: 8px; text-align: center; font-weight: 600; margin: 24px 0; font-size: 16px; }
+    .footer { text-align: center; padding: 24px; background: #f8f5f0; color: #9E9890; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🪷 Welcome to Sacred Healing</h1>
+    </div>
+    <div class="content">
+      <p>Dear ${inquiry.name},</p>
+      <p>It was wonderful connecting with you during our discovery call. I'm honored that you've chosen to embark on this healing journey.</p>
+      <p>Here is your personal invitation code to access your private portal:</p>
+      
+      <div class="code-box">
+        <div class="code">${code}</div>
+      </div>
+      
+      <a href="${portalUrl}" class="button">✨ Enter Your Portal ✨</a>
+      
+      <p>Click the button above, select "Have Invitation Code", and enter your code along with your email.</p>
+      
+      <p style="margin-top: 24px;">With warmth and light,<br><strong>Ravi 🪷</strong></p>
+    </div>
+    <div class="footer">
+      <p>🔒 Your privacy is sacred</p>
+    </div>
+  </div>
+</body>
+</html>
+`;
+
+  await sendEmail(
+    inquiry.email,
+    `🪷 You're Approved! Your Invitation Code: ${code}`,
+    `Dear ${inquiry.name},\n\nYour invitation code is: ${code}\n\nVisit ${portalUrl} to enter your portal.\n\nWith warmth,\nRavi`,
+    html
+  );
+}
+
+// ===========================================
 // CLIENT PORTAL API (World-Class Experience)
 // ===========================================
 
@@ -4281,25 +4772,6 @@ app.delete('/api/admin/drip-campaigns/:id', authenticateAdmin, (req, res) => {
 });
 
 // ===========================================
-// SERVE STATIC FILES
-// ===========================================
-
-app.use(express.static(path.join(__dirname, 'public')));
-
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// ===========================================
-// ERROR HANDLING
-// ===========================================
-
-app.use((err, req, res, next) => {
-  console.error('Server error:', err.message);
-  res.status(500).json({ error: 'Something went wrong. Please try again.' });
-});
-
-// ===========================================
 // DEMO MODE - For showcasing to Ravi
 // ===========================================
 
@@ -5020,6 +5492,25 @@ setInterval(() => {
     console.log(`⏰ Sent ${count} automatic reminder(s)`);
   }
 }, 30 * 60 * 1000);
+
+// ===========================================
+// SERVE STATIC FILES (must be after all API routes)
+// ===========================================
+
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// ===========================================
+// ERROR HANDLING
+// ===========================================
+
+app.use((err, req, res, next) => {
+  console.error('Server error:', err.message);
+  res.status(500).json({ error: 'Something went wrong. Please try again.' });
+});
 
 // ===========================================
 // START SERVER

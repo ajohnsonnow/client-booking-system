@@ -316,9 +316,9 @@ These files MUST be deployed:
 11. Data Export (CSV)
 12. Backup & Restore System
 13. Marketing Automation (Campaigns, Segments, Workflows)
-14. **Lead Generation System (NEW)**
+14. **Lead Generation System**
    - Lead tracking & funnel
-   - AI-powered lead magnets
+   - Lead magnets
    - Automated drip campaigns
 
 ### 🚧 Inactive Features:

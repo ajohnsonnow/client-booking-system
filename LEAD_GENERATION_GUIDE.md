@@ -2,7 +2,7 @@
 
 ## Overview
 
-World-class lead generation funnel with AI-powered content creation, automated drip campaigns, and comprehensive lead tracking. Built for Ravi's Sacred Healing business to capture, nurture, and convert leads automatically.
+World-class lead generation funnel with automated drip campaigns and comprehensive lead tracking. Built for Ravi's Sacred Healing business to capture, nurture, and convert leads automatically.
 
 ---
 
@@ -14,19 +14,19 @@ World-class lead generation funnel with AI-powered content creation, automated d
 - **Lead Status Management**: Track leads as new, contacted, qualified, or converted
 - **Lead Filtering**: Quick filters to find leads by status
 
-### 2. **AI-Powered Lead Magnets** 🧲
+### 2. **Lead Magnets** 🧲
 - **Types**: Free guides, assessments, consultations, healing resources, mini courses, checklists
-- **AI Content Generation**: Automatically creates:
+- **Create Your Own Content**:
   - Compelling headlines and copy
   - Benefit-focused bullet points
   - Call-to-action buttons
   - Email capture forms
   - Welcome email sequences
 - **Performance Tracking**: Views, conversions, and conversion rates
-- **Instant Setup**: No writing required - AI does it for you
+- **Easy Setup**: Simple creation form
 
 ### 3. **Automated Drip Campaigns** 💧
-- **5-Email Sequences**: Pre-built, ready-to-send
+- **Custom Email Sequences**: Build your own email series
 - **Smart Triggers**:
   - After lead magnet download
   - After inquiry submission
