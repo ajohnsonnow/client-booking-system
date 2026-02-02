@@ -2210,6 +2210,128 @@ app.post('/api/admin/send-custom-email/:id', authenticateAdmin, async (req, res)
   }
 });
 
+// Send email from template to multiple recipients
+app.post('/api/admin/send-template-email', authenticateAdmin, async (req, res) => {
+  try {
+    const { templateId, subject, body, recipients } = req.body;
+
+    if (!subject || !body || !recipients || recipients.length === 0) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    // Load all clients for data population
+    const clients = loadClients();
+    const bookings = loadBookings();
+
+    let sentCount = 0;
+    let failedRecipients = [];
+
+    // Send individual emails to each recipient
+    for (const recipient of recipients) {
+      try {
+        // Find full client data
+        const client = clients.find(c => c.id === recipient.id);
+        if (!client) {
+          failedRecipients.push(recipient.email);
+          continue;
+        }
+
+        // Get latest booking for this client
+        const clientBookings = bookings.filter(b => b.email === client.email).sort((a, b) => 
+          new Date(b.createdAt) - new Date(a.createdAt)
+        );
+        const latestBooking = clientBookings[0];
+
+        // Prepare personalization data
+        const personalData = {
+          clientName: client.name || recipient.name,
+          firstName: (client.name || recipient.name).split(' ')[0],
+          lastName: (client.name || recipient.name).split(' ').slice(1).join(' '),
+          email: client.email,
+          serviceName: latestBooking?.serviceName || 'Sacred Healing Session',
+          date: latestBooking?.confirmedDate ? new Date(latestBooking.confirmedDate).toLocaleDateString('en-US', { 
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+          }) : '',
+          time: latestBooking?.confirmedTime || '',
+          practitionerName: 'Ravi',
+          location: 'Sacred Healing Space',
+          duration: '90 minutes'
+        };
+
+        // Replace variables in subject and body
+        let personalizedSubject = subject;
+        let personalizedBody = body;
+
+        Object.keys(personalData).forEach(key => {
+          const regex = new RegExp(`{{${key}}}`, 'g');
+          personalizedSubject = personalizedSubject.replace(regex, personalData[key] || '');
+          personalizedBody = personalizedBody.replace(regex, personalData[key] || '');
+        });
+
+        // Build HTML email
+        const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: Georgia, serif; color: #3D3630; line-height: 1.8; margin: 0; padding: 0; }
+    .container { max-width: 600px; margin: 0 auto; }
+    .header { padding: 30px; background: linear-gradient(135deg, #722F37 0%, #5C252C 100%); color: white; text-align: center; }
+    .content { padding: 40px 30px; background: #FDF8F3; }
+    .footer { padding: 20px; text-align: center; font-size: 13px; color: #9E9890; background: #f8f6f3; border-top: 1px solid #e0d6cc; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1 style="margin: 0; font-size: 24px;">🪷 ${personalizedSubject}</h1>
+    </div>
+    <div class="content">
+      ${personalizedBody.split('\n').map(p => p.trim() ? `<p style="margin: 0 0 16px 0;">${p}</p>` : '<br>').join('')}
+    </div>
+    <div class="footer">
+      <p style="margin: 0 0 8px 0;"><strong>🪷 Ravi Sacred Healing</strong></p>
+      <p style="margin: 0;">Sacred Healing Space | contact@ravisacredhealing.com</p>
+    </div>
+  </div>
+</body>
+</html>
+        `.trim();
+
+        // Send email (uses existing sendEmail function)
+        const sent = await sendEmail(client.email, personalizedSubject, personalizedBody, html);
+        
+        if (sent) {
+          sentCount++;
+        } else {
+          failedRecipients.push(client.email);
+        }
+      } catch (err) {
+        console.error(`Failed to send to ${recipient.email}:`, err);
+        failedRecipients.push(recipient.email);
+      }
+    }
+
+    if (sentCount === 0) {
+      return res.status(500).json({ 
+        error: 'Failed to send any emails',
+        failedRecipients 
+      });
+    }
+
+    res.json({ 
+      success: true, 
+      message: `Successfully sent ${sentCount} email(s)`,
+      sentCount,
+      totalRecipients: recipients.length,
+      failedCount: failedRecipients.length,
+      failedRecipients: failedRecipients.length > 0 ? failedRecipients : undefined
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to send template email: ' + err.message });
+  }
+});
+
 // ===========================================
 // TWILIO SMS INTEGRATION (World-Class Messaging)
 // ===========================================

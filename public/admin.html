@@ -8827,9 +8827,14 @@ With love,
           <div style="max-width: 700px; width: 100%;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
               <h3 style="color: var(--burgundy); margin: 0;">📧 ${t.name}</h3>
-              <button class="btn btn-sm btn-outline" onclick="editEmailTemplate('${id}'); hideModal('previewModal');">
-                ✏️ Edit
-              </button>
+              <div style="display: flex; gap: 8px;">
+                <button class="btn btn-sm btn-outline" onclick="editEmailTemplate('${id}'); hideModal('previewModal');">
+                  ✏️ Edit
+                </button>
+                <button class="btn btn-sm btn-primary" onclick="showSendEmailForm('${id}')">
+                  📤 Send Email
+                </button>
+              </div>
             </div>
 
             <!-- Email Preview Card -->
@@ -8857,11 +8862,208 @@ With love,
               <strong>💡 Preview Note:</strong> This shows how the email will look with sample data. Variables like {{clientName}} are automatically replaced with real client information when sent.
             </div>
 
-            <div style="margin-top: 20px; text-align: center;">
+            <div style="margin-top: 20px; display: flex; gap: 12px; justify-content: center;">
               <button class="btn btn-secondary" onclick="hideModal('previewModal')">Close Preview</button>
             </div>
           </div>
         `, { id: 'previewModal' });
+      }
+    }
+
+    async function showSendEmailForm(templateId) {
+      showLoading(true);
+      const [templateResult, clientsResult] = await Promise.all([
+        api(`/api/admin/email-templates/${templateId}`),
+        api('/api/admin/clients')
+      ]);
+      showLoading(false);
+
+      if (!templateResult?.template) {
+        showToast('Template not found', 'error');
+        return;
+      }
+
+      const template = templateResult.template;
+      const clientsList = clientsResult || [];
+
+      // Filter to active clients only
+      const activeClients = clientsList.filter(c => !c.status || c.status === 'active');
+
+      showModal(`
+        <div style="max-width: 600px; width: 100%;">
+          <h3 style="color: var(--burgundy); margin-bottom: 20px;">📤 Send Email: ${template.name}</h3>
+
+          <div class="form-group">
+            <label class="form-label">Select Recipients</label>
+            <select id="recipientType" class="form-input" onchange="toggleRecipientOptions()">
+              <option value="individual">Individual Client</option>
+              <option value="multiple">Multiple Clients</option>
+              <option value="all">All Clients (${activeClients.length})</option>
+              <option value="tier">By Client Tier</option>
+            </select>
+          </div>
+
+          <!-- Individual Client Selection -->
+          <div id="individualRecipient" class="form-group">
+            <label class="form-label">Choose Client</label>
+            <select id="selectedClient" class="form-input">
+              <option value="">Select a client...</option>
+              ${activeClients.map(c => `
+                <option value="${c.id}" data-name="${c.name}" data-email="${c.email}">
+                  ${c.name} (${c.email})
+                </option>
+              `).join('')}
+            </select>
+          </div>
+
+          <!-- Multiple Clients Selection -->
+          <div id="multipleRecipients" class="form-group" style="display: none;">
+            <label class="form-label">Choose Clients (Ctrl/Cmd + Click for multiple)</label>
+            <select id="selectedClients" class="form-input" multiple size="8">
+              ${activeClients.map(c => `
+                <option value="${c.id}" data-name="${c.name}" data-email="${c.email}">
+                  ${c.name} (${c.email})
+                </option>
+              `).join('')}
+            </select>
+            <small style="color: var(--soft-gray);">Hold Ctrl (Windows) or Cmd (Mac) and click to select multiple clients</small>
+          </div>
+
+          <!-- Tier Selection -->
+          <div id="tierRecipient" class="form-group" style="display: none;">
+            <label class="form-label">Choose Tier</label>
+            <select id="selectedTier" class="form-input">
+              <option value="favored">Favored Clients (${activeClients.filter(c => c.tier === 'favored').length})</option>
+              <option value="vip">VIP Clients (${activeClients.filter(c => c.tier === 'vip' || (c.totalSessions >= 6)).length})</option>
+              <option value="regular">Regular Clients (${activeClients.filter(c => c.tier === 'regular' || (c.totalSessions >= 3 && c.totalSessions < 6)).length})</option>
+              <option value="new">New Clients (${activeClients.filter(c => c.tier === 'new' || c.tier === 'returning' || c.totalSessions < 3).length})</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Subject Line</label>
+            <input type="text" id="sendEmailSubject" class="form-input" value="${template.subject}">
+            <small style="color: var(--soft-gray);">You can customize the subject before sending</small>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Email Body</label>
+            <textarea id="sendEmailBody" class="form-input" rows="10">${template.body}</textarea>
+            <small style="color: var(--soft-gray);">Variables like {{clientName}} will be replaced automatically for each recipient</small>
+          </div>
+
+          <div style="padding: 12px; background: var(--cream); border-radius: 8px; border-left: 4px solid var(--burgundy); margin-bottom: 20px;">
+            <strong style="color: var(--burgundy);">⚠️ Important:</strong>
+            <ul style="margin: 8px 0 0 20px; color: var(--charcoal); font-size: 14px;">
+              <li>Emails are sent individually (no BCC)</li>
+              <li>Each client receives a personalized email</li>
+              <li>Variables are auto-filled with their data</li>
+            </ul>
+          </div>
+
+          <div style="display: flex; gap: 12px; justify-content: flex-end;">
+            <button class="btn btn-secondary" onclick="hideModal('sendEmailModal')">Cancel</button>
+            <button class="btn btn-primary" onclick="sendTemplateEmail('${templateId}')">
+              📤 Send Email
+            </button>
+          </div>
+        </div>
+      `, { id: 'sendEmailModal' });
+    }
+
+    function toggleRecipientOptions() {
+      const type = document.getElementById('recipientType').value;
+      document.getElementById('individualRecipient').style.display = type === 'individual' ? 'block' : 'none';
+      document.getElementById('multipleRecipients').style.display = type === 'multiple' ? 'block' : 'none';
+      document.getElementById('tierRecipient').style.display = type === 'tier' ? 'block' : 'none';
+    }
+
+    async function sendTemplateEmail(templateId) {
+      const recipientType = document.getElementById('recipientType').value;
+      const subject = document.getElementById('sendEmailSubject').value;
+      const body = document.getElementById('sendEmailBody').value;
+
+      if (!subject || !body) {
+        showToast('Please fill in subject and body', 'error');
+        return;
+      }
+
+      let recipients = [];
+
+      // Get recipients based on type
+      if (recipientType === 'individual') {
+        const selectedOption = document.getElementById('selectedClient').selectedOptions[0];
+        if (!selectedOption || !selectedOption.value) {
+          showToast('Please select a client', 'error');
+          return;
+        }
+        recipients = [{
+          id: selectedOption.value,
+          name: selectedOption.dataset.name,
+          email: selectedOption.dataset.email
+        }];
+      } else if (recipientType === 'multiple') {
+        const selectedOptions = Array.from(document.getElementById('selectedClients').selectedOptions);
+        if (selectedOptions.length === 0) {
+          showToast('Please select at least one client', 'error');
+          return;
+        }
+        recipients = selectedOptions.map(opt => ({
+          id: opt.value,
+          name: opt.dataset.name,
+          email: opt.dataset.email
+        }));
+      } else if (recipientType === 'all') {
+        const clientsResult = await api('/api/admin/clients');
+        recipients = (clientsResult || [])
+          .filter(c => !c.status || c.status === 'active')
+          .map(c => ({ id: c.id, name: c.name, email: c.email }));
+      } else if (recipientType === 'tier') {
+        const tier = document.getElementById('selectedTier').value;
+        const clientsResult = await api('/api/admin/clients');
+        const allClients = clientsResult || [];
+        
+        recipients = allClients.filter(c => {
+          if (c.status && c.status !== 'active') return false;
+          
+          if (tier === 'favored') return c.tier === 'favored';
+          if (tier === 'vip') return c.tier === 'vip' || (c.totalSessions >= 6);
+          if (tier === 'regular') return c.tier === 'regular' || (c.totalSessions >= 3 && c.totalSessions < 6);
+          if (tier === 'new') return c.tier === 'new' || c.tier === 'returning' || (c.totalSessions < 3);
+          
+          return false;
+        }).map(c => ({ id: c.id, name: c.name, email: c.email }));
+      }
+
+      if (recipients.length === 0) {
+        showToast('No recipients selected', 'error');
+        return;
+      }
+
+      // Confirm before sending
+      const confirmMsg = recipients.length === 1 
+        ? `Send email to ${recipients[0].name}?`
+        : `Send email to ${recipients.length} clients?`;
+      
+      if (!confirm(confirmMsg)) return;
+
+      showLoading(true);
+      const result = await api('/api/admin/send-template-email', {
+        method: 'POST',
+        body: JSON.stringify({
+          templateId,
+          subject,
+          body,
+          recipients
+        })
+      });
+      showLoading(false);
+
+      if (result?.success) {
+        showToast(`Email sent to ${recipients.length} recipient(s)! ✨`, 'success');
+        hideModal('sendEmailModal');
+      } else {
+        showToast(result?.error || 'Failed to send email', 'error');
       }
     }
 
