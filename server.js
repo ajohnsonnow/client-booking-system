@@ -447,6 +447,12 @@ function getDefaultContent() {
 // ===========================================
 // EMAIL CONFIGURATION
 // ===========================================
+// PRIVACY POLICY: All emails are sent INDIVIDUALLY
+// - NEVER use CC (carbon copy) - exposes all recipients to each other
+// - NEVER use BCC for marketing - still exposes metadata and is risky
+// - Each client receives their own private, personalized email
+// - No client can ever see another client's email address
+// ===========================================
 
 let transporter = null;
 
@@ -462,15 +468,27 @@ if (process.env.EMAIL_HOST && process.env.EMAIL_USER && process.env.EMAIL_PASS) 
   });
 }
 
+/**
+ * Send an email to a SINGLE recipient
+ * SECURITY: This function only accepts ONE email address
+ * Never modify to accept arrays or multiple recipients
+ */
 async function sendEmail(to, subject, text, html) {
   if (!transporter) {
+    return false;
+  }
+  
+  // SAFETY CHECK: Reject if someone tries to pass multiple emails
+  if (typeof to !== 'string' || to.includes(',') || to.includes(';')) {
+    console.error('SECURITY: Attempted to send to multiple recipients - BLOCKED');
     return false;
   }
 
   try {
     await transporter.sendMail({
       from: `"Ravi - Sacred Healing" <${process.env.EMAIL_USER}>`,
-      to,
+      to: to.trim(),  // Single recipient only
+      // NO cc or bcc fields - intentionally omitted for privacy
       subject,
       text,
       html
@@ -3774,9 +3792,15 @@ app.post('/api/admin/campaigns/send', authenticateAdmin, async (req, res) => {
   };
   
   // In production, would send emails here via nodemailer
+  // SECURITY: Each email is sent INDIVIDUALLY - never use CC or BCC
+  // This ensures absolute client privacy - no recipient can see others
   if (EMAIL_ENABLED && transporter) {
-    // Send emails to all recipients
+    let successCount = 0;
+    let failCount = 0;
+    
+    // Send emails ONE AT A TIME to each recipient (never batch/group)
     for (const client of recipients) {
+      // Personalize email for THIS specific client only
       const personalizedBody = campaign.body
         .replace(/{{firstName}}/g, client.name?.split(' ')[0] || client.name)
         .replace(/{{lastName}}/g, client.name?.split(' ').slice(1).join(' ') || '')
@@ -3784,16 +3808,32 @@ app.post('/api/admin/campaigns/send', authenticateAdmin, async (req, res) => {
         .replace(/{{businessName}}/g, 'Ravi\'s Sacred Healing');
       
       try {
+        // CRITICAL: Single recipient only - NEVER add cc or bcc fields
         await transporter.sendMail({
-          from: EMAIL_USER,
-          to: client.email,
+          from: `"Ravi - Sacred Healing" <${EMAIL_USER}>`,
+          to: client.email,  // ONE recipient only
+          // NO cc field - would expose other clients
+          // NO bcc field - still reveals count and could leak
           subject: campaign.subject,
-          html: personalizedBody.replace(/\n/g, '<br>')
+          html: personalizedBody.replace(/\n/g, '<br>'),
+          headers: {
+            'X-Privacy': 'individual-send',
+            'Precedence': 'bulk'  // Helps email servers handle appropriately
+          }
         });
+        successCount++;
       } catch (err) {
-        console.error(`Failed to send to ${client.email}:`, err.message);
+        console.error(`[CAMPAIGN ${campaign.id}] Failed to send to ${client.email}:`, err.message);
+        failCount++;
       }
+      
+      // Small delay between emails to avoid rate limiting
+      await new Promise(resolve => setTimeout(resolve, 100));
     }
+    
+    console.log(`[CAMPAIGN ${campaign.id}] Sent: ${successCount}, Failed: ${failCount}`);
+    campaign.stats.sent = successCount;
+    campaign.stats.failed = failCount;
   }
   
   // Update or add campaign
