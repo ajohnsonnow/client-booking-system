@@ -1141,7 +1141,7 @@ app.post('/api/bookings', authenticateToken, async (req, res) => {
     reminderSent: false
   };
 
-  const bookings = loadBookings();
+  // bookings already loaded above for duplicate check
   bookings.push(booking);
   saveBookings(bookings);
 
