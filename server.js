@@ -851,14 +851,41 @@ app.post('/api/inquiry', rateLimit({
     return res.status(400).json({ error: 'Please enter a valid email address' });
   }
   
-  // Save inquiry
+  const normalizedEmail = email.trim().toLowerCase();
+  
+  // Check for duplicate/pending inquiry with same email
   const inquiries = loadInquiries();
+  const existingInquiry = inquiries.find(i => 
+    i.email === normalizedEmail && 
+    (i.status === 'new' || i.status === 'reviewed')
+  );
+  
+  if (existingInquiry) {
+    // Don't reveal exact status for security, just acknowledge
+    return res.json({ 
+      success: true, 
+      message: 'Thank you! Your inquiry is being reviewed. Ravi will be in touch soon.' 
+    });
+  }
+  
+  // Check if already a client (they should use their invitation code instead)
+  const clients = loadClients();
+  const existingClient = clients.find(c => c.email === normalizedEmail);
+  
+  if (existingClient && !existingClient.status?.includes('banned')) {
+    return res.json({ 
+      success: true, 
+      message: 'Welcome back! It looks like you already have an account. Please use your invitation code to access the booking portal, or check your email for the magic link.' 
+    });
+  }
+  
+  // Save new inquiry
   const inquiry = {
     id: uuidv4(),
-    name,
-    email: email.toLowerCase(),
-    phone: phone || null,
-    message,
+    name: name.trim(),
+    email: normalizedEmail,
+    phone: phone?.trim() || null,
+    message: message.trim(),
     createdAt: new Date().toISOString(),
     status: 'new', // new, reviewed, invited, declined
     invitationCode: null
@@ -1044,6 +1071,38 @@ app.post('/api/bookings', authenticateToken, async (req, res) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
     return res.status(400).json({ error: 'Please enter a valid email address' });
+  }
+
+  const normalizedEmail = email.trim().toLowerCase();
+  
+  // Check for banned/suspended client
+  const clients = loadClients();
+  const existingClient = clients.find(c => c.email === normalizedEmail);
+  
+  if (existingClient?.status === 'banned') {
+    return res.status(403).json({ error: 'Unable to process your request. Please contact us directly if you believe this is an error.' });
+  }
+  
+  if (existingClient?.status === 'suspended') {
+    return res.status(403).json({ error: 'Your account is temporarily suspended. Please contact us for more information.' });
+  }
+  
+  // Check for duplicate pending booking (prevent double-submissions)
+  const bookings = loadBookings();
+  const recentPendingBooking = bookings.find(b => 
+    b.email.toLowerCase() === normalizedEmail && 
+    b.status === 'pending' &&
+    b.serviceId === serviceId &&
+    // Within last 24 hours
+    (new Date() - new Date(b.createdAt)) < 24 * 60 * 60 * 1000
+  );
+  
+  if (recentPendingBooking) {
+    return res.json({
+      success: true,
+      message: 'Your application has already been received. Ravi will reach out to schedule your discovery call.',
+      bookingId: recentPendingBooking.id
+    });
   }
 
   // Get service details
