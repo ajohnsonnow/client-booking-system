@@ -760,36 +760,105 @@
       gap: 16px;
     }
 
-    /* ============ TABS ============ */
+    /* ============ TABS - MANILA FOLDER STYLE ============ */
     .tabs {
       display: flex;
-      border-bottom: 2px solid #eee;
-      margin-bottom: 24px;
+      gap: 4px;
+      margin-bottom: 0;
       overflow-x: auto;
+      overflow-y: visible;
+      padding: 0 20px;
+      position: relative;
+      border-bottom: 3px solid var(--burgundy-dark);
     }
 
     .tab {
-      padding: 12px 24px;
+      position: relative;
+      padding: 14px 28px 12px 28px;
       cursor: pointer;
-      font-weight: 500;
-      color: var(--soft-gray);
-      border-bottom: 2px solid transparent;
-      margin-bottom: -2px;
+      font-weight: 600;
+      color: var(--charcoal);
+      background: #e8dfd0;
+      border: 2px solid #c0b5a0;
+      border-bottom: none;
+      border-radius: 8px 8px 0 0;
       white-space: nowrap;
-      transition: all 0.2s;
+      transition: all 0.3s ease;
+      margin-top: 6px;
+      box-shadow: 0 -2px 4px rgba(0,0,0,0.05);
+      transform-origin: bottom center;
     }
 
     .tab:hover {
-      color: var(--burgundy);
+      background: #f0e8d8;
+      transform: translateY(-2px);
+      z-index: 5;
     }
 
     .tab.active {
+      background: var(--bg-primary);
       color: var(--burgundy);
+      border-color: var(--burgundy-dark);
+      margin-top: 0;
+      padding-top: 18px;
+      padding-bottom: 14px;
+      z-index: 10;
+      box-shadow: 0 -4px 8px rgba(114, 47, 55, 0.15);
+      border-bottom: 3px solid var(--bg-primary);
+      margin-bottom: -3px;
+    }
+
+    .tab.active::before {
+      content: '';
+      position: absolute;
+      bottom: -3px;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--bg-primary);
+      z-index: 11;
+    }
+
+    .tab .badge {
+      margin-left: 8px;
+      font-size: 10px;
+      padding: 2px 6px;
+    }
+
+    /* Dark mode folder tabs */
+    [data-theme="dark"] .tab {
+      background: #3a3530;
+      border-color: #5a5550;
+      color: #e8e8e8;
+    }
+
+    [data-theme="dark"] .tab:hover {
+      background: #4a4540;
+    }
+
+    [data-theme="dark"] .tab.active {
+      background: var(--bg-primary);
+      border-color: var(--burgundy);
+      color: var(--burgundy-light);
+      border-bottom-color: var(--bg-primary);
+    }
+
+    [data-theme="dark"] .tab.active::before {
+      background: var(--bg-primary);
+    }
+
+    [data-theme="dark"] .tabs {
       border-bottom-color: var(--burgundy);
     }
 
     .tab-content {
       display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .tab-content.active {
@@ -2554,36 +2623,6 @@
       font-size: 13px;
       color: var(--text);
       font-weight: 500;
-    }
-
-    .tabs {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 20px;
-      border-bottom: 2px solid var(--border);
-      padding-bottom: 0;
-    }
-
-    .tabs .tab {
-      padding: 12px 20px;
-      background: none;
-      border: none;
-      border-bottom: 3px solid transparent;
-      color: var(--soft-gray);
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      margin-bottom: -2px;
-    }
-
-    .tabs .tab:hover {
-      color: var(--burgundy);
-      background: var(--background);
-    }
-
-    .tabs .tab.active {
-      color: var(--burgundy);
-      border-bottom-color: var(--burgundy);
     }
 
     /* Additional utility classes */
@@ -8722,12 +8761,12 @@ With love,
           gallery.innerHTML = '<p class="no-items-message">No templates yet. Click "Create Template" to get started!</p>';
         } else {
           gallery.innerHTML = result.templates.map(t => `
-            <div class="template-card">
+            <div class="template-card" onclick="previewEmailTemplate('${t.id}')" style="cursor: pointer;">
               <h4>${t.name}</h4>
               <p style="color: var(--soft-gray); font-size: 13px; margin: 8px 0;">
                 Subject: ${t.subject}
               </p>
-              <div class="template-actions">
+              <div class="template-actions" onclick="event.stopPropagation();">
                 <button class="btn btn-sm btn-outline" onclick="editEmailTemplate('${t.id}')">Edit</button>
                 <button class="btn btn-sm btn-danger" onclick="deleteEmailTemplate('${t.id}')">Delete</button>
               </div>
@@ -8749,6 +8788,80 @@ With love,
       if (result?.success) {
         showToast('Template deleted', 'success');
         await loadEmailTemplates();
+      }
+    }
+
+    async function previewEmailTemplate(id) {
+      showLoading(true);
+      const result = await api(`/api/admin/email-templates/${id}`);
+      showLoading(false);
+
+      if (result?.template) {
+        const t = result.template;
+        
+        // Sample data for preview
+        const sampleData = {
+          clientName: 'Sarah Johnson',
+          serviceName: 'Sacred Energy Healing Session',
+          date: new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
+          time: '2:00 PM',
+          practitionerName: 'Ravi',
+          location: 'Sacred Healing Space, 123 Peaceful Way',
+          duration: '90 minutes'
+        };
+
+        // Replace variables in subject and body
+        let previewSubject = t.subject;
+        let previewBody = t.body;
+        
+        Object.keys(sampleData).forEach(key => {
+          const regex = new RegExp(`{{${key}}}`, 'g');
+          previewSubject = previewSubject.replace(regex, sampleData[key]);
+          previewBody = previewBody.replace(regex, sampleData[key]);
+        });
+
+        // Convert line breaks to HTML
+        previewBody = previewBody.replace(/\n/g, '<br>');
+
+        showModal(`
+          <div style="max-width: 700px; width: 100%;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+              <h3 style="color: var(--burgundy); margin: 0;">📧 ${t.name}</h3>
+              <button class="btn btn-sm btn-outline" onclick="editEmailTemplate('${id}'); hideModal('previewModal');">
+                ✏️ Edit
+              </button>
+            </div>
+
+            <!-- Email Preview Card -->
+            <div style="background: white; border: 2px solid #e0d6cc; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+              <!-- Email Header -->
+              <div style="background: linear-gradient(135deg, var(--burgundy) 0%, var(--burgundy-dark) 100%); padding: 20px; color: white;">
+                <div style="font-size: 12px; opacity: 0.9; margin-bottom: 8px;">FROM: Ravi Sacred Healing <contact@ravisacredhealing.com></div>
+                <div style="font-size: 12px; opacity: 0.9; margin-bottom: 12px;">TO: ${sampleData.clientName} <sarah@example.com></div>
+                <div style="font-size: 18px; font-weight: 600;">📧 ${previewSubject}</div>
+              </div>
+
+              <!-- Email Body -->
+              <div style="padding: 30px; background: var(--warm-white); color: var(--charcoal); line-height: 1.8;">
+                ${previewBody}
+              </div>
+
+              <!-- Email Footer -->
+              <div style="background: #f8f6f3; padding: 20px; border-top: 1px solid #e0d6cc; font-size: 12px; color: var(--soft-gray); text-align: center;">
+                <p style="margin: 0 0 8px 0;">🪷 Ravi Sacred Healing</p>
+                <p style="margin: 0;">123 Peaceful Way | contact@ravisacredhealing.com</p>
+              </div>
+            </div>
+
+            <div style="margin-top: 20px; padding: 12px; background: var(--gold-light); border-radius: 8px; font-size: 13px;">
+              <strong>💡 Preview Note:</strong> This shows how the email will look with sample data. Variables like {{clientName}} are automatically replaced with real client information when sent.
+            </div>
+
+            <div style="margin-top: 20px; text-align: center;">
+              <button class="btn btn-secondary" onclick="hideModal('previewModal')">Close Preview</button>
+            </div>
+          </div>
+        `, { id: 'previewModal' });
       }
     }
 
