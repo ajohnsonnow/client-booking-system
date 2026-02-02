@@ -844,13 +844,17 @@
     }
 
     .client-filter-btn {
-      padding: 8px 16px;
+      padding: 8px 12px;
       border: 2px solid #e0d6cc;
       border-radius: 20px;
       background: white;
       cursor: pointer;
       font-size: 13px;
       transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
     }
 
     .client-filter-btn:hover {
@@ -861,6 +865,95 @@
       background: var(--burgundy);
       color: white;
       border-color: var(--burgundy);
+    }
+
+    .filter-count {
+      font-size: 11px;
+      background: rgba(0,0,0,0.1);
+      padding: 2px 6px;
+      border-radius: 10px;
+      min-width: 18px;
+      text-align: center;
+    }
+
+    .client-filter-btn.active .filter-count {
+      background: rgba(255,255,255,0.25);
+    }
+
+    .filter-count.badge-alert {
+      background: #f44336;
+      color: white;
+    }
+
+    .client-filter-btn.active .filter-count.badge-alert {
+      background: #ffcdd2;
+      color: #b71c1c;
+    }
+
+    .msg-badge {
+      font-size: 10px;
+      background: #ff5722;
+      color: white;
+      padding: 2px 5px;
+      border-radius: 8px;
+      margin-left: 2px;
+      display: none;
+    }
+
+    .msg-badge.has-messages {
+      display: inline-block;
+    }
+
+    .tier-filters {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid #eee;
+    }
+
+    .filter-label {
+      font-size: 12px;
+      color: #666;
+      margin-right: 8px;
+      font-weight: 500;
+    }
+
+    /* Mobile filter styles */
+    @media (max-width: 768px) {
+      .client-filters {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+      }
+
+      .client-filter-btn {
+        padding: 10px 8px;
+        font-size: 12px;
+        justify-content: center;
+        text-align: center;
+      }
+
+      .tier-filters {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .filter-label {
+        grid-column: 1 / -1;
+        text-align: center;
+        margin-bottom: 4px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .client-filter-btn {
+        padding: 12px 6px;
+        font-size: 11px;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .filter-count, .msg-badge {
+        font-size: 10px;
+      }
     }
 
     /* ============ TOAST NOTIFICATIONS ============ */
@@ -1031,6 +1124,61 @@
       .calendar-day {
         min-height: 60px;
         padding: 4px;
+      }
+
+      /* Mobile clients grid */
+      .clients-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .client-card {
+        padding: 16px;
+      }
+
+      .client-avatar {
+        width: 44px;
+        height: 44px;
+        font-size: 16px;
+      }
+
+      .client-tier-badge {
+        font-size: 10px;
+        padding: 3px 8px;
+      }
+
+      .client-card-footer {
+        flex-wrap: wrap;
+      }
+
+      .client-stat {
+        font-size: 11px;
+      }
+
+      /* Mobile tabs in modal */
+      .tabs {
+        justify-content: space-around;
+      }
+
+      .tab {
+        padding: 10px 8px;
+        font-size: 12px;
+        flex: 1;
+        text-align: center;
+      }
+
+      /* Mobile modal body */
+      .modal-body {
+        max-height: calc(100vh - 180px) !important;
+      }
+
+      /* Tier management mobile */
+      .tier-management-section {
+        flex-direction: column;
+      }
+
+      .tier-select-group {
+        width: 100%;
       }
     }
 
@@ -2280,17 +2428,19 @@
         </div>
 
         <!-- Filter Tabs -->
-        <div class="client-filters">
-          <button class="client-filter-btn active" data-filter="all" onclick="filterClients('all')">All Clients</button>
-          <button class="client-filter-btn" data-filter="unread" onclick="filterClients('unread')">💬 Unread</button>
-          <button class="client-filter-btn" data-filter="active" onclick="filterClients('active')">✓ Active</button>
-          <button class="client-filter-btn" data-filter="suspended" onclick="filterClients('suspended')">⚠️ Suspended</button>
-          <button class="client-filter-btn" data-filter="banned" onclick="filterClients('banned')">🚫 Banned</button>
-          <span style="margin: 0 8px; border-left: 2px solid #ddd; height: 24px;"></span>
-          <button class="client-filter-btn" data-filter="favored" onclick="filterClients('favored')">💎 Favored</button>
-          <button class="client-filter-btn" data-filter="vip" onclick="filterClients('vip')">⭐ VIP</button>
-          <button class="client-filter-btn" data-filter="regular" onclick="filterClients('regular')">🌳 Regular</button>
-          <button class="client-filter-btn" data-filter="new" onclick="filterClients('new')">🌱 New</button>
+        <div class="client-filters" id="clientFilters">
+          <button class="client-filter-btn active" data-filter="all" id="filter-all" onclick="filterClients('all')">All <span class="filter-count" id="count-all"></span></button>
+          <button class="client-filter-btn" data-filter="unread" id="filter-unread" onclick="filterClients('unread')">💬 Unread <span class="filter-count badge-alert" id="count-unread"></span></button>
+          <button class="client-filter-btn" data-filter="active" id="filter-active" onclick="filterClients('active')">✓ Active <span class="filter-count" id="count-active"></span></button>
+          <button class="client-filter-btn" data-filter="suspended" id="filter-suspended" onclick="filterClients('suspended')">⚠️ Suspended <span class="filter-count" id="count-suspended"></span></button>
+          <button class="client-filter-btn" data-filter="banned" id="filter-banned" onclick="filterClients('banned')">🚫 Banned <span class="filter-count" id="count-banned"></span></button>
+        </div>
+        <div class="client-filters tier-filters" id="tierFilters">
+          <span class="filter-label">By Tier:</span>
+          <button class="client-filter-btn tier-btn" data-filter="favored" id="filter-favored" onclick="filterClients('favored')">💎 Favored <span class="filter-count" id="count-favored"></span><span class="msg-badge" id="msg-favored"></span></button>
+          <button class="client-filter-btn tier-btn" data-filter="vip" id="filter-vip" onclick="filterClients('vip')">⭐ VIP <span class="filter-count" id="count-vip"></span><span class="msg-badge" id="msg-vip"></span></button>
+          <button class="client-filter-btn tier-btn" data-filter="regular" id="filter-regular" onclick="filterClients('regular')">🌳 Regular <span class="filter-count" id="count-regular"></span><span class="msg-badge" id="msg-regular"></span></button>
+          <button class="client-filter-btn tier-btn" data-filter="new" id="filter-new" onclick="filterClients('new')">🌱 New <span class="filter-count" id="count-new"></span><span class="msg-badge" id="msg-new"></span></button>
         </div>
 
         <div class="clients-grid" id="clientsList">
@@ -4548,6 +4698,68 @@
       renderClients();
     }
 
+    // Helper to get client tier (matching server logic)
+    function getClientTier(client) {
+      if (client.tier) return client.tier;
+      const sessions = client.totalSessions || 0;
+      if (sessions >= 6) return 'vip';
+      if (sessions >= 3) return 'regular';
+      if (sessions >= 1) return 'returning';
+      return 'new';
+    }
+
+    function updateFilterCounts() {
+      // Status counts
+      const allCount = clients.length;
+      const unreadCount = clients.filter(c => c.unreadMessages > 0).length;
+      const activeCount = clients.filter(c => !c.status || c.status === 'active').length;
+      const suspendedCount = clients.filter(c => c.status === 'suspended').length;
+      const bannedCount = clients.filter(c => c.status === 'banned').length;
+
+      // Tier counts and message counts
+      const favoredClients = clients.filter(c => c.tier === 'favored');
+      const vipClients = clients.filter(c => getClientTier(c) === 'vip' && c.tier !== 'favored');
+      const regularClients = clients.filter(c => getClientTier(c) === 'regular' && c.tier !== 'favored');
+      const newClients = clients.filter(c => ['new', 'returning'].includes(getClientTier(c)) && c.tier !== 'favored');
+
+      const favoredMsgs = favoredClients.reduce((sum, c) => sum + (c.unreadMessages || 0), 0);
+      const vipMsgs = vipClients.reduce((sum, c) => sum + (c.unreadMessages || 0), 0);
+      const regularMsgs = regularClients.reduce((sum, c) => sum + (c.unreadMessages || 0), 0);
+      const newMsgs = newClients.reduce((sum, c) => sum + (c.unreadMessages || 0), 0);
+
+      // Update status filter counts
+      const setCount = (id, count) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = count > 0 ? count : '';
+      };
+
+      setCount('count-all', allCount);
+      setCount('count-unread', unreadCount);
+      setCount('count-active', activeCount);
+      setCount('count-suspended', suspendedCount);
+      setCount('count-banned', bannedCount);
+
+      // Update tier filter counts
+      setCount('count-favored', favoredClients.length);
+      setCount('count-vip', vipClients.length);
+      setCount('count-regular', regularClients.length);
+      setCount('count-new', newClients.length);
+
+      // Update message badges for tiers
+      const setMsgBadge = (id, count) => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.textContent = count > 0 ? `💬${count}` : '';
+          el.classList.toggle('has-messages', count > 0);
+        }
+      };
+
+      setMsgBadge('msg-favored', favoredMsgs);
+      setMsgBadge('msg-vip', vipMsgs);
+      setMsgBadge('msg-regular', regularMsgs);
+      setMsgBadge('msg-new', newMsgs);
+    }
+
     function renderClients() {
       const search = document.getElementById('clientSearch').value.toLowerCase();
       let filtered = [...clients];
@@ -4591,6 +4803,9 @@
       document.getElementById('totalClientsCount').textContent = clients.length;
       document.getElementById('repeatClientsCount').textContent = repeatClients;
       document.getElementById('totalLifetimeValue').textContent = `$${lifetimeValue.toLocaleString()}`;
+
+      // Calculate filter counts and message counts per tier
+      updateFilterCounts();
 
       // Render cards
       document.getElementById('clientsList').innerHTML = filtered.length ? filtered.map(c => {
