@@ -469,10 +469,52 @@
                 <!-- Populated by JavaScript -->
               </div>
             </div>
-            <p class="form-note">Please share your general availability so we can find a time that works for both of us.</p>
+            
+            <p class="form-note" style="margin-top: 20px;">Select the days and times that work best for you (select all that apply):</p>
+            
+            <!-- Day Selection -->
             <div class="form-group">
-              <label for="availability">Your Availability</label>
-              <textarea id="availability" name="availability" rows="3" placeholder="e.g., Weekday mornings work best, or I'm flexible Tuesday-Thursday afternoons..."></textarea>
+              <label>Which days work for you?</label>
+              <div class="availability-buttons" id="dayButtons">
+                <button type="button" class="avail-btn" data-day="monday">Mon</button>
+                <button type="button" class="avail-btn" data-day="tuesday">Tue</button>
+                <button type="button" class="avail-btn" data-day="wednesday">Wed</button>
+                <button type="button" class="avail-btn" data-day="thursday">Thu</button>
+                <button type="button" class="avail-btn" data-day="friday">Fri</button>
+                <button type="button" class="avail-btn" data-day="saturday">Sat</button>
+                <button type="button" class="avail-btn" data-day="sunday">Sun</button>
+              </div>
+            </div>
+            
+            <!-- Time Preference -->
+            <div class="form-group">
+              <label>What times of day work best?</label>
+              <div class="availability-buttons time-buttons" id="timeButtons">
+                <button type="button" class="avail-btn time-btn" data-time="morning">
+                  <span class="time-icon">🌅</span>
+                  <span class="time-label">Morning</span>
+                  <span class="time-range">9am - 12pm</span>
+                </button>
+                <button type="button" class="avail-btn time-btn" data-time="afternoon">
+                  <span class="time-icon">☀️</span>
+                  <span class="time-label">Afternoon</span>
+                  <span class="time-range">12pm - 5pm</span>
+                </button>
+                <button type="button" class="avail-btn time-btn" data-time="evening">
+                  <span class="time-icon">🌙</span>
+                  <span class="time-label">Evening</span>
+                  <span class="time-range">5pm - 8pm</span>
+                </button>
+              </div>
+            </div>
+            
+            <!-- Hidden field to store selections -->
+            <input type="hidden" id="availability" name="availability" value="">
+            
+            <!-- Optional notes -->
+            <div class="form-group">
+              <label for="availabilityNotes">Any scheduling notes? (optional)</label>
+              <textarea id="availabilityNotes" name="availabilityNotes" rows="2" placeholder="e.g., I have a flexible schedule, or prefer not before 10am..."></textarea>
             </div>
           </div>
 

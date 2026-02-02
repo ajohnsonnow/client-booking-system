@@ -296,6 +296,109 @@
   }
 
   // ===========================================
+  // AVAILABILITY BUTTON HANDLERS
+  // ===========================================
+
+  function setupAvailabilityButtons() {
+    const dayButtons = document.querySelectorAll('#dayButtons .avail-btn');
+    const timeButtons = document.querySelectorAll('#timeButtons .avail-btn');
+    const availabilityInput = document.getElementById('availability');
+    
+    if (!dayButtons.length || !timeButtons.length) return;
+    
+    // Track selections
+    const selectedDays = new Set();
+    const selectedTimes = new Set();
+    
+    // Day button clicks
+    dayButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const day = btn.dataset.day;
+        
+        if (selectedDays.has(day)) {
+          selectedDays.delete(day);
+          btn.classList.remove('selected');
+        } else {
+          selectedDays.add(day);
+          btn.classList.add('selected');
+        }
+        
+        updateAvailabilityValue();
+      });
+    });
+    
+    // Time button clicks
+    timeButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const time = btn.dataset.time;
+        
+        if (selectedTimes.has(time)) {
+          selectedTimes.delete(time);
+          btn.classList.remove('selected');
+        } else {
+          selectedTimes.add(time);
+          btn.classList.add('selected');
+        }
+        
+        updateAvailabilityValue();
+      });
+    });
+    
+    // Build human-readable availability string
+    function updateAvailabilityValue() {
+      const dayNames = {
+        'monday': 'Monday',
+        'tuesday': 'Tuesday',
+        'wednesday': 'Wednesday',
+        'thursday': 'Thursday',
+        'friday': 'Friday',
+        'saturday': 'Saturday',
+        'sunday': 'Sunday'
+      };
+      
+      const timeNames = {
+        'morning': 'mornings (9am-12pm)',
+        'afternoon': 'afternoons (12pm-5pm)',
+        'evening': 'evenings (5pm-8pm)'
+      };
+      
+      let availability = '';
+      
+      if (selectedDays.size > 0) {
+        const days = Array.from(selectedDays).map(d => dayNames[d]);
+        availability = 'Available: ' + days.join(', ');
+      }
+      
+      if (selectedTimes.size > 0) {
+        const times = Array.from(selectedTimes).map(t => timeNames[t]);
+        if (availability) {
+          availability += ' — ' + times.join(', ');
+        } else {
+          availability = 'Preferred times: ' + times.join(', ');
+        }
+      }
+      
+      // Add any notes
+      const notesInput = document.getElementById('availabilityNotes');
+      if (notesInput && notesInput.value.trim()) {
+        if (availability) {
+          availability += '. Notes: ' + notesInput.value.trim();
+        } else {
+          availability = notesInput.value.trim();
+        }
+      }
+      
+      availabilityInput.value = availability;
+    }
+    
+    // Also update when notes change
+    const notesInput = document.getElementById('availabilityNotes');
+    if (notesInput) {
+      notesInput.addEventListener('input', updateAvailabilityValue);
+    }
+  }
+
+  // ===========================================
   // PHONE NUMBER AUTO-FORMATTING
   // ===========================================
 
@@ -574,6 +677,7 @@
   document.addEventListener('DOMContentLoaded', () => {
     checkAuth();
     setupServiceCardClicks(); // Make pricing cards clickable
+    setupAvailabilityButtons(); // Make availability day/time buttons work
     
     // Prevent body scroll when gate is visible
     const gate = document.getElementById('password-gate');

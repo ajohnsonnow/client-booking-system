@@ -1270,6 +1270,105 @@ section {
   }
 }
 
+/* ===========================================
+   AVAILABILITY BUTTON SELECTOR
+   =========================================== */
+
+.availability-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.avail-btn {
+  padding: 12px 20px;
+  border: 2px solid var(--color-rose-light);
+  background: var(--color-white);
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 60px;
+  text-align: center;
+}
+
+.avail-btn:hover {
+  border-color: var(--color-burgundy);
+  background: var(--color-cream);
+  transform: translateY(-2px);
+}
+
+.avail-btn.selected {
+  background: var(--color-burgundy);
+  border-color: var(--color-burgundy);
+  color: var(--color-white);
+  box-shadow: 0 4px 12px rgba(114, 47, 55, 0.3);
+}
+
+/* Time buttons - larger with icon */
+.time-buttons {
+  gap: 16px;
+}
+
+.avail-btn.time-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 24px;
+  min-width: 120px;
+  flex: 1;
+  max-width: 160px;
+}
+
+.time-icon {
+  font-size: 1.5rem;
+  margin-bottom: 6px;
+}
+
+.time-label {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.time-range {
+  font-size: 0.75rem;
+  color: var(--color-text-light);
+  margin-top: 4px;
+}
+
+.avail-btn.time-btn.selected .time-range {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .availability-buttons {
+    justify-content: center;
+  }
+  
+  .avail-btn {
+    padding: 10px 14px;
+    font-size: 0.85rem;
+    min-width: 50px;
+  }
+  
+  .avail-btn.time-btn {
+    padding: 12px 16px;
+    min-width: 100px;
+  }
+  
+  .time-icon {
+    font-size: 1.2rem;
+  }
+  
+  .time-label {
+    font-size: 0.9rem;
+  }
+}
+
 /* Agreements */
 .agreements-section .form-section {
   background: var(--color-cream);
