@@ -1228,16 +1228,126 @@ app.get('/api/admin/clients/:id', authenticateAdmin, (req, res) => {
 });
 
 app.patch('/api/admin/clients/:id', authenticateAdmin, (req, res) => {
-  const { notes, tags } = req.body;
+  const { notes, tags, status } = req.body;
   const clients = loadClients();
   const client = clients.find(c => c.id === req.params.id);
   if (!client) return res.status(404).json({ error: 'Client not found' });
   
   if (notes !== undefined) client.notes = notes;
   if (tags !== undefined) client.tags = tags;
+  if (status !== undefined) client.status = status;
   
   saveClients(clients);
   res.json({ success: true, client });
+});
+
+// Suspend or ban a client
+app.post('/api/admin/clients/:id/suspend', authenticateAdmin, async (req, res) => {
+  const { action, reason, notifyClient } = req.body;
+  
+  if (!['suspend', 'ban', 'reinstate'].includes(action)) {
+    return res.status(400).json({ error: 'Invalid action. Use suspend, ban, or reinstate' });
+  }
+  
+  const clients = loadClients();
+  const client = clients.find(c => c.id === req.params.id);
+  if (!client) return res.status(404).json({ error: 'Client not found' });
+  
+  const previousStatus = client.status || 'active';
+  
+  // Update client status
+  client.status = action === 'reinstate' ? 'active' : action === 'ban' ? 'banned' : 'suspended';
+  client.statusChangedAt = new Date().toISOString();
+  client.statusReason = reason || '';
+  client.statusHistory = client.statusHistory || [];
+  client.statusHistory.push({
+    from: previousStatus,
+    to: client.status,
+    reason: reason || '',
+    changedAt: new Date().toISOString()
+  });
+  
+  saveClients(clients);
+  
+  // Optionally notify the client
+  if (notifyClient && action !== 'reinstate') {
+    const subject = action === 'ban' 
+      ? 'Important Update About Your Account'
+      : 'Your Account Has Been Temporarily Suspended';
+    
+    const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: Georgia, serif; background: #FDF8F3; padding: 40px; }
+    .container { max-width: 500px; margin: 0 auto; background: white; border-radius: 16px; padding: 32px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+    .header { background: #722F37; color: white; padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 24px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2 style="margin: 0;">Account Update</h2>
+    </div>
+    <p>Dear ${client.name.split(' ')[0]},</p>
+    <p>This message is to inform you that your account has been ${action === 'ban' ? 'closed' : 'temporarily suspended'}.</p>
+    ${reason ? `<p><strong>Reason:</strong> ${reason}</p>` : ''}
+    <p>If you have any questions, please reply to this email.</p>
+    <p>Respectfully,<br><strong>Ravi</strong></p>
+  </div>
+</body>
+</html>
+    `;
+    
+    try {
+      await sendEmail(client.email, subject, 
+        `Dear ${client.name.split(' ')[0]},\n\nYour account has been ${action === 'ban' ? 'closed' : 'temporarily suspended'}.\n${reason ? `Reason: ${reason}` : ''}\n\nRespectfully,\nRavi`,
+        html
+      );
+    } catch (err) {
+      console.error('Failed to send status notification:', err);
+    }
+  }
+  
+  res.json({ 
+    success: true, 
+    message: `Client ${action === 'reinstate' ? 'reinstated' : action + 'ed'} successfully`,
+    client 
+  });
+});
+
+// Get client with message counts
+app.get('/api/admin/clients-with-messages', authenticateAdmin, (req, res) => {
+  const clients = loadClients();
+  const messages = loadMessages();
+  const bookings = loadBookings();
+  
+  // Enrich clients with unread message counts
+  const enrichedClients = clients.map(client => {
+    const clientMessages = messages.filter(m => m.conversationId === client.email.toLowerCase());
+    const unreadCount = clientMessages.filter(m => m.from === 'client' && !m.read).length;
+    const lastMessage = clientMessages.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
+    const clientBookings = bookings.filter(b => b.email.toLowerCase() === client.email.toLowerCase());
+    
+    return {
+      ...client,
+      unreadMessages: unreadCount,
+      lastMessageAt: lastMessage?.createdAt,
+      totalSessions: clientBookings.filter(b => b.status === 'completed').length,
+      totalSpent: clientBookings.filter(b => b.status === 'completed').reduce((sum, b) => sum + (b.servicePrice || 0), 0),
+      pendingBookings: clientBookings.filter(b => b.status === 'pending').length
+    };
+  });
+  
+  enrichedClients.sort((a, b) => {
+    // Sort by unread messages first, then by last contact
+    if (a.unreadMessages > 0 && b.unreadMessages === 0) return -1;
+    if (b.unreadMessages > 0 && a.unreadMessages === 0) return 1;
+    return new Date(b.lastContact || 0) - new Date(a.lastContact || 0);
+  });
+  
+  res.json(enrichedClients);
 });
 
 app.get('/api/admin/clients/search/:query', authenticateAdmin, (req, res) => {
@@ -2427,6 +2537,27 @@ function authenticateClient(req, res, next) {
     if (decoded.type !== 'client') {
       return res.status(401).json({ error: 'Invalid token type' });
     }
+    
+    // Check if client is suspended or banned
+    const clients = loadClients();
+    const client = clients.find(c => c.email.toLowerCase() === decoded.email.toLowerCase());
+    
+    if (client?.status === 'banned') {
+      return res.status(403).json({ 
+        error: 'Account access restricted', 
+        message: 'Your account has been closed. Please contact us if you have questions.',
+        status: 'banned'
+      });
+    }
+    
+    if (client?.status === 'suspended') {
+      return res.status(403).json({ 
+        error: 'Account temporarily suspended', 
+        message: 'Your account is temporarily on hold. Please contact us for assistance.',
+        status: 'suspended'
+      });
+    }
+    
     req.clientEmail = decoded.email;
     next();
   } catch (err) {

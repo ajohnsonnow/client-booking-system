@@ -643,59 +643,209 @@
     }
 
     /* ============ CLIENT LIST ============ */
+    .clients-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
+    }
+
     .client-card {
       display: flex;
-      align-items: center;
-      padding: 16px;
-      border: 1px solid #eee;
-      border-radius: 8px;
-      margin-bottom: 12px;
+      flex-direction: column;
+      padding: 20px;
+      border: 2px solid #e0d6cc;
+      border-radius: 12px;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.3s;
+      background: white;
+      position: relative;
     }
 
     .client-card:hover {
       border-color: var(--burgundy);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      box-shadow: 0 8px 24px rgba(114, 47, 55, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .client-card.has-unread {
+      border-color: var(--gold);
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.05) 0%, white 100%);
+    }
+
+    .client-card.suspended {
+      border-color: var(--warning);
+      background: #fff8e6;
+      opacity: 0.85;
+    }
+
+    .client-card.banned {
+      border-color: var(--danger);
+      background: #ffebee;
+      opacity: 0.7;
+    }
+
+    .client-card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
     }
 
     .client-avatar {
-      width: 48px;
-      height: 48px;
+      width: 52px;
+      height: 52px;
       border-radius: 50%;
-      background: var(--burgundy);
+      background: linear-gradient(135deg, var(--burgundy) 0%, var(--burgundy-light) 100%);
       color: white;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 600;
-      font-size: 18px;
-      margin-right: 16px;
+      font-size: 20px;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .client-avatar .message-dot {
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      width: 18px;
+      height: 18px;
+      background: var(--gold);
+      border-radius: 50%;
+      border: 2px solid white;
+      font-size: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: white;
+    }
+
+    .client-info {
+      flex: 1;
+      min-width: 0;
     }
 
     .client-info h4 {
       font-size: 16px;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
+      color: var(--charcoal);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .client-info h4 .status-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+    }
+
+    .client-info h4 .status-indicator.suspended {
+      background: var(--warning);
+    }
+
+    .client-info h4 .status-indicator.banned {
+      background: var(--danger);
     }
 
     .client-info p {
       font-size: 13px;
       color: var(--soft-gray);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .client-stats {
-      margin-left: auto;
-      text-align: right;
+    .client-stats-row {
+      display: flex;
+      gap: 16px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #f0ebe4;
     }
 
-    .client-stats .sessions {
-      font-size: 14px;
+    .client-stat {
+      text-align: center;
+      flex: 1;
+    }
+
+    .client-stat-value {
+      font-size: 18px;
       font-weight: 600;
+      color: var(--burgundy);
     }
 
-    .client-stats .spent {
-      font-size: 12px;
-      color: var(--success);
+    .client-stat-label {
+      font-size: 11px;
+      color: var(--soft-gray);
+      text-transform: uppercase;
+    }
+
+    .client-quick-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .client-quick-actions .btn {
+      flex: 1;
+      justify-content: center;
+      padding: 8px 12px;
+      font-size: 13px;
+    }
+
+    /* Client Status Badges */
+    .client-status-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      font-size: 10px;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .client-status-badge.suspended {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .client-status-badge.banned {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    /* Filter tabs for clients */
+    .client-filters {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .client-filter-btn {
+      padding: 8px 16px;
+      border: 2px solid #e0d6cc;
+      border-radius: 20px;
+      background: white;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+
+    .client-filter-btn:hover {
+      border-color: var(--burgundy);
+    }
+
+    .client-filter-btn.active {
+      background: var(--burgundy);
+      color: white;
+      border-color: var(--burgundy);
     }
 
     /* ============ TOAST NOTIFICATIONS ============ */
@@ -2086,7 +2236,7 @@
       <!-- CLIENTS PAGE -->
       <section class="page" id="page-clients">
         <div class="page-header">
-          <h1 class="page-title">Client Directory</h1>
+          <h1 class="page-title">👥 Client Navigator</h1>
           <div class="header-actions">
             <div class="search-box">
               <span class="search-icon">🔍</span>
@@ -2096,6 +2246,10 @@
         </div>
 
         <div class="stats-grid">
+          <div class="stat-card stat-card-gold">
+            <div class="stat-label">💬 Need Response</div>
+            <div class="stat-value" id="clientsNeedResponseCount">0</div>
+          </div>
           <div class="stat-card">
             <div class="stat-label">Total Clients</div>
             <div class="stat-value" id="totalClientsCount">0</div>
@@ -2104,12 +2258,23 @@
             <div class="stat-label">Repeat Clients</div>
             <div class="stat-value" id="repeatClientsCount">0</div>
           </div>
+          <div class="stat-card">
+            <div class="stat-label">Lifetime Value</div>
+            <div class="stat-value" id="totalLifetimeValue">$0</div>
+          </div>
         </div>
 
-        <div class="card">
-          <div class="card-body" id="clientsList">
-            <!-- Populated by JS -->
-          </div>
+        <!-- Filter Tabs -->
+        <div class="client-filters">
+          <button class="client-filter-btn active" onclick="filterClients('all')">All Clients</button>
+          <button class="client-filter-btn" onclick="filterClients('unread')">💬 Unread Messages</button>
+          <button class="client-filter-btn" onclick="filterClients('active')">✓ Active</button>
+          <button class="client-filter-btn" onclick="filterClients('suspended')">⚠️ Suspended</button>
+          <button class="client-filter-btn" onclick="filterClients('banned')">🚫 Banned</button>
+        </div>
+
+        <div class="clients-grid" id="clientsList">
+          <!-- Populated by JS -->
         </div>
       </section>
 
@@ -3296,15 +3461,114 @@
     </div>
   </div>
 
-  <!-- CLIENT DETAIL MODAL -->
+  <!-- CLIENT DETAIL MODAL (COMPREHENSIVE) -->
   <div class="modal-overlay" id="clientModal">
-    <div class="modal">
-      <div class="modal-header">
-        <h2 class="modal-title">Client Details</h2>
-        <button class="modal-close" onclick="closeModal('clientModal')">&times;</button>
+    <div class="modal" style="max-width: 800px; width: 95%;">
+      <div class="modal-header" style="background: linear-gradient(135deg, var(--burgundy) 0%, var(--burgundy-light) 100%); color: white;">
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <div class="client-avatar" id="modalClientAvatar" style="width: 56px; height: 56px; font-size: 22px; background: rgba(255,255,255,0.2);"></div>
+          <div>
+            <h2 class="modal-title" id="modalClientName" style="margin: 0; color: white;">Client Name</h2>
+            <p style="margin: 4px 0 0 0; opacity: 0.9; font-size: 14px;" id="modalClientEmail">email@example.com</p>
+          </div>
+        </div>
+        <button class="modal-close" onclick="closeModal('clientModal')" style="color: white;">&times;</button>
       </div>
-      <div class="modal-body" id="clientModalBody">
-        <!-- Populated by JS -->
+      
+      <!-- Modal Tabs -->
+      <div class="tabs" style="margin: 0; border-radius: 0; border-bottom: 1px solid #e0d6cc;">
+        <div class="tab active" data-clienttab="info" onclick="switchClientTab('info')">📋 Info</div>
+        <div class="tab" data-clienttab="messages" onclick="switchClientTab('messages')">💬 Messages <span id="modalUnreadBadge" class="badge gold-badge" style="display: none; margin-left: 4px;">0</span></div>
+        <div class="tab" data-clienttab="history" onclick="switchClientTab('history')">📜 History</div>
+        <div class="tab" data-clienttab="actions" onclick="switchClientTab('actions')">⚙️ Actions</div>
+      </div>
+
+      <div class="modal-body" style="max-height: 500px; overflow-y: auto;">
+        <!-- Info Tab -->
+        <div class="client-tab-content active" data-clientcontent="info" id="clientTabInfo">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- Messages Tab -->
+        <div class="client-tab-content" data-clientcontent="messages" id="clientTabMessages" style="display: none;">
+          <div id="clientModalMessages" style="max-height: 280px; overflow-y: auto; margin-bottom: 16px;">
+            <p style="text-align: center; color: var(--soft-gray);">Loading messages...</p>
+          </div>
+          <div style="border-top: 1px solid #e0d6cc; padding-top: 16px;">
+            <textarea id="clientModalReplyInput" placeholder="Type your message..." style="width: 100%; min-height: 80px; padding: 12px; border: 2px solid #e0d6cc; border-radius: 8px; font-family: inherit; resize: vertical;"></textarea>
+            <div style="display: flex; gap: 12px; margin-top: 12px; align-items: center;">
+              <button class="btn btn-primary" onclick="sendClientModalReply()">📨 Send Message</button>
+              <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: #666;">
+                <input type="checkbox" id="clientModalSendEmail" checked>
+                Send email notification
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- History Tab -->
+        <div class="client-tab-content" data-clientcontent="history" id="clientTabHistory" style="display: none;">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- Actions Tab -->
+        <div class="client-tab-content" data-clientcontent="actions" id="clientTabActions" style="display: none;">
+          <div style="padding: 20px 0;">
+            <h4 style="margin-bottom: 16px; color: var(--charcoal);">🛡️ Account Management</h4>
+            <p style="color: var(--soft-gray); margin-bottom: 20px; font-size: 14px;">
+              Use these options to manage client access. All actions are logged and reversible.
+            </p>
+            
+            <div id="clientActionButtons">
+              <!-- Populated by JS based on client status -->
+            </div>
+
+            <div style="margin-top: 32px; padding-top: 20px; border-top: 1px solid #e0d6cc;">
+              <h4 style="margin-bottom: 12px; color: var(--charcoal);">📝 Admin Notes</h4>
+              <textarea id="clientModalNotes" placeholder="Add private notes about this client..." style="width: 100%; min-height: 100px; padding: 12px; border: 2px solid #e0d6cc; border-radius: 8px; font-family: inherit; resize: vertical;"></textarea>
+              <button class="btn btn-outline" style="margin-top: 12px;" onclick="saveClientModalNotes()">💾 Save Notes</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUSPEND/BAN CONFIRMATION MODAL -->
+  <div class="modal-overlay" id="suspendConfirmModal">
+    <div class="modal" style="max-width: 480px;">
+      <div class="modal-header" id="suspendModalHeader" style="background: var(--warning); color: white;">
+        <h2 class="modal-title" id="suspendModalTitle">⚠️ Confirm Suspension</h2>
+        <button class="modal-close" onclick="closeModal('suspendConfirmModal')" style="color: white;">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p id="suspendModalMessage" style="margin-bottom: 20px;">Are you sure you want to suspend this client?</p>
+        
+        <div class="form-group">
+          <label class="form-label">Reason (optional but recommended)</label>
+          <textarea id="suspendReason" class="form-textarea" rows="3" placeholder="e.g., Violation of policies, inappropriate behavior, etc."></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+            <input type="checkbox" id="suspendNotifyClient">
+            <span>Send notification email to client</span>
+          </label>
+          <p style="font-size: 12px; color: var(--soft-gray); margin-top: 4px;">
+            Client will be informed of the account status change
+          </p>
+        </div>
+
+        <div style="background: #fff8e6; padding: 12px; border-radius: 8px; margin-top: 16px;">
+          <p style="font-size: 13px; margin: 0; color: #856404;">
+            <strong>⚡ This action can be reversed.</strong><br>
+            You can reinstate the client at any time from their profile.
+          </p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('suspendConfirmModal')">Cancel</button>
+        <button class="btn" id="suspendConfirmBtn" onclick="confirmSuspendAction()">Confirm</button>
       </div>
     </div>
   </div>
@@ -4244,100 +4508,480 @@
     // ===========================================
     // CLIENTS
     // ===========================================
+    let clientFilter = 'all';
+    let currentClientId = null;
+    let currentClientData = null;
+    let pendingSuspendAction = null;
+
     async function loadClients() {
       showLoading(true);
-      clients = await api('/api/admin/clients') || [];
+      clients = await api('/api/admin/clients-with-messages') || [];
       showLoading(false);
+      renderClients();
+    }
+
+    function filterClients(filter) {
+      clientFilter = filter;
+      document.querySelectorAll('.client-filter-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.textContent.toLowerCase().includes(filter) || (filter === 'all' && btn.textContent.includes('All')));
+      });
       renderClients();
     }
 
     function renderClients() {
       const search = document.getElementById('clientSearch').value.toLowerCase();
-      let filtered = clients;
+      let filtered = [...clients];
       
+      // Apply search
       if (search) {
-        filtered = clients.filter(c =>
-          c.name.toLowerCase().includes(search) ||
-          c.email.toLowerCase().includes(search) ||
+        filtered = filtered.filter(c =>
+          c.name?.toLowerCase().includes(search) ||
+          c.email?.toLowerCase().includes(search) ||
           c.phone?.includes(search)
         );
       }
 
-      document.getElementById('totalClientsCount').textContent = clients.length;
-      document.getElementById('repeatClientsCount').textContent = clients.filter(c => c.totalSessions > 1).length;
+      // Apply filter
+      if (clientFilter === 'unread') {
+        filtered = filtered.filter(c => c.unreadMessages > 0);
+      } else if (clientFilter === 'active') {
+        filtered = filtered.filter(c => !c.status || c.status === 'active');
+      } else if (clientFilter === 'suspended') {
+        filtered = filtered.filter(c => c.status === 'suspended');
+      } else if (clientFilter === 'banned') {
+        filtered = filtered.filter(c => c.status === 'banned');
+      }
 
-      document.getElementById('clientsList').innerHTML = filtered.length ? filtered.map(c => `
-        <div class="client-card">
-          <div class="client-avatar" onclick="viewClient('${c.id}')">${c.name.charAt(0)}</div>
-          <div class="client-info" onclick="viewClient('${c.id}')" style="cursor: pointer;">
-            <h4>${c.name}</h4>
-            <p>${c.email}</p>
+      // Update stats
+      const needResponse = clients.filter(c => c.unreadMessages > 0).length;
+      const repeatClients = clients.filter(c => c.totalSessions > 1).length;
+      const lifetimeValue = clients.reduce((sum, c) => sum + (c.totalSpent || 0), 0);
+
+      document.getElementById('clientsNeedResponseCount').textContent = needResponse;
+      document.getElementById('totalClientsCount').textContent = clients.length;
+      document.getElementById('repeatClientsCount').textContent = repeatClients;
+      document.getElementById('totalLifetimeValue').textContent = `$${lifetimeValue.toLocaleString()}`;
+
+      // Render cards
+      document.getElementById('clientsList').innerHTML = filtered.length ? filtered.map(c => {
+        const statusClass = c.status === 'banned' ? 'banned' : c.status === 'suspended' ? 'suspended' : '';
+        const hasUnread = c.unreadMessages > 0;
+        
+        return `
+          <div class="client-card ${statusClass} ${hasUnread ? 'has-unread' : ''}" onclick="openClientModal('${c.id}')">
+            ${c.status && c.status !== 'active' ? `<span class="client-status-badge ${c.status}">${c.status}</span>` : ''}
+            <div class="client-card-header">
+              <div class="client-avatar">
+                ${c.name?.charAt(0) || '?'}
+                ${hasUnread ? `<span class="message-dot">${c.unreadMessages}</span>` : ''}
+              </div>
+              <div class="client-info">
+                <h4>
+                  ${c.name || 'Unknown'}
+                  <span class="status-indicator ${c.status || 'active'}"></span>
+                </h4>
+                <p>${c.email || ''}</p>
+                ${c.phone ? `<p style="font-size: 12px;">${c.phone}</p>` : ''}
+              </div>
+            </div>
+            <div class="client-stats-row">
+              <div class="client-stat">
+                <div class="client-stat-value">${c.totalSessions || 0}</div>
+                <div class="client-stat-label">Sessions</div>
+              </div>
+              <div class="client-stat">
+                <div class="client-stat-value">$${c.totalSpent || 0}</div>
+                <div class="client-stat-label">Total</div>
+              </div>
+              <div class="client-stat">
+                <div class="client-stat-value">${c.unreadMessages || 0}</div>
+                <div class="client-stat-label">Unread</div>
+              </div>
+            </div>
+            <div class="client-quick-actions" onclick="event.stopPropagation();">
+              <button class="btn btn-sm btn-outline" onclick="event.stopPropagation(); quickMessage('${c.id}')">💬</button>
+              <button class="btn btn-sm btn-outline" onclick="event.stopPropagation(); quickEmail('${c.email}')">📧</button>
+              <button class="btn btn-sm btn-primary" onclick="event.stopPropagation(); openClientModal('${c.id}')">View</button>
+            </div>
           </div>
-          <div class="client-stats">
-            <div class="sessions">${c.totalSessions || 0} sessions</div>
-            ${c.totalSpent ? `<div class="spent">$${c.totalSpent} total</div>` : ''}
+        `;
+      }).join('') : `
+        <div style="grid-column: 1 / -1;">
+          <div class="empty-state">
+            <div class="empty-state-icon">👥</div>
+            <h3>${clientFilter !== 'all' ? 'No clients match this filter' : 'No clients yet'}</h3>
+            <p>Clients will appear here after their first booking</p>
           </div>
-          <button class="btn btn-sm btn-outline" onclick="openClientDirectMessageModal('${c.id}')" style="margin-left: auto;">💬 Message</button>
         </div>
-      `).join('') : '<div class="empty-state"><div class="empty-state-icon">👥</div><h3>No clients yet</h3><p>Clients will appear here after their first booking</p></div>';
+      `;
     }
 
     document.getElementById('clientSearch').addEventListener('input', renderClients);
 
-    async function viewClient(id) {
+    function quickMessage(clientId) {
+      openClientModal(clientId);
+      setTimeout(() => switchClientTab('messages'), 100);
+    }
+
+    function quickEmail(email) {
+      window.open(`mailto:${email}?subject=Hello from Ravi Sacred Healing`);
+    }
+
+    async function openClientModal(id) {
+      currentClientId = id;
       showLoading(true);
+      
       const client = await api(`/api/admin/clients/${id}`);
       showLoading(false);
       
       if (!client) return;
+      
+      currentClientData = client;
 
-      document.getElementById('clientModalBody').innerHTML = `
-        <div class="detail-item">
-          <div class="detail-label">Name</div>
-          <div class="detail-value">${client.name}</div>
-        </div>
-        <div class="detail-item">
-          <div class="detail-label">Email</div>
-          <div class="detail-value">${client.email}</div>
-        </div>
-        <div class="detail-item">
-          <div class="detail-label">Phone</div>
-          <div class="detail-value">${client.phone || 'N/A'}</div>
-        </div>
-        <div class="detail-item">
-          <div class="detail-label">Total Sessions</div>
-          <div class="detail-value">${client.totalSessions || 0}</div>
-        </div>
-        <div class="detail-item">
-          <div class="detail-label">Total Spent</div>
-          <div class="detail-value">$${client.totalSpent || 0}</div>
-        </div>
-        <div class="detail-item">
-          <div class="detail-label">First Contact</div>
-          <div class="detail-value">${new Date(client.createdAt).toLocaleDateString()}</div>
-        </div>
+      // Update header
+      document.getElementById('modalClientAvatar').textContent = client.name?.charAt(0) || '?';
+      document.getElementById('modalClientName').textContent = client.name || 'Unknown';
+      document.getElementById('modalClientEmail').textContent = client.email || '';
 
-        <hr style="margin: 20px 0; border: none; border-top: 1px solid #eee;">
+      // Render Info tab
+      renderClientInfoTab(client);
+      
+      // Render History tab
+      renderClientHistoryTab(client);
+      
+      // Render Actions tab
+      renderClientActionsTab(client);
+      
+      // Load messages
+      loadClientModalMessages(client.email);
 
-        <div class="form-group">
-          <label class="form-label">Notes</label>
-          <textarea class="form-textarea" id="clientNotes" rows="4" onchange="updateClientNotes('${client.id}')">${client.notes || ''}</textarea>
-        </div>
-
-        <h4 style="margin: 20px 0 12px;">Session History</h4>
-        ${client.sessions?.length ? client.sessions.map(s => `
-          <div style="padding: 12px; border: 1px solid #eee; border-radius: 8px; margin-bottom: 8px;">
-            <strong>${s.service}</strong> - $${s.price || 0}
-            <br><small style="color: var(--soft-gray);">${s.date ? new Date(s.date).toLocaleDateString() : 'Date TBD'} • ${s.status}</small>
-          </div>
-        `).join('') : '<p style="color: var(--soft-gray);">No sessions yet</p>'}
-      `;
-
+      // Reset to Info tab
+      switchClientTab('info');
+      
       openModal('clientModal');
     }
 
+    function switchClientTab(tabName) {
+      document.querySelectorAll('[data-clienttab]').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.clienttab === tabName);
+      });
+      document.querySelectorAll('[data-clientcontent]').forEach(content => {
+        content.style.display = content.dataset.clientcontent === tabName ? 'block' : 'none';
+      });
+    }
+
+    function renderClientInfoTab(client) {
+      document.getElementById('clientTabInfo').innerHTML = `
+        <div class="detail-grid">
+          <div>
+            <div class="detail-item">
+              <div class="detail-label">📧 Email</div>
+              <div class="detail-value"><a href="mailto:${client.email}">${client.email}</a></div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">📱 Phone</div>
+              <div class="detail-value">${client.phone || 'Not provided'}</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">👤 Pronouns</div>
+              <div class="detail-value">${client.pronouns || 'Not specified'}</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">📅 First Contact</div>
+              <div class="detail-value">${client.createdAt ? new Date(client.createdAt).toLocaleDateString() : 'Unknown'}</div>
+            </div>
+          </div>
+          <div>
+            <div class="detail-item">
+              <div class="detail-label">💫 Total Sessions</div>
+              <div class="detail-value" style="font-size: 24px; color: var(--burgundy);">${client.totalSessions || 0}</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">💰 Lifetime Value</div>
+              <div class="detail-value" style="font-size: 24px; color: var(--success);">$${client.totalSpent || 0}</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">⏰ Last Contact</div>
+              <div class="detail-value">${client.lastContact ? new Date(client.lastContact).toLocaleDateString() : 'Never'}</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">🛡️ Status</div>
+              <div class="detail-value">
+                <span class="badge ${client.status === 'banned' ? 'badge-cancelled' : client.status === 'suspended' ? 'badge-pending' : 'badge-confirmed'}" style="font-size: 12px;">
+                  ${(client.status || 'active').toUpperCase()}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        ${client.statusReason ? `
+          <div style="background: #fff8e6; padding: 12px; border-radius: 8px; margin-top: 16px;">
+            <strong>Status Reason:</strong> ${client.statusReason}
+          </div>
+        ` : ''}
+      `;
+    }
+
+    function renderClientHistoryTab(client) {
+      const bookings = client.bookings || [];
+      document.getElementById('clientTabHistory').innerHTML = `
+        <h4 style="margin-bottom: 16px;">📜 Session History (${bookings.length} total)</h4>
+        ${bookings.length ? bookings.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map(b => `
+          <div style="padding: 16px; border: 1px solid #e0d6cc; border-radius: 8px; margin-bottom: 12px; border-left: 4px solid ${b.status === 'completed' ? 'var(--success)' : b.status === 'confirmed' ? 'var(--burgundy)' : 'var(--warning)'};">
+            <div style="display: flex; justify-content: space-between; align-items: start;">
+              <div>
+                <strong>${b.serviceName || 'Session'}</strong>
+                <br><small style="color: var(--soft-gray);">
+                  ${b.confirmedDate ? new Date(b.confirmedDate).toLocaleDateString() : b.createdAt ? new Date(b.createdAt).toLocaleDateString() : 'Date TBD'}
+                  ${b.confirmedTime ? ` at ${b.confirmedTime}` : ''}
+                </small>
+              </div>
+              <div style="text-align: right;">
+                <span class="badge ${b.status === 'completed' ? 'badge-confirmed' : b.status === 'confirmed' ? 'badge-info' : 'badge-pending'}">${b.status}</span>
+                <br><strong style="color: var(--burgundy);">$${b.servicePrice || 0}</strong>
+              </div>
+            </div>
+          </div>
+        `).join('') : '<p style="color: var(--soft-gray); text-align: center; padding: 40px;">No sessions yet</p>'}
+      `;
+    }
+
+    function renderClientActionsTab(client) {
+      const status = client.status || 'active';
+      
+      let actionButtons = '';
+      
+      if (status === 'active') {
+        actionButtons = `
+          <button class="btn btn-outline" style="width: 100%; margin-bottom: 12px; justify-content: center;" onclick="initiateSuspend('suspend')">
+            ⚠️ Suspend Client
+          </button>
+          <p style="font-size: 13px; color: var(--soft-gray); margin-bottom: 20px;">
+            Temporarily prevent this client from booking new sessions or accessing their portal.
+          </p>
+          
+          <button class="btn" style="width: 100%; background: var(--danger); color: white; justify-content: center;" onclick="initiateSuspend('ban')">
+            🚫 Ban Client
+          </button>
+          <p style="font-size: 13px; color: var(--soft-gray);">
+            Permanently remove this client's access. Use for serious policy violations.
+          </p>
+        `;
+      } else if (status === 'suspended') {
+        actionButtons = `
+          <div style="background: #fff3cd; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+            <strong>⚠️ This client is currently suspended</strong>
+            ${client.statusReason ? `<p style="margin: 8px 0 0 0; font-size: 13px;">Reason: ${client.statusReason}</p>` : ''}
+          </div>
+          
+          <button class="btn btn-primary" style="width: 100%; margin-bottom: 12px; justify-content: center;" onclick="reinstateClient()">
+            ✅ Reinstate Client
+          </button>
+          <p style="font-size: 13px; color: var(--soft-gray); margin-bottom: 20px;">
+            Restore full access to booking and portal.
+          </p>
+          
+          <button class="btn" style="width: 100%; background: var(--danger); color: white; justify-content: center;" onclick="initiateSuspend('ban')">
+            🚫 Upgrade to Ban
+          </button>
+        `;
+      } else if (status === 'banned') {
+        actionButtons = `
+          <div style="background: #f8d7da; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+            <strong>🚫 This client is banned</strong>
+            ${client.statusReason ? `<p style="margin: 8px 0 0 0; font-size: 13px;">Reason: ${client.statusReason}</p>` : ''}
+            ${client.statusChangedAt ? `<p style="margin: 4px 0 0 0; font-size: 12px; color: #666;">Banned on: ${new Date(client.statusChangedAt).toLocaleDateString()}</p>` : ''}
+          </div>
+          
+          <button class="btn btn-primary" style="width: 100%; justify-content: center;" onclick="reinstateClient()">
+            ✅ Reinstate Client
+          </button>
+          <p style="font-size: 13px; color: var(--soft-gray);">
+            This will restore full access to the client's account.
+          </p>
+        `;
+      }
+
+      document.getElementById('clientActionButtons').innerHTML = actionButtons;
+      document.getElementById('clientModalNotes').value = client.notes || '';
+    }
+
+    async function loadClientModalMessages(email) {
+      const messages = await api(`/api/admin/messages/${encodeURIComponent(email.toLowerCase())}`);
+      const container = document.getElementById('clientModalMessages');
+      
+      if (!messages?.messages || messages.messages.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: var(--soft-gray); padding: 20px;">No messages yet. Send the first message below!</p>';
+        document.getElementById('modalUnreadBadge').style.display = 'none';
+        return;
+      }
+
+      const unreadCount = messages.messages.filter(m => m.from === 'client' && !m.read).length;
+      const badge = document.getElementById('modalUnreadBadge');
+      if (unreadCount > 0) {
+        badge.textContent = unreadCount;
+        badge.style.display = 'inline-block';
+      } else {
+        badge.style.display = 'none';
+      }
+
+      container.innerHTML = messages.messages.map(msg => `
+        <div style="display: flex; flex-direction: column; align-items: ${msg.from === 'client' ? 'flex-start' : 'flex-end'}; margin-bottom: 12px;">
+          <div style="background: ${msg.from === 'client' ? '#f8f5f0' : 'var(--burgundy)'}; color: ${msg.from === 'client' ? 'var(--charcoal)' : 'white'}; padding: 12px 16px; border-radius: 12px; max-width: 85%; ${msg.from === 'client' ? 'border-bottom-left-radius: 4px;' : 'border-bottom-right-radius: 4px;'}">
+            <div style="font-size: 11px; font-weight: 600; margin-bottom: 4px; opacity: 0.8;">${msg.from === 'client' ? (msg.fromName || 'Client') : '🪷 You'}</div>
+            <div style="white-space: pre-wrap;">${escapeHtml(msg.message)}</div>
+            <div style="font-size: 10px; opacity: 0.7; margin-top: 6px;">${formatDateTime(msg.createdAt)}</div>
+          </div>
+        </div>
+      `).join('');
+      
+      container.scrollTop = container.scrollHeight;
+    }
+
+    async function sendClientModalReply() {
+      if (!currentClientData) return;
+      
+      const input = document.getElementById('clientModalReplyInput');
+      const message = input.value.trim();
+      const sendEmail = document.getElementById('clientModalSendEmail').checked;
+      
+      if (!message) {
+        showToast('Please enter a message', 'error');
+        return;
+      }
+      
+      showLoading(true);
+      const result = await api(`/api/admin/messages/${encodeURIComponent(currentClientData.email.toLowerCase())}/reply`, {
+        method: 'POST',
+        body: JSON.stringify({ message, sendEmail })
+      });
+      showLoading(false);
+      
+      if (result?.success) {
+        input.value = '';
+        showToast('Message sent!', 'success');
+        loadClientModalMessages(currentClientData.email);
+        loadClients(); // Refresh to update unread counts
+      } else {
+        showToast(result?.error || 'Failed to send message', 'error');
+      }
+    }
+
+    async function saveClientModalNotes() {
+      if (!currentClientId) return;
+      
+      const notes = document.getElementById('clientModalNotes').value;
+      showLoading(true);
+      const result = await api(`/api/admin/clients/${currentClientId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ notes })
+      });
+      showLoading(false);
+      
+      if (result?.success) {
+        showToast('Notes saved!', 'success');
+      }
+    }
+
+    function initiateSuspend(action) {
+      pendingSuspendAction = action;
+      
+      const modal = document.getElementById('suspendConfirmModal');
+      const header = document.getElementById('suspendModalHeader');
+      const title = document.getElementById('suspendModalTitle');
+      const message = document.getElementById('suspendModalMessage');
+      const btn = document.getElementById('suspendConfirmBtn');
+      
+      if (action === 'ban') {
+        header.style.background = 'var(--danger)';
+        title.textContent = '🚫 Confirm Ban';
+        message.innerHTML = `
+          <strong>Are you sure you want to ban ${currentClientData?.name || 'this client'}?</strong>
+          <p style="margin-top: 8px; color: var(--soft-gray);">
+            This will permanently remove their access to booking and the client portal.
+          </p>
+        `;
+        btn.style.background = 'var(--danger)';
+        btn.textContent = 'Ban Client';
+      } else {
+        header.style.background = 'var(--warning)';
+        title.textContent = '⚠️ Confirm Suspension';
+        message.innerHTML = `
+          <strong>Are you sure you want to suspend ${currentClientData?.name || 'this client'}?</strong>
+          <p style="margin-top: 8px; color: var(--soft-gray);">
+            This will temporarily prevent them from booking new sessions.
+          </p>
+        `;
+        btn.style.background = 'var(--warning)';
+        btn.textContent = 'Suspend Client';
+      }
+      
+      document.getElementById('suspendReason').value = '';
+      document.getElementById('suspendNotifyClient').checked = false;
+      
+      openModal('suspendConfirmModal');
+    }
+
+    async function confirmSuspendAction() {
+      if (!currentClientId || !pendingSuspendAction) return;
+      
+      const reason = document.getElementById('suspendReason').value;
+      const notifyClient = document.getElementById('suspendNotifyClient').checked;
+      
+      showLoading(true);
+      const result = await api(`/api/admin/clients/${currentClientId}/suspend`, {
+        method: 'POST',
+        body: JSON.stringify({ 
+          action: pendingSuspendAction, 
+          reason, 
+          notifyClient 
+        })
+      });
+      showLoading(false);
+      
+      if (result?.success) {
+        showToast(`Client ${pendingSuspendAction === 'ban' ? 'banned' : 'suspended'} successfully`, 'success');
+        closeModal('suspendConfirmModal');
+        closeModal('clientModal');
+        loadClients();
+      } else {
+        showToast(result?.error || 'Action failed', 'error');
+      }
+      
+      pendingSuspendAction = null;
+    }
+
+    async function reinstateClient() {
+      if (!currentClientId) return;
+      
+      if (!confirm(`Are you sure you want to reinstate ${currentClientData?.name || 'this client'}? They will regain full access.`)) {
+        return;
+      }
+      
+      showLoading(true);
+      const result = await api(`/api/admin/clients/${currentClientId}/suspend`, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'reinstate' })
+      });
+      showLoading(false);
+      
+      if (result?.success) {
+        showToast('Client reinstated successfully!', 'success');
+        closeModal('clientModal');
+        loadClients();
+      } else {
+        showToast(result?.error || 'Failed to reinstate client', 'error');
+      }
+    }
+
+    // Legacy function for compatibility
+    async function viewClient(id) {
+      openClientModal(id);
+    }
+
     async function updateClientNotes(id) {
-      const notes = document.getElementById('clientNotes').value;
+      const notes = document.getElementById('clientNotes')?.value;
+      if (!notes) return;
       await api(`/api/admin/clients/${id}`, {
         method: 'PATCH',
         body: JSON.stringify({ notes })
