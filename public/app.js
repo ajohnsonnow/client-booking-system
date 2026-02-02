@@ -491,6 +491,12 @@
       showError('Please fill in all required fields.', 'name');
       return;
     }
+    
+    // Validate email format
+    if (!isValidEmail(bookingData.email)) {
+      showError('Please enter a valid email address.', 'email');
+      return;
+    }
 
     if (!bookingData.ageConfirmed) {
       showError('You must confirm that you are over 18 years of age.', 'ageConfirmed');
@@ -671,6 +677,91 @@
   });
 
   // ===========================================
+  // EMAIL VALIDATION
+  // ===========================================
+  
+  function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+  
+  function setupEmailValidation() {
+    const emailInput = document.getElementById('email');
+    if (!emailInput) return;
+    
+    emailInput.addEventListener('blur', () => {
+      const email = emailInput.value.trim();
+      if (email && !isValidEmail(email)) {
+        emailInput.style.borderColor = '#f44336';
+        emailInput.style.boxShadow = '0 0 0 3px rgba(244, 67, 54, 0.2)';
+        
+        // Show error message
+        let errorMsg = emailInput.parentElement.querySelector('.email-error');
+        if (!errorMsg) {
+          errorMsg = document.createElement('span');
+          errorMsg.className = 'email-error';
+          errorMsg.style.cssText = 'color: #f44336; font-size: 0.85rem; margin-top: 4px; display: block;';
+          emailInput.parentElement.appendChild(errorMsg);
+        }
+        errorMsg.textContent = 'Please enter a valid email address';
+      } else {
+        emailInput.style.borderColor = '';
+        emailInput.style.boxShadow = '';
+        const errorMsg = emailInput.parentElement.querySelector('.email-error');
+        if (errorMsg) errorMsg.remove();
+      }
+    });
+  }
+
+  // ===========================================
+  // AUTO-FILL FROM PORTAL SESSION
+  // ===========================================
+  
+  function autoFillFromPortal() {
+    // Check if client info exists from portal login
+    const clientInfoStr = sessionStorage.getItem('clientInfo');
+    if (!clientInfoStr) return;
+    
+    try {
+      const clientInfo = JSON.parse(clientInfoStr);
+      
+      // Auto-fill form fields
+      const nameInput = document.getElementById('name');
+      const emailInput = document.getElementById('email');
+      const phoneInput = document.getElementById('phone');
+      const genderInput = document.getElementById('gender');
+      const pronounsInput = document.getElementById('pronouns');
+      
+      if (nameInput && clientInfo.name) {
+        nameInput.value = clientInfo.name;
+      }
+      if (emailInput && clientInfo.email) {
+        emailInput.value = clientInfo.email;
+      }
+      if (phoneInput && clientInfo.phone) {
+        phoneInput.value = formatPhoneNumber(clientInfo.phone);
+      }
+      if (genderInput && clientInfo.gender) {
+        genderInput.value = clientInfo.gender;
+      }
+      if (pronounsInput && clientInfo.pronouns) {
+        pronounsInput.value = clientInfo.pronouns;
+      }
+      
+      // Show a helpful note that info was pre-filled
+      const formSection = document.querySelector('#booking .form-section');
+      if (formSection && clientInfo.name) {
+        const note = document.createElement('div');
+        note.className = 'prefill-note';
+        note.innerHTML = `<span style="background: linear-gradient(135deg, rgba(114, 47, 55, 0.1), rgba(212, 175, 55, 0.1)); padding: 12px 16px; border-radius: 8px; display: block; margin-bottom: 16px; font-size: 0.9rem;">✨ Welcome back, ${clientInfo.name.split(' ')[0]}! Your information has been pre-filled.</span>`;
+        formSection.insertBefore(note, formSection.firstChild);
+      }
+    } catch (err) {
+      console.log('Could not parse client info');
+    }
+  }
+
+  // ===========================================
   // INITIALIZATION
   // ===========================================
 
@@ -678,6 +769,8 @@
     checkAuth();
     setupServiceCardClicks(); // Make pricing cards clickable
     setupAvailabilityButtons(); // Make availability day/time buttons work
+    setupEmailValidation(); // Email format validation
+    autoFillFromPortal(); // Auto-fill form from portal session
     
     // Prevent body scroll when gate is visible
     const gate = document.getElementById('password-gate');

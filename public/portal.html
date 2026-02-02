@@ -892,10 +892,63 @@
     let clientToken = null;
     let clientData = null;
 
+    // ===========================================
+    // EMAIL VALIDATION
+    // ===========================================
+    
+    function isValidEmail(email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailRegex.test(email);
+    }
+    
+    function validateEmailInput(input, messageEl) {
+      const email = input.value.trim();
+      if (email && !isValidEmail(email)) {
+        input.style.borderColor = '#f44336';
+        if (messageEl) {
+          messageEl.textContent = 'Please enter a valid email address';
+          messageEl.className = 'message error show';
+        }
+        return false;
+      } else {
+        input.style.borderColor = '';
+        return true;
+      }
+    }
+    
+    // ===========================================
+    // PHONE NUMBER FORMATTING
+    // ===========================================
+    
+    function formatPhoneNumber(value) {
+      const cleaned = value.replace(/\D/g, '');
+      if (cleaned.length <= 3) {
+        return cleaned;
+      } else if (cleaned.length <= 6) {
+        return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3)}`;
+      } else if (cleaned.length <= 10) {
+        return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
+      } else {
+        return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6, 10)}`;
+      }
+    }
+
     // Check for magic link token in URL
     document.addEventListener('DOMContentLoaded', () => {
       const urlParams = new URLSearchParams(window.location.search);
       const token = urlParams.get('token');
+      
+      // Add email validation on blur
+      const loginEmail = document.getElementById('loginEmail');
+      const invitationEmail = document.getElementById('invitationEmail');
+      const loginMessage = document.getElementById('loginMessage');
+      
+      if (loginEmail) {
+        loginEmail.addEventListener('blur', () => validateEmailInput(loginEmail, loginMessage));
+      }
+      if (invitationEmail) {
+        invitationEmail.addEventListener('blur', () => validateEmailInput(invitationEmail, loginMessage));
+      }
       
       if (token) {
         validateToken(token);
@@ -916,6 +969,13 @@
       const email = document.getElementById('loginEmail').value.trim();
       const btn = document.getElementById('loginBtn');
       const message = document.getElementById('loginMessage');
+      
+      // Validate email format
+      if (!isValidEmail(email)) {
+        message.textContent = 'Please enter a valid email address';
+        message.className = 'message error show';
+        return;
+      }
       
       btn.disabled = true;
       btn.textContent = 'Sending...';
@@ -955,6 +1015,13 @@
       const email = document.getElementById('invitationEmail').value.trim();
       const btn = document.getElementById('invitationBtn');
       const message = document.getElementById('loginMessage');
+      
+      // Validate email format
+      if (!isValidEmail(email)) {
+        message.textContent = 'Please enter a valid email address';
+        message.className = 'message error show';
+        return;
+      }
       
       btn.disabled = true;
       btn.textContent = 'Verifying...';
@@ -1093,6 +1160,16 @@
         }
         
         clientData = await response.json();
+        
+        // Store client data in sessionStorage for form auto-fill
+        sessionStorage.setItem('clientInfo', JSON.stringify({
+          name: clientData.name,
+          email: clientData.email,
+          phone: clientData.phone,
+          gender: clientData.gender,
+          pronouns: clientData.pronouns
+        }));
+        
         renderPortal();
       } catch (err) {
         console.error('Failed to load portal:', err);

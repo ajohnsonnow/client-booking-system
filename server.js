@@ -2572,6 +2572,7 @@ app.get('/api/client/portal', authenticateClient, (req, res) => {
   const bookings = loadBookings();
   
   const client = clients.find(c => c.email.toLowerCase() === email.toLowerCase());
+  const latestBooking = bookings.find(b => b.email.toLowerCase() === email.toLowerCase());
   const clientBookings = bookings.filter(b => 
     b.email.toLowerCase() === email.toLowerCase()
   ).map(b => ({
@@ -2587,8 +2588,11 @@ app.get('/api/client/portal', authenticateClient, (req, res) => {
   }));
   
   res.json({
-    name: client?.name || bookings.find(b => b.email.toLowerCase() === email.toLowerCase())?.name || '',
+    name: client?.name || latestBooking?.name || '',
     email: email,
+    phone: client?.phone || latestBooking?.phone || '',
+    gender: client?.gender || latestBooking?.gender || '',
+    pronouns: client?.pronouns || latestBooking?.pronouns || '',
     bookings: clientBookings,
     preferences: client?.preferences || { email: true, sms: false, reminder: '24' }
   });
