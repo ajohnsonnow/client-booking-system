@@ -463,6 +463,59 @@
       text-decoration: none;
     }
 
+    /* Message Styles */
+    .unread-badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: var(--danger);
+      color: white;
+      font-size: 11px;
+      font-weight: bold;
+      padding: 2px 6px;
+      border-radius: 10px;
+      min-width: 18px;
+      text-align: center;
+    }
+
+    .quick-action {
+      position: relative;
+    }
+
+    .message-bubble {
+      padding: 12px 16px;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      max-width: 85%;
+      word-wrap: break-word;
+    }
+
+    .message-bubble.client {
+      background: var(--burgundy);
+      color: white;
+      margin-left: auto;
+      border-bottom-right-radius: 4px;
+    }
+
+    .message-bubble.practitioner {
+      background: var(--cream-dark);
+      color: var(--charcoal);
+      margin-right: auto;
+      border-bottom-left-radius: 4px;
+    }
+
+    .message-time {
+      font-size: 11px;
+      opacity: 0.7;
+      margin-top: 4px;
+    }
+
+    .message-sender {
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
     /* Responsive */
     @media (max-width: 600px) {
       .container {
@@ -593,6 +646,11 @@
               <div class="quick-action-icon">📅</div>
               <div class="quick-action-label">Book Session</div>
             </a>
+            <a href="#" class="quick-action" onclick="showMessages()">
+              <div class="quick-action-icon">💬</div>
+              <div class="quick-action-label">Message Ravi</div>
+              <span id="unreadBadge" class="unread-badge hidden"></span>
+            </a>
             <a href="/submit-testimonial.html" class="quick-action">
               <div class="quick-action-icon">💝</div>
               <div class="quick-action-label">Share Experience</div>
@@ -606,6 +664,33 @@
               <div class="quick-action-label">Sign Out</div>
             </a>
           </div>
+        </div>
+      </div>
+
+      <!-- Secure Messages (hidden by default) -->
+      <div id="messagesCard" class="card hidden">
+        <div class="card-header">
+          <h2>💬 Messages with Ravi</h2>
+          <button class="btn btn-outline" style="padding: 8px 16px; font-size: 12px;" onclick="hideMessages()">✕ Close</button>
+        </div>
+        <div class="card-body">
+          <div id="messagesContainer" style="max-height: 400px; overflow-y: auto; margin-bottom: 20px;">
+            <div class="empty-state" id="noMessages">
+              <div class="empty-state-icon">💌</div>
+              <p>No messages yet. Send Ravi a message below!</p>
+            </div>
+          </div>
+          
+          <!-- Compose Message -->
+          <div style="border-top: 1px solid #e0d6cc; padding-top: 20px;">
+            <h3 style="font-size: 14px; color: var(--burgundy); margin-bottom: 12px;">✉️ Send a Message</h3>
+            <textarea id="messageInput" placeholder="Type your message to Ravi..." style="width: 100%; min-height: 100px; padding: 12px; border: 2px solid #e0d6cc; border-radius: 8px; font-family: inherit; font-size: 14px; resize: vertical;"></textarea>
+            <button class="btn btn-primary" style="margin-top: 12px;" onclick="sendMessage()">📨 Send Message</button>
+          </div>
+          
+          <p style="font-size: 12px; color: var(--soft-gray); margin-top: 16px; text-align: center;">
+            🔒 Your messages are encrypted and only visible to you and Ravi
+          </p>
         </div>
       </div>
 
@@ -1055,6 +1140,129 @@
 
     function showPreferences() {
       document.getElementById('preferencesCard').classList.toggle('hidden');
+      document.getElementById('messagesCard').classList.add('hidden');
+    }
+
+    // ===========================================
+    // SECURE MESSAGING FUNCTIONS
+    // ===========================================
+
+    async function showMessages() {
+      document.getElementById('messagesCard').classList.remove('hidden');
+      document.getElementById('preferencesCard').classList.add('hidden');
+      await loadMessages();
+      // Scroll to messages card
+      document.getElementById('messagesCard').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function hideMessages() {
+      document.getElementById('messagesCard').classList.add('hidden');
+    }
+
+    async function loadMessages() {
+      try {
+        const response = await fetch('/api/client/messages', {
+          headers: { 'Authorization': `Bearer ${clientToken}` }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          renderMessages(data.messages);
+          updateUnreadBadge(data.messages);
+        }
+      } catch (err) {
+        console.error('Failed to load messages:', err);
+      }
+    }
+
+    function renderMessages(messages) {
+      const container = document.getElementById('messagesContainer');
+      const noMessages = document.getElementById('noMessages');
+      
+      if (!messages || messages.length === 0) {
+        noMessages.style.display = 'block';
+        container.innerHTML = '';
+        container.appendChild(noMessages);
+        return;
+      }
+      
+      noMessages.style.display = 'none';
+      container.innerHTML = messages.map(msg => `
+        <div class="message-bubble ${msg.from}">
+          <div class="message-sender">${msg.from === 'client' ? 'You' : '🪷 Ravi'}</div>
+          <div style="white-space: pre-wrap;">${escapeHtml(msg.message)}</div>
+          <div class="message-time">${formatDateTime(msg.createdAt)}</div>
+        </div>
+      `).join('');
+      
+      // Scroll to bottom
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function updateUnreadBadge(messages) {
+      const unread = messages?.filter(m => m.from === 'practitioner' && !m.read).length || 0;
+      const badge = document.getElementById('unreadBadge');
+      
+      if (unread > 0) {
+        badge.textContent = unread;
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+    }
+
+    async function sendMessage() {
+      const input = document.getElementById('messageInput');
+      const message = input.value.trim();
+      
+      if (!message) {
+        alert('Please enter a message');
+        return;
+      }
+      
+      if (message.length > 5000) {
+        alert('Message is too long (max 5000 characters)');
+        return;
+      }
+      
+      try {
+        const response = await fetch('/api/client/messages', {
+          method: 'POST',
+          headers: { 
+            'Authorization': `Bearer ${clientToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ message })
+        });
+        
+        if (response.ok) {
+          input.value = '';
+          await loadMessages();
+          alert('✨ Message sent to Ravi!');
+        } else {
+          const data = await response.json();
+          alert(data.error || 'Failed to send message');
+        }
+      } catch (err) {
+        alert('Connection error. Please try again.');
+      }
+    }
+
+    function formatDateTime(dateStr) {
+      if (!dateStr) return '';
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit'
+      });
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
     }
 
     async function savePreferences() {

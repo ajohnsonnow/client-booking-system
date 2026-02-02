@@ -1916,6 +1916,9 @@
         <li class="nav-item" data-page="inquiries">
           <span class="nav-icon">📬</span> Inquiries <span id="inquiriesBadge" class="badge gold-badge display-none">0</span>
         </li>
+        <li class="nav-item" data-page="messages">
+          <span class="nav-icon">💬</span> Messages <span id="messagesBadge" class="badge gold-badge display-none">0</span>
+        </li>
         <li class="nav-divider" aria-hidden="true"></li>
         <li class="nav-item" data-page="marketing">
           <span class="nav-icon">📧</span> Marketing <span class="badge badge-gold">NEW</span>
@@ -2212,6 +2215,69 @@
             <p class="no-items-message">No inquiries yet</p>
           </div>
         </div>
+      </section>
+
+      <!-- MESSAGES PAGE -->
+      <section class="page" id="page-messages">
+        <div class="page-header">
+          <h1 class="page-title">💬 Client Messages</h1>
+          <div class="header-actions">
+            <button class="btn btn-secondary" onclick="loadConversations()">🔄 Refresh</button>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card stat-card-gold">
+            <div class="stat-label">Unread Messages</div>
+            <div class="stat-value" id="unreadMessagesCount">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Active Conversations</div>
+            <div class="stat-value" id="activeConversationsCount">0</div>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 300px 1fr; gap: 24px;">
+          <!-- Conversations List -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Conversations</h3>
+            </div>
+            <div class="card-body" id="conversationsList" style="max-height: 500px; overflow-y: auto;">
+              <p class="no-items-message">No conversations yet</p>
+            </div>
+          </div>
+
+          <!-- Active Conversation -->
+          <div class="card">
+            <div class="card-header" id="conversationHeader">
+              <h3 class="card-title">Select a conversation</h3>
+            </div>
+            <div class="card-body">
+              <div id="conversationMessages" style="max-height: 350px; overflow-y: auto; margin-bottom: 20px;">
+                <p class="no-items-message" style="text-align: center; color: #9E9890;">
+                  ← Click on a conversation to view messages
+                </p>
+              </div>
+              
+              <!-- Reply Form -->
+              <div id="replyForm" style="display: none; border-top: 1px solid #e0d6cc; padding-top: 16px;">
+                <textarea id="replyInput" placeholder="Type your reply..." style="width: 100%; min-height: 80px; padding: 12px; border: 2px solid #e0d6cc; border-radius: 8px; font-family: inherit; font-size: 14px; resize: vertical;"></textarea>
+                <div style="display: flex; gap: 12px; margin-top: 12px; align-items: center;">
+                  <button class="btn btn-primary" onclick="sendReply()">📨 Send Reply</button>
+                  <label style="display: flex; align-items: center; gap: 6px; font-size: 14px; color: #666;">
+                    <input type="checkbox" id="sendEmailNotification" checked>
+                    Also send email notification
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <p style="text-align: center; margin-top: 20px; font-size: 13px; color: #9E9890;">
+          🔒 All messages are encrypted at rest with AES-256-GCM • Clients can only message you, never each other
+        </p>
       </section>
 
       <!-- MARKETING PAGE -->
@@ -3703,6 +3769,7 @@
       if (pageName === 'clients') loadClients();
       if (pageName === 'invitations') loadInvitationCodes();
       if (pageName === 'inquiries') loadInquiries();
+      if (pageName === 'messages') loadConversations();
       if (pageName === 'marketing') loadMarketing();
       if (pageName === 'content') loadContent();
       if (pageName === 'settings') loadSettings();
@@ -3751,6 +3818,13 @@
       // Load inquiries count for badge
       inquiries = await api('/api/admin/inquiries') || [];
       updateInquiriesBadge();
+
+      // Load messages count for badge
+      const messagesData = await api('/api/admin/messages');
+      if (messagesData?.conversations) {
+        conversations = messagesData.conversations;
+        updateMessagesBadge();
+      }
 
       // Render stats
       document.getElementById('statsGrid').innerHTML = `
@@ -4557,6 +4631,162 @@
       if (inquiry) {
         window.open(`mailto:${inquiry.email}?subject=Re: Your Inquiry - Ravi Sacred Healing`);
       }
+    }
+
+    // ===========================================
+    // SECURE MESSAGING
+    // ===========================================
+    let conversations = [];
+    let activeConversationId = null;
+
+    async function loadConversations() {
+      showLoading(true);
+      const result = await api('/api/admin/messages');
+      showLoading(false);
+      
+      if (result?.conversations) {
+        conversations = result.conversations;
+        renderConversations();
+        updateMessagesBadge();
+      }
+    }
+
+    function updateMessagesBadge() {
+      const totalUnread = conversations.reduce((sum, c) => sum + (c.unreadCount || 0), 0);
+      const badge = document.getElementById('messagesBadge');
+      document.getElementById('unreadMessagesCount').textContent = totalUnread;
+      document.getElementById('activeConversationsCount').textContent = conversations.length;
+      
+      if (totalUnread > 0) {
+        badge.textContent = totalUnread;
+        badge.style.display = 'inline-block';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+
+    function renderConversations() {
+      const container = document.getElementById('conversationsList');
+      
+      if (!conversations || conversations.length === 0) {
+        container.innerHTML = '<p class="no-items-message" style="text-align: center; color: var(--soft-gray); padding: 30px;">No messages yet. Clients can message you from their portal.</p>';
+        return;
+      }
+      
+      container.innerHTML = conversations.map(conv => {
+        const lastMsg = conv.lastMessage;
+        const lastMsgPreview = lastMsg?.message?.substring(0, 50) + (lastMsg?.message?.length > 50 ? '...' : '');
+        const isActive = activeConversationId === conv.conversationId;
+        
+        return `
+          <div class="conversation-item ${isActive ? 'active' : ''}" onclick="selectConversation('${encodeURIComponent(conv.conversationId)}')" style="padding: 12px; border-bottom: 1px solid #e0d6cc; cursor: pointer; background: ${isActive ? 'var(--cream-dark)' : 'transparent'}; ${conv.unreadCount > 0 ? 'border-left: 3px solid var(--gold);' : ''}">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <strong style="color: var(--charcoal);">${conv.clientName}</strong>
+              ${conv.unreadCount > 0 ? `<span class="badge" style="background: var(--gold); color: white; font-size: 11px;">${conv.unreadCount}</span>` : ''}
+            </div>
+            <div style="font-size: 12px; color: var(--soft-gray);">${conv.clientEmail}</div>
+            ${lastMsg ? `
+              <div style="font-size: 13px; color: var(--charcoal); margin-top: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                ${lastMsg.from === 'client' ? '' : '↩️ '} ${lastMsgPreview}
+              </div>
+              <div style="font-size: 11px; color: var(--soft-gray); margin-top: 4px;">
+                ${formatDate(lastMsg.createdAt)}
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function selectConversation(conversationIdEncoded) {
+      const conversationId = decodeURIComponent(conversationIdEncoded);
+      activeConversationId = conversationId;
+      
+      // Update UI to show active
+      renderConversations();
+      
+      // Load messages
+      showLoading(true);
+      const result = await api(`/api/admin/messages/${conversationIdEncoded}`);
+      showLoading(false);
+      
+      if (result?.messages) {
+        renderConversationMessages(result.messages, conversationId);
+        document.getElementById('replyForm').style.display = 'block';
+        // Update badge since messages are now read
+        loadConversations();
+      }
+    }
+
+    function renderConversationMessages(messages, conversationId) {
+      const conv = conversations.find(c => c.conversationId === conversationId);
+      const container = document.getElementById('conversationMessages');
+      const header = document.getElementById('conversationHeader');
+      
+      header.innerHTML = `<h3 class="card-title">💬 ${conv?.clientName || 'Client'} <span style="font-weight: normal; font-size: 13px; color: var(--soft-gray);">(${conversationId})</span></h3>`;
+      
+      if (!messages || messages.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: var(--soft-gray);">No messages in this conversation</p>';
+        return;
+      }
+      
+      container.innerHTML = messages.map(msg => `
+        <div style="display: flex; flex-direction: column; align-items: ${msg.from === 'client' ? 'flex-start' : 'flex-end'}; margin-bottom: 12px;">
+          <div style="background: ${msg.from === 'client' ? '#f8f5f0' : 'var(--burgundy)'}; color: ${msg.from === 'client' ? 'var(--charcoal)' : 'white'}; padding: 12px 16px; border-radius: 12px; max-width: 80%; ${msg.from === 'client' ? 'border-bottom-left-radius: 4px;' : 'border-bottom-right-radius: 4px;'}">
+            <div style="font-size: 12px; font-weight: 600; margin-bottom: 4px;">${msg.from === 'client' ? (msg.fromName || 'Client') : '🪷 You'}</div>
+            <div style="white-space: pre-wrap;">${escapeHtml(msg.message)}</div>
+            <div style="font-size: 11px; opacity: 0.7; margin-top: 6px;">${formatDateTime(msg.createdAt)}</div>
+          </div>
+        </div>
+      `).join('');
+      
+      // Scroll to bottom
+      container.scrollTop = container.scrollHeight;
+    }
+
+    async function sendReply() {
+      if (!activeConversationId) return;
+      
+      const input = document.getElementById('replyInput');
+      const message = input.value.trim();
+      const sendEmail = document.getElementById('sendEmailNotification').checked;
+      
+      if (!message) {
+        showToast('Please enter a message', 'error');
+        return;
+      }
+      
+      showLoading(true);
+      const result = await api(`/api/admin/messages/${encodeURIComponent(activeConversationId)}/reply`, {
+        method: 'POST',
+        body: JSON.stringify({ message, sendEmail })
+      });
+      showLoading(false);
+      
+      if (result?.success) {
+        input.value = '';
+        showToast('Reply sent!', 'success');
+        selectConversation(encodeURIComponent(activeConversationId));
+      } else {
+        showToast(result?.error || 'Failed to send reply', 'error');
+      }
+    }
+
+    function formatDateTime(dateStr) {
+      if (!dateStr) return '';
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit'
+      });
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
     }
 
     // ===========================================

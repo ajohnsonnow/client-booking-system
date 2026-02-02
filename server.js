@@ -153,6 +153,7 @@ const TEMPLATES_FILE = path.join(DATA_DIR, 'templates.enc');
 const LEADS_FILE = path.join(DATA_DIR, 'leads.enc');
 const LEAD_MAGNETS_FILE = path.join(DATA_DIR, 'lead_magnets.enc');
 const DRIP_CAMPAIGNS_FILE = path.join(DATA_DIR, 'drip_campaigns.enc');
+const MESSAGES_FILE = path.join(DATA_DIR, 'messages.enc');
 const BACKUP_DIR = path.join(DATA_DIR, 'backups');
 const AUTO_BACKUP_DIR = path.join(BACKUP_DIR, 'auto');
 const MAX_AUTO_BACKUPS = 50; // Keep last 50 automatic backups
@@ -2646,6 +2647,264 @@ app.put('/api/client/preferences', authenticateClient, (req, res) => {
   saveClients(clients);
   
   res.json({ success: true, message: 'Preferences saved' });
+});
+
+// ===========================================
+// SECURE MESSAGING SYSTEM
+// ===========================================
+// Client <-> Practitioner only (NO client-to-client)
+// All messages are AES-256-GCM encrypted at rest
+
+const MESSAGES_STORAGE = path.join(DATA_DIR, 'messages.enc');
+function loadMessages() { return loadData(MESSAGES_STORAGE, []); }
+function saveMessages(data) { saveData(MESSAGES_STORAGE, data); }
+
+// Client sends message to practitioner
+app.post('/api/client/messages', authenticateClient, async (req, res) => {
+  const { subject, message } = req.body;
+  const email = req.clientEmail;
+  
+  if (!message || message.trim().length === 0) {
+    return res.status(400).json({ error: 'Message is required' });
+  }
+  
+  if (message.length > 5000) {
+    return res.status(400).json({ error: 'Message too long (max 5000 characters)' });
+  }
+  
+  // Get client info
+  const clients = loadClients();
+  const bookings = loadBookings();
+  const client = clients.find(c => c.email.toLowerCase() === email.toLowerCase());
+  const booking = bookings.find(b => b.email.toLowerCase() === email.toLowerCase());
+  const clientName = client?.name || booking?.name || 'Unknown Client';
+  
+  // Create message
+  const newMessage = {
+    id: uuidv4(),
+    conversationId: email.toLowerCase(), // Group by client email
+    from: 'client',
+    fromEmail: email.toLowerCase(),
+    fromName: clientName,
+    subject: subject || 'Message from Portal',
+    message: message.trim(),
+    createdAt: new Date().toISOString(),
+    read: false
+  };
+  
+  const messages = loadMessages();
+  messages.push(newMessage);
+  saveMessages(messages);
+  
+  // Notify practitioner via email
+  const adminHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: Georgia, serif; background: #FDF8F3; padding: 40px; }
+    .container { max-width: 500px; margin: 0 auto; background: white; border-radius: 16px; padding: 32px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+    .header { background: linear-gradient(135deg, #722F37 0%, #8B3A44 100%); color: white; padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 24px; }
+    .message-box { background: #f8f5f0; padding: 20px; border-radius: 8px; border-left: 4px solid #D4AF37; white-space: pre-wrap; }
+    .btn { display: inline-block; padding: 14px 28px; background: #722F37; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2 style="margin: 0;">💬 New Message</h2>
+    </div>
+    <p><strong>From:</strong> ${clientName}</p>
+    <p><strong>Email:</strong> ${email}</p>
+    ${subject ? `<p><strong>Subject:</strong> ${subject}</p>` : ''}
+    <div class="message-box">${message}</div>
+    <a href="${process.env.BASE_URL || 'http://localhost:' + PORT}/admin.html" class="btn">Reply in Admin Panel</a>
+  </div>
+</body>
+</html>
+  `;
+  
+  try {
+    await sendEmail(
+      process.env.ADMIN_EMAIL || process.env.EMAIL_USER,
+      `💬 New Message from ${clientName}`,
+      `New message from ${clientName} (${email}):\n\n${message}`,
+      adminHtml
+    );
+  } catch (err) {
+    console.error('Failed to send notification email:', err);
+    // Don't fail the message save if email fails
+  }
+  
+  res.json({ success: true, message: 'Message sent successfully' });
+});
+
+// Client gets their message history
+app.get('/api/client/messages', authenticateClient, (req, res) => {
+  const email = req.clientEmail;
+  const messages = loadMessages();
+  
+  // Get only this client's conversation
+  const clientMessages = messages
+    .filter(m => m.conversationId === email.toLowerCase())
+    .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+  
+  res.json({ messages: clientMessages });
+});
+
+// Admin gets all conversations (grouped by client)
+app.get('/api/admin/messages', authenticateAdmin, (req, res) => {
+  const messages = loadMessages();
+  const clients = loadClients();
+  const bookings = loadBookings();
+  
+  // Group by conversation and get unread counts
+  const conversations = {};
+  
+  messages.forEach(m => {
+    const convId = m.conversationId;
+    if (!conversations[convId]) {
+      const client = clients.find(c => c.email.toLowerCase() === convId);
+      const booking = bookings.find(b => b.email.toLowerCase() === convId);
+      conversations[convId] = {
+        conversationId: convId,
+        clientEmail: convId,
+        clientName: client?.name || booking?.name || 'Unknown',
+        messages: [],
+        unreadCount: 0,
+        lastMessage: null
+      };
+    }
+    conversations[convId].messages.push(m);
+    if (!m.read && m.from === 'client') {
+      conversations[convId].unreadCount++;
+    }
+  });
+  
+  // Sort by most recent message
+  const conversationList = Object.values(conversations)
+    .map(conv => {
+      conv.messages.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+      conv.lastMessage = conv.messages[conv.messages.length - 1];
+      return conv;
+    })
+    .sort((a, b) => new Date(b.lastMessage?.createdAt || 0) - new Date(a.lastMessage?.createdAt || 0));
+  
+  res.json({ conversations: conversationList });
+});
+
+// Admin gets single conversation
+app.get('/api/admin/messages/:conversationId', authenticateAdmin, (req, res) => {
+  const { conversationId } = req.params;
+  const messages = loadMessages();
+  
+  const conversationMessages = messages
+    .filter(m => m.conversationId === decodeURIComponent(conversationId))
+    .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+  
+  // Mark client messages as read
+  let updated = false;
+  conversationMessages.forEach(m => {
+    if (m.from === 'client' && !m.read) {
+      const original = messages.find(msg => msg.id === m.id);
+      if (original) {
+        original.read = true;
+        original.readAt = new Date().toISOString();
+        updated = true;
+      }
+    }
+  });
+  
+  if (updated) {
+    saveMessages(messages);
+  }
+  
+  res.json({ messages: conversationMessages });
+});
+
+// Admin replies to client message
+app.post('/api/admin/messages/:conversationId/reply', authenticateAdmin, async (req, res) => {
+  const { conversationId } = req.params;
+  const { message, sendEmail: shouldSendEmail = true } = req.body;
+  
+  if (!message || message.trim().length === 0) {
+    return res.status(400).json({ error: 'Message is required' });
+  }
+  
+  const clientEmail = decodeURIComponent(conversationId);
+  
+  // Get client info
+  const clients = loadClients();
+  const bookings = loadBookings();
+  const client = clients.find(c => c.email.toLowerCase() === clientEmail);
+  const booking = bookings.find(b => b.email.toLowerCase() === clientEmail);
+  const clientName = client?.name || booking?.name || 'Client';
+  
+  // Create reply message
+  const newMessage = {
+    id: uuidv4(),
+    conversationId: clientEmail,
+    from: 'practitioner',
+    fromEmail: process.env.ADMIN_EMAIL || 'ravi@sacredhealing.com',
+    fromName: 'Ravi',
+    message: message.trim(),
+    createdAt: new Date().toISOString(),
+    read: false
+  };
+  
+  const messages = loadMessages();
+  messages.push(newMessage);
+  saveMessages(messages);
+  
+  // Send email notification to client
+  if (shouldSendEmail) {
+    const portalUrl = `${process.env.BASE_URL || 'http://localhost:' + PORT}/portal.html`;
+    const clientHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: Georgia, serif; background: #FDF8F3; padding: 40px; }
+    .container { max-width: 500px; margin: 0 auto; background: white; border-radius: 16px; padding: 32px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+    .header { background: linear-gradient(135deg, #722F37 0%, #8B3A44 100%); color: white; padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 24px; }
+    .message-box { background: #f8f5f0; padding: 20px; border-radius: 8px; border-left: 4px solid #D4AF37; white-space: pre-wrap; }
+    .btn { display: inline-block; padding: 14px 28px; background: #722F37; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2 style="margin: 0;">🪷 Message from Ravi</h2>
+    </div>
+    <p>Dear ${clientName.split(' ')[0]},</p>
+    <div class="message-box">${message}</div>
+    <p style="margin-top: 20px;">With love and light,<br><strong>Ravi 🪷</strong></p>
+    <a href="${portalUrl}" class="btn">View in Portal</a>
+  </div>
+</body>
+</html>
+    `;
+    
+    try {
+      await sendEmail(
+        clientEmail,
+        '🪷 New Message from Ravi - Sacred Healing',
+        `Dear ${clientName.split(' ')[0]},\n\n${message}\n\nWith love and light,\nRavi\n\nView in portal: ${portalUrl}`,
+        clientHtml
+      );
+    } catch (err) {
+      console.error('Failed to send email notification:', err);
+    }
+  }
+  
+  res.json({ success: true, message: 'Reply sent successfully' });
+});
+
+// Admin gets unread message count (for dashboard)
+app.get('/api/admin/messages/unread/count', authenticateAdmin, (req, res) => {
+  const messages = loadMessages();
+  const unreadCount = messages.filter(m => m.from === 'client' && !m.read).length;
+  res.json({ unreadCount });
 });
 
 // ===========================================
