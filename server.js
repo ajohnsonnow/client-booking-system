@@ -25,6 +25,24 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const IS_PRODUCTION = process.env.NODE_ENV === 'production';
+
+// ===========================================
+// PRODUCTION SECURITY VALIDATION
+// ===========================================
+// These environment variables MUST be set in production
+const REQUIRED_SECRETS = ['JWT_SECRET', 'ADMIN_PASSWORD', 'ENCRYPTION_KEY'];
+
+if (IS_PRODUCTION) {
+  const missingSecrets = REQUIRED_SECRETS.filter(key => !process.env[key]);
+  if (missingSecrets.length > 0) {
+    console.error('\n❌ CRITICAL SECURITY ERROR!');
+    console.error('Missing required environment variables:', missingSecrets.join(', '));
+    console.error('These MUST be set for production deployment.');
+    console.error('Generate secure values with: node -e "console.log(require(\'crypto\').randomBytes(32).toString(\'hex\'))"\n');
+    process.exit(1);
+  }
+}
 
 // ===========================================
 // SECURITY UTILITIES
@@ -155,7 +173,13 @@ const MAX_MANUAL_BACKUPS = 20; // Keep last 20 manual backups
 // - Unique IV (Initialization Vector) for each encryption
 // - Same standard used by governments and banks
 
-const ENCRYPTION_KEY_RAW = process.env.ENCRYPTION_KEY || 'ravi-sacred-healing-2024-secure-key!';
+// WARNING: Production MUST use a secure, randomly-generated ENCRYPTION_KEY environment variable
+// Development fallback key (NEVER use in production - detected at startup)
+const ENCRYPTION_KEY_RAW = process.env.ENCRYPTION_KEY || (IS_PRODUCTION ? null : 'ravi-sacred-healing-2024-dev-key!');
+if (!ENCRYPTION_KEY_RAW) {
+  console.error('❌ ENCRYPTION_KEY is required in production!');
+  process.exit(1);
+}
 // Derive a proper 32-byte key using SHA-256 hash
 const ENCRYPTION_KEY = crypto.createHash('sha256').update(ENCRYPTION_KEY_RAW).digest();
 
@@ -461,6 +485,9 @@ async function sendBookingNotification(booking) {
   const settings = loadSettings();
   if (!settings.emailNotifications) return;
 
+  // PRIVACY-SAFE: Do NOT include sensitive health information in emails
+  // Health notes, intentions, concerns, sensitivities are stored encrypted
+  // and should ONLY be viewed in the secure admin panel
   const emailContent = `
 🌹 New Booking Request 🌹
 
@@ -468,18 +495,14 @@ Name: ${booking.name}
 Email: ${booking.email}
 Phone: ${booking.phone}
 Text OK: ${booking.textPermission ? 'Yes' : 'No'}
-Gender/Pronouns: ${booking.gender || 'Not specified'}
 
 Service: ${booking.serviceName}
 Price: $${booking.servicePrice}
 
 Availability: ${booking.availability || 'Not specified'}
 
-Intentions: ${booking.intentions || 'Not provided'}
-Concerns: ${booking.concerns || 'None'}
-Health/Trauma Notes: ${booking.healthNotes || 'Prefer to discuss in person'}
-Sensory Sensitivities: ${booking.sensitivities || 'None noted'}
-Additional Info: ${booking.additionalInfo || 'None'}
+⚠️ PRIVACY NOTE: Health information, intentions, and sensitive details
+are stored securely and can only be viewed in the admin panel.
 
 Consent Signature: ${booking.consentSignature}
 
@@ -487,7 +510,7 @@ Consent Signature: ${booking.consentSignature}
 Submitted: ${new Date(booking.createdAt).toLocaleString()}
 Booking ID: ${booking.id}
 
-View in Admin Panel: ${process.env.SITE_URL || 'http://localhost:3000'}/admin.html
+🔒 View Full Details Securely: ${process.env.SITE_URL || 'http://localhost:3000'}/admin.html
   `.trim();
 
   await sendEmail(
@@ -710,10 +733,28 @@ function findOrCreateClient(booking) {
 // AUTHENTICATION
 // ===========================================
 
-const JWT_SECRET = process.env.JWT_SECRET || 'change-this-secret-in-production';
+// Security: JWT_SECRET MUST be set in production (enforced at startup)
+const JWT_SECRET = process.env.JWT_SECRET || (IS_PRODUCTION ? null : 'dev-secret-change-me');
+if (!JWT_SECRET) {
+  console.error('❌ JWT_SECRET is required in production!');
+  process.exit(1);
+}
+
+// Client site access password
 const SITE_PASSWORD = process.env.SITE_PASSWORD || 'sacred2024';
+
+// Admin credentials (production requires strong password set via environment)
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'ravi';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin2024';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || (IS_PRODUCTION ? null : 'admin2024');
+if (!ADMIN_PASSWORD) {
+  console.error('❌ ADMIN_PASSWORD is required in production!');
+  process.exit(1);
+}
+
+// Warn if using weak development passwords
+if (!IS_PRODUCTION && ADMIN_PASSWORD === 'admin2024') {
+  console.warn('⚠️  WARNING: Using default admin password. Set ADMIN_PASSWORD environment variable for security.');
+}
 
 let adminPasswordHash = bcrypt.hashSync(ADMIN_PASSWORD, 12);
 
@@ -721,8 +762,8 @@ function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
-  // Allow demo token for demo mode
-  if (token === 'demo-token') {
+  // Allow demo token ONLY in development mode (security: disabled in production)
+  if (token === 'demo-token' && !IS_PRODUCTION) {
     req.user = { email: 'demo@example.com', name: 'Demo User', isDemo: true };
     return next();
   }
@@ -3164,14 +3205,25 @@ app.get('/api/admin/leads', authenticateAdmin, (req, res) => {
 });
 
 // Add new lead (can be called from public lead magnet forms)
-app.post('/api/admin/leads', (req, res) => {
+// Rate limited to prevent spam abuse
+const leadSubmissionLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 5, // 5 leads per hour per IP
+  message: { error: 'Too many submissions. Please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+app.post('/api/admin/leads', leadSubmissionLimiter, (req, res) => {
   try {
+    // Sanitize input to prevent stored XSS
+    const sanitizedBody = sanitizeObject(req.body);
     const leads = loadLeads();
     const newLead = {
       id: Date.now().toString(),
-      ...req.body,
-      status: req.body.status || 'new',
-      stage: req.body.stage || 'lead',
+      ...sanitizedBody,
+      status: sanitizedBody.status || 'new',
+      stage: sanitizedBody.stage || 'lead',
       createdAt: new Date().toISOString()
     };
     
