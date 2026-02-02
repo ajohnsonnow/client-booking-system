@@ -260,6 +260,55 @@
   }
 
   // ===========================================
+  // SERVICE CARD CLICK HANDLERS
+  // ===========================================
+
+  function setupServiceCardClicks() {
+    // Make pricing service cards clickable to select the service in the form
+    const serviceCards = document.querySelectorAll('.service-card[data-service-id]');
+    
+    serviceCards.forEach(card => {
+      card.addEventListener('click', () => {
+        const serviceId = card.dataset.serviceId;
+        const radioButton = document.getElementById(`service-${serviceId}`);
+        
+        if (radioButton) {
+          // Select the radio button
+          radioButton.checked = true;
+          
+          // Add visual feedback to the card
+          serviceCards.forEach(c => c.classList.remove('selected'));
+          card.classList.add('selected');
+          
+          // Scroll to the service selection section smoothly
+          const formSection = document.getElementById('service-options');
+          if (formSection) {
+            formSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            // Add a brief highlight effect to the selected option in the form
+            const selectedOption = radioButton.closest('.service-option');
+            if (selectedOption) {
+              selectedOption.classList.add('highlight-pulse');
+              setTimeout(() => selectedOption.classList.remove('highlight-pulse'), 1500);
+            }
+          }
+        }
+      });
+      
+      // Add hover effect feedback
+      card.addEventListener('mouseenter', () => {
+        card.style.transform = 'translateY(-8px) scale(1.02)';
+      });
+      
+      card.addEventListener('mouseleave', () => {
+        if (!card.classList.contains('selected')) {
+          card.style.transform = '';
+        }
+      });
+    });
+  }
+
+  // ===========================================
   // PHONE NUMBER AUTO-FORMATTING
   // ===========================================
 
@@ -537,6 +586,7 @@
 
   document.addEventListener('DOMContentLoaded', () => {
     checkAuth();
+    setupServiceCardClicks(); // Make pricing cards clickable
     
     // Prevent body scroll when gate is visible
     const gate = document.getElementById('password-gate');

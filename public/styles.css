@@ -801,6 +801,17 @@ section {
   box-shadow: var(--shadow-medium);
 }
 
+.service-card.selected {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 12px 30px rgba(128, 0, 32, 0.25);
+  outline: 3px solid var(--color-burgundy);
+  outline-offset: 2px;
+}
+
+.service-card.featured.selected {
+  outline-color: var(--color-gold);
+}
+
 .service-card.featured {
   background: linear-gradient(135deg, var(--color-burgundy) 0%, var(--color-burgundy-light) 100%);
   color: var(--color-white);
@@ -1235,6 +1246,28 @@ section {
   font-size: 0.85rem;
   display: block;
   margin-top: var(--spacing-xs);
+}
+
+/* Service option highlight pulse animation (when card clicked) */
+.service-option.highlight-pulse {
+  animation: highlightPulse 1.5s ease-out;
+}
+
+@keyframes highlightPulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(128, 0, 32, 0.4);
+  }
+  30% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 10px rgba(128, 0, 32, 0);
+  }
+  60% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 /* Agreements */
