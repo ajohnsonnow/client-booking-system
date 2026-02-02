@@ -780,6 +780,27 @@ section {
   text-align: center;
 }
 
+/* Services Visual Break */
+.services-visual {
+  max-width: 800px;
+  margin: var(--spacing-xl) auto;
+  text-align: center;
+}
+
+.services-ambiance-photo {
+  width: 100%;
+  max-height: 400px;
+  object-fit: cover;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 15px 40px rgba(114, 47, 55, 0.15);
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+.services-ambiance-photo:hover {
+  transform: scale(1.01);
+  box-shadow: 0 20px 50px rgba(114, 47, 55, 0.2);
+}
+
 .services-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
