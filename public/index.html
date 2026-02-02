@@ -385,6 +385,19 @@
           <!-- Personal Information -->
           <div class="form-section">
             <h3>Your Information</h3>
+            
+            <!-- Returning Client Banner - shown when returning client detected -->
+            <div id="returningClientBanner" class="returning-client-banner hidden">
+              <div class="welcome-back-message">
+                <span class="welcome-icon">✨</span>
+                <div>
+                  <strong>Welcome back!</strong>
+                  <span id="welcomeBackName"></span>
+                  <p style="margin: 4px 0 0; font-size: 0.9rem; opacity: 0.9;">We've simplified the form for you since you're a returning client.</p>
+                </div>
+              </div>
+            </div>
+            
             <div class="form-row">
               <div class="form-group">
                 <label for="name">Full Name <span class="required">*</span></label>
@@ -393,14 +406,15 @@
               <div class="form-group">
                 <label for="email">Email <span class="required">*</span></label>
                 <input type="email" id="email" name="email" required>
+                <small id="emailCheckStatus" class="email-check-status"></small>
               </div>
             </div>
-            <div class="form-row">
+            <div class="form-row" id="phoneGenderRow">
               <div class="form-group">
                 <label for="phone">Phone Number <span class="required">*</span></label>
                 <input type="tel" id="phone" name="phone" placeholder="(555) 123-4567" required>
               </div>
-              <div class="form-group">
+              <div class="form-group" id="genderGroup">
                 <label for="gender">Gender <span class="required">*</span></label>
                 <select id="gender" name="gender" required>
                   <option value="">Select gender...</option>
@@ -416,7 +430,7 @@
                 </select>
               </div>
             </div>
-            <div class="form-row">
+            <div class="form-row" id="pronounsRow">
               <div class="form-group">
                 <label for="pronouns">Pronouns <span class="required">*</span></label>
                 <select id="pronouns" name="pronouns" required>
@@ -437,7 +451,7 @@
                 <!-- Empty to maintain grid alignment -->
               </div>
             </div>
-            <div class="form-row checkboxes">
+            <div class="form-row checkboxes" id="permissionsRow">
               <label class="checkbox-label">
                 <input type="checkbox" name="textPermission" checked>
                 <span>Permission to text</span>
@@ -518,8 +532,8 @@
             </div>
           </div>
 
-          <!-- Intentions & Healing -->
-          <div class="form-section">
+          <!-- Intentions & Healing - Full intake for new clients -->
+          <div class="form-section" id="fullIntakeSection">
             <h3>Your Intentions</h3>
             <div class="form-group">
               <label for="intentions">What are your intentions for this session?</label>
@@ -540,6 +554,28 @@
             <div class="form-group">
               <label for="additionalInfo">Any other questions or information that would be helpful?</label>
               <textarea id="additionalInfo" name="additionalInfo" rows="3"></textarea>
+            </div>
+          </div>
+
+          <!-- Short Intake for Regular clients -->
+          <div class="form-section hidden" id="shortIntakeSection">
+            <h3>Session Notes</h3>
+            <div class="form-group">
+              <label for="shortIntentions">What would you like to focus on this session?</label>
+              <textarea id="shortIntentions" name="shortIntentions" rows="3" placeholder="Share anything specific for this upcoming session..."></textarea>
+            </div>
+            <div class="form-group">
+              <label for="shortUpdates">Any health updates or changes since your last session?</label>
+              <textarea id="shortUpdates" name="shortUpdates" rows="2" placeholder="Optional - only if there's something new to share"></textarea>
+            </div>
+          </div>
+
+          <!-- Minimal Intake for VIP/Favored clients -->
+          <div class="form-section hidden" id="minimalIntakeSection">
+            <h3>Quick Notes</h3>
+            <div class="form-group">
+              <label for="minimalNotes">Anything you'd like Ravi to know? (optional)</label>
+              <textarea id="minimalNotes" name="minimalNotes" rows="2" placeholder="You can skip this if there's nothing specific..."></textarea>
             </div>
           </div>
 

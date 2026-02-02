@@ -685,6 +685,9 @@
     return emailRegex.test(email);
   }
   
+  let tierCheckTimeout = null;
+  let currentClientTier = null;
+  
   function setupEmailValidation() {
     const emailInput = document.getElementById('email');
     if (!emailInput) return;
@@ -709,8 +712,118 @@
         emailInput.style.boxShadow = '';
         const errorMsg = emailInput.parentElement.querySelector('.email-error');
         if (errorMsg) errorMsg.remove();
+        
+        // Check if returning client
+        if (email && isValidEmail(email)) {
+          checkClientTier(email);
+        }
       }
     });
+    
+    // Also check on input with debounce
+    emailInput.addEventListener('input', () => {
+      if (tierCheckTimeout) clearTimeout(tierCheckTimeout);
+      const email = emailInput.value.trim();
+      
+      if (email && isValidEmail(email)) {
+        tierCheckTimeout = setTimeout(() => checkClientTier(email), 800);
+      } else {
+        // Reset form to full intake
+        showIntakeLevel('full');
+        updateEmailStatus('');
+        currentClientTier = null;
+      }
+    });
+  }
+  
+  async function checkClientTier(email) {
+    const statusEl = document.getElementById('emailCheckStatus');
+    if (statusEl) {
+      statusEl.textContent = 'Checking...';
+      statusEl.className = 'email-check-status checking';
+    }
+    
+    try {
+      const response = await fetch('/api/client/check-tier', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        currentClientTier = data;
+        
+        if (data.found) {
+          updateEmailStatus(`${data.tierInfo.emoji} ${data.tierInfo.label} client`, 'found');
+          showIntakeLevel(data.tierInfo.intakeLevel, data.name);
+          
+          // Auto-fill name if we have it
+          const nameInput = document.getElementById('name');
+          if (nameInput && data.name && !nameInput.value) {
+            nameInput.value = data.name;
+          }
+        } else {
+          updateEmailStatus('', 'new');
+          showIntakeLevel('full');
+        }
+      } else {
+        updateEmailStatus('', '');
+        showIntakeLevel('full');
+      }
+    } catch (err) {
+      console.log('Could not check client tier:', err);
+      updateEmailStatus('', '');
+      showIntakeLevel('full');
+    }
+  }
+  
+  function updateEmailStatus(text, status) {
+    const statusEl = document.getElementById('emailCheckStatus');
+    if (statusEl) {
+      statusEl.textContent = text;
+      statusEl.className = `email-check-status ${status || ''}`;
+    }
+  }
+  
+  function showIntakeLevel(level, clientName) {
+    const fullSection = document.getElementById('fullIntakeSection');
+    const shortSection = document.getElementById('shortIntakeSection');
+    const minimalSection = document.getElementById('minimalIntakeSection');
+    const banner = document.getElementById('returningClientBanner');
+    const welcomeName = document.getElementById('welcomeBackName');
+    
+    // Reset all sections
+    if (fullSection) fullSection.classList.remove('hidden');
+    if (shortSection) shortSection.classList.add('hidden');
+    if (minimalSection) minimalSection.classList.add('hidden');
+    if (banner) banner.classList.add('hidden');
+    
+    // Remove required from textareas in hidden sections
+    const allTextareas = document.querySelectorAll('#fullIntakeSection textarea, #shortIntakeSection textarea, #minimalIntakeSection textarea');
+    allTextareas.forEach(ta => ta.removeAttribute('required'));
+    
+    if (level === 'full') {
+      // New client - full intake
+      if (fullSection) fullSection.classList.remove('hidden');
+      if (shortSection) shortSection.classList.add('hidden');
+      if (minimalSection) minimalSection.classList.add('hidden');
+      if (banner) banner.classList.add('hidden');
+    } else if (level === 'short') {
+      // Regular client - short intake
+      if (fullSection) fullSection.classList.add('hidden');
+      if (shortSection) shortSection.classList.remove('hidden');
+      if (minimalSection) minimalSection.classList.add('hidden');
+      if (banner) banner.classList.remove('hidden');
+      if (welcomeName) welcomeName.textContent = clientName ? `, ${clientName.split(' ')[0]}!` : '!';
+    } else if (level === 'minimal') {
+      // VIP/Favored - minimal intake
+      if (fullSection) fullSection.classList.add('hidden');
+      if (shortSection) shortSection.classList.add('hidden');
+      if (minimalSection) minimalSection.classList.remove('hidden');
+      if (banner) banner.classList.remove('hidden');
+      if (welcomeName) welcomeName.textContent = clientName ? `, ${clientName.split(' ')[0]}!` : '!';
+    }
   }
 
   // ===========================================

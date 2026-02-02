@@ -684,11 +684,26 @@
       opacity: 0.7;
     }
 
+    /* Client Tier Badge */
+    .client-tier-badge {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      color: white;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
     .client-card-header {
       display: flex;
       align-items: center;
       gap: 12px;
       margin-bottom: 12px;
+      margin-top: 8px;
     }
 
     .client-avatar {
@@ -2266,11 +2281,16 @@
 
         <!-- Filter Tabs -->
         <div class="client-filters">
-          <button class="client-filter-btn active" onclick="filterClients('all')">All Clients</button>
-          <button class="client-filter-btn" onclick="filterClients('unread')">💬 Unread Messages</button>
-          <button class="client-filter-btn" onclick="filterClients('active')">✓ Active</button>
-          <button class="client-filter-btn" onclick="filterClients('suspended')">⚠️ Suspended</button>
-          <button class="client-filter-btn" onclick="filterClients('banned')">🚫 Banned</button>
+          <button class="client-filter-btn active" data-filter="all" onclick="filterClients('all')">All Clients</button>
+          <button class="client-filter-btn" data-filter="unread" onclick="filterClients('unread')">💬 Unread</button>
+          <button class="client-filter-btn" data-filter="active" onclick="filterClients('active')">✓ Active</button>
+          <button class="client-filter-btn" data-filter="suspended" onclick="filterClients('suspended')">⚠️ Suspended</button>
+          <button class="client-filter-btn" data-filter="banned" onclick="filterClients('banned')">🚫 Banned</button>
+          <span style="margin: 0 8px; border-left: 2px solid #ddd; height: 24px;"></span>
+          <button class="client-filter-btn" data-filter="favored" onclick="filterClients('favored')">💎 Favored</button>
+          <button class="client-filter-btn" data-filter="vip" onclick="filterClients('vip')">⭐ VIP</button>
+          <button class="client-filter-btn" data-filter="regular" onclick="filterClients('regular')">🌳 Regular</button>
+          <button class="client-filter-btn" data-filter="new" onclick="filterClients('new')">🌱 New</button>
         </div>
 
         <div class="clients-grid" id="clientsList">
@@ -4523,7 +4543,7 @@
     function filterClients(filter) {
       clientFilter = filter;
       document.querySelectorAll('.client-filter-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.textContent.toLowerCase().includes(filter) || (filter === 'all' && btn.textContent.includes('All')));
+        btn.classList.toggle('active', btn.dataset.filter === filter);
       });
       renderClients();
     }
@@ -4541,7 +4561,7 @@
         );
       }
 
-      // Apply filter
+      // Apply filter - status filters
       if (clientFilter === 'unread') {
         filtered = filtered.filter(c => c.unreadMessages > 0);
       } else if (clientFilter === 'active') {
@@ -4550,6 +4570,16 @@
         filtered = filtered.filter(c => c.status === 'suspended');
       } else if (clientFilter === 'banned') {
         filtered = filtered.filter(c => c.status === 'banned');
+      } 
+      // Tier filters
+      else if (clientFilter === 'favored') {
+        filtered = filtered.filter(c => c.tier === 'favored');
+      } else if (clientFilter === 'vip') {
+        filtered = filtered.filter(c => c.tier === 'vip' || (!c.tier && (c.totalSessions || 0) >= 6));
+      } else if (clientFilter === 'regular') {
+        filtered = filtered.filter(c => c.tier === 'regular' || (!c.tier && (c.totalSessions || 0) >= 3 && (c.totalSessions || 0) < 6));
+      } else if (clientFilter === 'new') {
+        filtered = filtered.filter(c => c.tier === 'new' || c.tier === 'returning' || (!c.tier && (c.totalSessions || 0) < 3));
       }
 
       // Update stats
@@ -4566,10 +4596,14 @@
       document.getElementById('clientsList').innerHTML = filtered.length ? filtered.map(c => {
         const statusClass = c.status === 'banned' ? 'banned' : c.status === 'suspended' ? 'suspended' : '';
         const hasUnread = c.unreadMessages > 0;
+        const tierInfo = c.tierInfo || { emoji: '🌱', label: 'New', color: '#9E9E9E' };
         
         return `
           <div class="client-card ${statusClass} ${hasUnread ? 'has-unread' : ''}" onclick="openClientModal('${c.id}')">
             ${c.status && c.status !== 'active' ? `<span class="client-status-badge ${c.status}">${c.status}</span>` : ''}
+            <span class="client-tier-badge" style="background: ${tierInfo.color};" title="${tierInfo.label}${c.tierManual ? ' (Manual)' : ''}">
+              ${tierInfo.emoji} ${tierInfo.label}
+            </span>
             <div class="client-card-header">
               <div class="client-avatar">
                 ${c.name?.charAt(0) || '?'}
@@ -4671,7 +4705,50 @@
     }
 
     function renderClientInfoTab(client) {
+      const tierInfo = client.tierInfo || { emoji: '🌱', label: 'New', color: '#9E9E9E' };
+      const tier = client.tier || 'new';
+      
       document.getElementById('clientTabInfo').innerHTML = `
+        <!-- Client Tier Section -->
+        <div style="background: linear-gradient(135deg, ${tierInfo.color}15 0%, ${tierInfo.color}05 100%); padding: 16px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid ${tierInfo.color};">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <div>
+              <div style="font-size: 24px; margin-bottom: 4px;">${tierInfo.emoji} ${tierInfo.label}</div>
+              <div style="font-size: 13px; color: var(--soft-gray);">
+                ${client.tierManual ? '✏️ Manually set' : '🔄 Auto-calculated'} 
+                ${client.tierNotes ? ` • ${client.tierNotes}` : ''}
+              </div>
+            </div>
+            <div>
+              <select id="tierSelect" onchange="updateClientTier('${client.id}')" style="padding: 8px 12px; border: 2px solid ${tierInfo.color}; border-radius: 8px; font-size: 14px; cursor: pointer;">
+                <option value="new" ${tier === 'new' ? 'selected' : ''}>🌱 New Client</option>
+                <option value="returning" ${tier === 'returning' ? 'selected' : ''}>🌿 Returning</option>
+                <option value="regular" ${tier === 'regular' ? 'selected' : ''}>🌳 Regular</option>
+                <option value="vip" ${tier === 'vip' ? 'selected' : ''}>⭐ VIP</option>
+                <option value="favored" ${tier === 'favored' ? 'selected' : ''}>💎 Favored</option>
+              </select>
+              ${client.tierManual ? `
+                <button class="btn btn-sm btn-outline" style="margin-left: 8px;" onclick="resetToAutoTier('${client.id}')" title="Reset to auto-calculated tier">↺</button>
+              ` : ''}
+            </div>
+          </div>
+          <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid ${tierInfo.color}30;">
+            <label style="font-size: 12px; color: var(--soft-gray);">Tier Note (optional)</label>
+            <input type="text" id="tierNotesInput" value="${client.tierNotes || ''}" placeholder="e.g., Referred by Dr. Smith, long-time client..." 
+              style="width: 100%; padding: 8px; border: 1px solid #e0d6cc; border-radius: 6px; font-size: 13px; margin-top: 4px;"
+              onchange="saveTierNotes('${client.id}')">
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;">
+          <span style="background: #e3f2fd; padding: 6px 12px; border-radius: 20px; font-size: 12px;">
+            📋 Intake: <strong>${tierInfo.intakeLevel === 'full' ? 'Full' : tierInfo.intakeLevel === 'short' ? 'Short' : 'Minimal'}</strong>
+          </span>
+          <span style="background: #f3e5f5; padding: 6px 12px; border-radius: 20px; font-size: 12px;">
+            🔄 Sessions: <strong>${(client.sessions?.filter(s => s.status === 'completed').length) || 0} completed</strong>
+          </span>
+        </div>
+        
         <div class="detail-grid">
           <div>
             <div class="detail-item">
@@ -4972,6 +5049,67 @@
       } else {
         showToast(result?.error || 'Failed to reinstate client', 'error');
       }
+    }
+
+    // ===========================================
+    // CLIENT TIER MANAGEMENT
+    // ===========================================
+
+    async function updateClientTier(clientId) {
+      const tierSelect = document.getElementById('tierSelect');
+      const tier = tierSelect.value;
+      const tierNotes = document.getElementById('tierNotesInput')?.value || '';
+      
+      showLoading(true);
+      const result = await api(`/api/admin/clients/${clientId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ 
+          tier, 
+          tierManual: true,
+          tierNotes 
+        })
+      });
+      showLoading(false);
+      
+      if (result?.success) {
+        const tierEmojis = { new: '🌱', returning: '🌿', regular: '🌳', vip: '⭐', favored: '💎' };
+        showToast(`Client tier updated to ${tierEmojis[tier] || ''} ${tier}`, 'success');
+        // Refresh the modal to show updated data
+        openClientModal(clientId);
+        loadClients();
+      } else {
+        showToast(result?.error || 'Failed to update tier', 'error');
+      }
+    }
+
+    async function resetToAutoTier(clientId) {
+      if (!confirm('Reset to auto-calculated tier based on session count?')) return;
+      
+      showLoading(true);
+      const result = await api(`/api/admin/clients/${clientId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ tierManual: false })
+      });
+      showLoading(false);
+      
+      if (result?.success) {
+        showToast('Tier reset to auto-calculated!', 'success');
+        openClientModal(clientId);
+        loadClients();
+      } else {
+        showToast(result?.error || 'Failed to reset tier', 'error');
+      }
+    }
+
+    async function saveTierNotes(clientId) {
+      const tierNotes = document.getElementById('tierNotesInput')?.value || '';
+      
+      await api(`/api/admin/clients/${clientId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ tierNotes })
+      });
+      
+      showToast('Tier notes saved', 'success');
     }
 
     // Legacy function for compatibility

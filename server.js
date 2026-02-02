@@ -696,11 +696,15 @@ function findOrCreateClient(booking) {
       name: booking.name,
       phone: booking.phone,
       gender: booking.gender,
+      pronouns: booking.pronouns,
       textPermission: booking.textPermission,
       createdAt: new Date().toISOString(),
       sessions: [],
       notes: '',
-      tags: []
+      tags: [],
+      tier: 'new',           // new, returning, regular, vip, favored
+      tierManual: false,     // true if Ravi manually set the tier
+      tierNotes: ''          // Notes about why tier was set
     };
     clients.push(client);
   } else {
@@ -708,6 +712,7 @@ function findOrCreateClient(booking) {
     client.name = booking.name;
     client.phone = booking.phone;
     if (booking.gender) client.gender = booking.gender;
+    if (booking.pronouns) client.pronouns = booking.pronouns;
     client.textPermission = booking.textPermission;
   }
   
@@ -726,8 +731,35 @@ function findOrCreateClient(booking) {
     .filter(s => s.status === 'completed')
     .reduce((sum, s) => sum + (s.price || 0), 0);
   
+  // Auto-calculate tier (only if not manually set)
+  if (!client.tierManual) {
+    client.tier = calculateClientTier(client);
+  }
+  
   saveClients(clients);
   return client;
+}
+
+// Calculate client tier based on sessions
+function calculateClientTier(client) {
+  const completedSessions = client.sessions?.filter(s => s.status === 'completed').length || 0;
+  
+  if (completedSessions === 0) return 'new';
+  if (completedSessions <= 2) return 'returning';
+  if (completedSessions <= 5) return 'regular';
+  return 'vip';  // 6+ sessions = VIP
+}
+
+// Get tier display info
+function getTierInfo(tier) {
+  const tiers = {
+    'new': { emoji: '🌱', label: 'New Client', color: '#9E9E9E', intakeLevel: 'full' },
+    'returning': { emoji: '🌿', label: 'Returning', color: '#4CAF50', intakeLevel: 'full' },
+    'regular': { emoji: '🌳', label: 'Regular', color: '#2196F3', intakeLevel: 'short' },
+    'vip': { emoji: '⭐', label: 'VIP', color: '#FF9800', intakeLevel: 'minimal' },
+    'favored': { emoji: '💎', label: 'Favored', color: '#9C27B0', intakeLevel: 'minimal' }
+  };
+  return tiers[tier] || tiers['new'];
 }
 
 // ===========================================
@@ -1211,14 +1243,59 @@ app.get('/api/admin/calendar', authenticateAdmin, (req, res) => {
 
 app.get('/api/admin/clients', authenticateAdmin, (req, res) => {
   const clients = loadClients();
+  // Add tier info to each client
+  clients.forEach(c => {
+    if (!c.tier) {
+      c.tier = calculateClientTier(c);
+    }
+    c.tierInfo = getTierInfo(c.tier);
+  });
   clients.sort((a, b) => new Date(b.lastContact) - new Date(a.lastContact));
   res.json(clients);
+});
+
+// Public endpoint to check client tier by email (for adaptive booking form)
+app.post('/api/client/check-tier', (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: 'Email required' });
+  
+  const clients = loadClients();
+  const client = clients.find(c => c.email.toLowerCase() === email.toLowerCase());
+  
+  if (!client) {
+    // New client
+    return res.json({ 
+      tier: 'new', 
+      tierInfo: getTierInfo('new'),
+      isExisting: false,
+      intakeLevel: 'full'
+    });
+  }
+  
+  // Existing client
+  const tier = client.tier || calculateClientTier(client);
+  const tierInfo = getTierInfo(tier);
+  
+  res.json({
+    tier: tier,
+    tierInfo: tierInfo,
+    isExisting: true,
+    name: client.name,
+    completedSessions: client.sessions?.filter(s => s.status === 'completed').length || 0,
+    intakeLevel: tierInfo.intakeLevel
+  });
 });
 
 app.get('/api/admin/clients/:id', authenticateAdmin, (req, res) => {
   const clients = loadClients();
   const client = clients.find(c => c.id === req.params.id);
   if (!client) return res.status(404).json({ error: 'Client not found' });
+  
+  // Add tier info
+  if (!client.tier) {
+    client.tier = calculateClientTier(client);
+  }
+  client.tierInfo = getTierInfo(client.tier);
   
   // Get full booking history
   const bookings = loadBookings();
@@ -1228,7 +1305,7 @@ app.get('/api/admin/clients/:id', authenticateAdmin, (req, res) => {
 });
 
 app.patch('/api/admin/clients/:id', authenticateAdmin, (req, res) => {
-  const { notes, tags, status } = req.body;
+  const { notes, tags, status, tier, tierNotes, tierManual } = req.body;
   const clients = loadClients();
   const client = clients.find(c => c.id === req.params.id);
   if (!client) return res.status(404).json({ error: 'Client not found' });
@@ -1236,6 +1313,23 @@ app.patch('/api/admin/clients/:id', authenticateAdmin, (req, res) => {
   if (notes !== undefined) client.notes = notes;
   if (tags !== undefined) client.tags = tags;
   if (status !== undefined) client.status = status;
+  
+  // Tier management
+  if (tier !== undefined) {
+    const validTiers = ['new', 'returning', 'regular', 'vip', 'favored'];
+    if (validTiers.includes(tier)) {
+      client.tier = tier;
+      client.tierManual = tierManual !== false; // Default to true when manually setting
+      client.tierUpdatedAt = new Date().toISOString();
+      if (tierNotes !== undefined) client.tierNotes = tierNotes;
+    }
+  }
+  
+  // Allow resetting to auto-calculated tier
+  if (tierManual === false) {
+    client.tierManual = false;
+    client.tier = calculateClientTier(client);
+  }
   
   saveClients(clients);
   res.json({ success: true, client });
