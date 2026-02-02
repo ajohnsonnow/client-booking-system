@@ -1,7 +1,7 @@
 # 📚 Admin User Guide - Ravi's Sacred Healing
 
 
-**Last Updated:** 2026-01-28
+**Last Updated:** 2026-02-01
 
 ## Complete Guide to Your Admin Dashboard
 
@@ -224,53 +224,162 @@ Click on any booking row to open the **Detail Modal** which shows:
 
 ---
 
-## 👥 Clients Section
+## � Messages Section (NEW!)
 
-**Purpose**: Manage your client database and history.
+**Purpose**: Secure, encrypted communication between you and your clients.
 
-### Client List View
-Shows all clients with:
-- **Name** and contact info
-- **Sessions**: Number of completed sessions
-- **Revenue**: Total spent with you
-- **Last Contact**: Most recent interaction
-- **Tags**: Labels you've assigned (new, regular, etc.)
+### How Secure Messaging Works
+- **End-to-end encryption**: All messages are encrypted with AES-256-GCM
+- **Client-to-Ravi only**: Clients can ONLY message you, not each other
+- **Private and confidential**: Messages stored securely on your server
+- **No third-party access**: Your conversations stay between you and your clients
 
-### Search Functionality
-- Search by name or email
-- Results update in real-time as you type
-- Case-insensitive search
+### Messages Inbox
 
-### Client Detail View
-Click any client to see:
+#### Viewing Your Inbox
+1. Click **"Messages"** in the left navigation
+2. You'll see a list of all client conversations
+3. Each conversation shows:
+   - 🟢 **Green dot**: Unread message from client
+   - Client name and email
+   - Preview of last message
+   - Time/date of last message
+   - Total message count
 
-#### Overview
-- Full contact information
-- Total sessions count
-- Lifetime revenue
-- First session date
-- Last contact date
+#### Conversation View
+Click any conversation to see the full thread:
+- Messages displayed in bubble format
+- **Your messages**: Appear on the right (burgundy)
+- **Client messages**: Appear on the left (cream)
+- Timestamps shown for each message
+- Scrollable history of entire conversation
 
-#### Complete Booking History
-- Every booking (pending, confirmed, completed, cancelled)
+### Replying to Messages
+
+1. Click on a conversation to open it
+2. Type your reply in the text box at the bottom
+3. Click **"Send"** or press Enter
+4. Message is immediately encrypted and saved
+5. Client sees it when they log into their portal
+
+### Message Indicators
+- **Badge on Messages nav**: Shows total unread count
+- **Green dot on conversations**: Indicates unread messages
+- Messages marked as read when you open the conversation
+
+### Best Practices for Secure Messaging
+1. Use for sensitive follow-up discussions
+2. Keep records of important client communications
+3. Respond within 24-48 hours
+4. Use for scheduling clarifications
+5. Document any agreement changes in writing
+
+---
+
+## 👥 Clients Section (ENHANCED!)
+
+**Purpose**: Manage your client database with powerful navigation and safety tools.
+
+### Client Navigator (Card View)
+
+The new client navigator shows visual cards for each client:
+
+#### What Each Card Shows
+- **Client avatar**: First initial in a colored circle
+- **Name and email**: Primary identification
+- **Session count**: Total completed sessions
+- **Revenue**: Lifetime value
+- **Message indicator**: 🔴 Red dot if they have unread messages for you
+- **Status badge**: 
+  - 🟢 Active (normal)
+  - 🟡 Suspended (temporarily restricted)
+  - 🔴 Banned (permanently blocked)
+
+#### Card Actions
+- **Click card**: Opens full client detail modal
+- **Hover**: Card lifts for visual feedback
+- **Search**: Filter cards by name or email
+
+### Client Detail Modal (4 Tabs)
+
+Click any client card to open the comprehensive detail modal:
+
+#### Tab 1: 📋 Info
+- **Contact Information**: Name, email, phone, gender, pronouns
+- **Account Status**: Active, Suspended, or Banned (with reason if applicable)
+- **Statistics**: Total sessions, revenue, first session date
+- **Quick Email**: Button to send email directly
+
+#### Tab 2: 💬 Messages
+- Full conversation history with this client
+- Send new messages directly from the modal
+- Messages appear in same encrypted thread
+- Real-time updates
+
+#### Tab 3: 📅 History
+- Complete booking history
+- Every session (pending, confirmed, completed, cancelled)
+- Date, service, price, and status for each
 - Click any booking to view full details
-- Sorted by most recent first
 
-#### Notes & Tags
-- **Admin Notes**: Your private notes about this client
-  - Session preferences
-  - Important information
-  - Communication history
-- **Tags**: Organize your clients
-  - Examples: "regular", "new", "monthly", "referred-others"
-  - Add/remove tags easily
+#### Tab 4: ⚠️ Actions
+Safety and administrative controls:
+
+**Account Status Management**
+- **Suspend Client**: Temporarily restrict access
+  - Choose duration: 1 day, 1 week, 1 month, or indefinite
+  - Enter reason (required)
+  - Optional: Send notification email to client
+  - Client sees friendly message explaining suspension
+  
+- **Ban Client**: Permanently block access
+  - Enter reason (required)
+  - Optional: Send notification email
+  - Client cannot log in or book sessions
+  - Can be reversed if needed
+
+- **Reinstate Client**: Restore full access
+  - Clears suspension/ban status
+  - Optional: Send welcome-back email
+  - Full access immediately restored
+
+**Admin Notes**
+- Private notes only you can see
+- Track important client information
+- Session preferences and history
+- Any concerns or special requirements
+
+### Suspend vs. Ban: When to Use
+
+| Action | Duration | Use Case |
+|--------|----------|----------|
+| **Suspend** | Temporary | Boundary violations, payment issues, cooling-off period |
+| **Ban** | Permanent | Serious violations, safety concerns, repeated issues |
+| **Reinstate** | Immediate | Issue resolved, second chance, mistake correction |
+
+### Safety & Boundaries
+
+When a client is suspended or banned:
+1. ❌ Cannot log into client portal
+2. ❌ Cannot submit new bookings
+3. ❌ Cannot send messages
+4. ✅ Their data is preserved (for records)
+5. ✅ You can still view their history
+6. ✅ You can reinstate at any time
+
+**Notification Options**
+When suspending or banning, you can choose to:
+- Send email explaining the action
+- Keep it silent (no notification)
+- The email includes your stated reason
 
 ### Client Management Best Practices
 1. Add notes after each session
-2. Tag regular clients for easy identification
-3. Review client history before appointments
-4. Track preferences and sensitivities
-5. Use for referral tracking
+2. Review client history before appointments
+3. Use suspension for temporary boundary issues
+4. Document reasons clearly for your records
+5. Reinstate promptly when issues are resolved
+6. Use messaging for sensitive follow-ups
 
 ---
 

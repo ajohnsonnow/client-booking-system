@@ -655,6 +655,10 @@
               <div class="quick-action-icon">💝</div>
               <div class="quick-action-label">Share Experience</div>
             </a>
+            <a href="#" class="quick-action" onclick="showClientGuide()">
+              <div class="quick-action-icon">📖</div>
+              <div class="quick-action-label">Guidelines</div>
+            </a>
             <a href="#" class="quick-action" onclick="showPreferences()">
               <div class="quick-action-icon">⚙️</div>
               <div class="quick-action-label">Preferences</div>
@@ -758,6 +762,122 @@
             </div>
           </div>
           <button class="btn btn-primary" onclick="savePreferences()">Save Preferences</button>
+        </div>
+      </div>
+
+      <!-- Client Guidelines (hidden by default) -->
+      <div id="clientGuideCard" class="card hidden">
+        <div class="card-header">
+          <h2>📖 Client Guidelines & Portal Help</h2>
+          <button class="btn btn-outline" style="padding: 8px 16px; font-size: 12px;" onclick="hideClientGuide()">✕ Close</button>
+        </div>
+        <div class="card-body" style="max-height: 70vh; overflow-y: auto;">
+          
+          <!-- Welcome Section -->
+          <div style="background: linear-gradient(135deg, rgba(114, 47, 55, 0.1) 0%, rgba(212, 175, 55, 0.1) 100%); padding: 24px; border-radius: 12px; margin-bottom: 24px; text-align: center;">
+            <h3 style="color: var(--burgundy); margin-bottom: 12px;">🪷 Welcome to Your Sacred Space</h3>
+            <p>This portal is your private connection to Ravi and your healing journey. Here you can manage appointments, communicate securely, and track your sessions.</p>
+          </div>
+
+          <!-- Using Your Portal -->
+          <div style="margin-bottom: 24px;">
+            <h4 style="color: var(--burgundy); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+              📱 Using Your Portal
+            </h4>
+            <ul style="list-style: none; padding: 0;">
+              <li style="padding: 12px; background: var(--cream); border-radius: 8px; margin-bottom: 8px;">
+                <strong>📅 Book Session:</strong> Schedule a new healing session with Ravi
+              </li>
+              <li style="padding: 12px; background: var(--cream); border-radius: 8px; margin-bottom: 8px;">
+                <strong>💬 Message Ravi:</strong> Send secure, encrypted messages directly to Ravi
+              </li>
+              <li style="padding: 12px; background: var(--cream); border-radius: 8px; margin-bottom: 8px;">
+                <strong>💝 Share Experience:</strong> Submit a testimonial after your session
+              </li>
+              <li style="padding: 12px; background: var(--cream); border-radius: 8px; margin-bottom: 8px;">
+                <strong>⚙️ Preferences:</strong> Set how you'd like to receive reminders
+              </li>
+            </ul>
+          </div>
+
+          <!-- Secure Messaging -->
+          <div style="margin-bottom: 24px;">
+            <h4 style="color: var(--burgundy); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+              🔒 Secure Messaging
+            </h4>
+            <div style="background: var(--cream); padding: 16px; border-radius: 8px;">
+              <p style="margin-bottom: 12px;">Your messages are <strong>encrypted end-to-end</strong> using military-grade encryption (AES-256-GCM). Only you and Ravi can read them.</p>
+              <ul style="margin-left: 20px; color: var(--soft-gray);">
+                <li>Messages are stored securely on Ravi's private server</li>
+                <li>No third parties can access your conversations</li>
+                <li>Perfect for sensitive follow-up questions</li>
+                <li>Ravi typically responds within 24-48 hours</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Sacred Container Agreement -->
+          <div style="margin-bottom: 24px; border: 2px solid var(--burgundy); border-radius: 12px; overflow: hidden;">
+            <div style="background: var(--burgundy); color: white; padding: 16px;">
+              <h4 style="margin: 0; display: flex; align-items: center; gap: 8px;">
+                🙏 Sacred Container Agreement
+              </h4>
+            </div>
+            <div style="padding: 20px;">
+              <p style="margin-bottom: 16px; font-style: italic; color: var(--burgundy);">
+                "Our healing work together requires mutual trust, respect, and clear boundaries."
+              </p>
+              
+              <h5 style="margin-bottom: 8px; color: var(--charcoal);">Your Commitments:</h5>
+              <ul style="margin-left: 20px; margin-bottom: 16px;">
+                <li><strong>Honesty & Communication:</strong> Share openly about your needs, boundaries, and any concerns</li>
+                <li><strong>Respect:</strong> Honor Ravi's boundaries, time, and professional guidelines</li>
+                <li><strong>Confidentiality:</strong> Keep the sacred space private; don't share details publicly</li>
+                <li><strong>Sobriety:</strong> Arrive clear-minded, not under the influence of substances</li>
+                <li><strong>Hygiene:</strong> Arrive freshly showered and well-groomed</li>
+                <li><strong>Punctuality:</strong> Arrive on time; late arrivals reduce session time</li>
+                <li><strong>Cancellation:</strong> Provide 24-hour notice for cancellations</li>
+              </ul>
+
+              <h5 style="margin-bottom: 8px; color: var(--charcoal);">Ravi's Commitments:</h5>
+              <ul style="margin-left: 20px; margin-bottom: 16px;">
+                <li><strong>Safe Space:</strong> Create a nurturing, judgment-free environment</li>
+                <li><strong>Confidentiality:</strong> Your information and sessions are completely private</li>
+                <li><strong>Presence:</strong> Give full attention and care during your session</li>
+                <li><strong>Boundaries:</strong> Maintain clear professional boundaries at all times</li>
+                <li><strong>Communication:</strong> Respond to messages within 48 hours</li>
+              </ul>
+
+              <div style="background: #fff3cd; padding: 12px; border-radius: 8px; border-left: 4px solid #D4AF37;">
+                <strong>⚠️ Important:</strong> If boundaries are violated or commitments broken, access to services may be suspended or revoked. This protects the sacred container for everyone.
+              </div>
+            </div>
+          </div>
+
+          <!-- Terms Reminder -->
+          <div style="margin-bottom: 24px;">
+            <h4 style="color: var(--burgundy); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+              📋 Terms of Service Reminders
+            </h4>
+            <div style="background: var(--cream); padding: 16px; border-radius: 8px;">
+              <ul style="margin-left: 20px;">
+                <li><strong>Age Requirement:</strong> You must be 21 years or older</li>
+                <li><strong>Consent:</strong> All touch is consensual and can be stopped at any time</li>
+                <li><strong>This Is Not:</strong> Escort services, prostitution, or sexual services</li>
+                <li><strong>Payment:</strong> Cash or Venmo, in advance or at session</li>
+                <li><strong>No Recording:</strong> No photos, videos, or recordings of any kind</li>
+                <li><strong>Privacy:</strong> Your data is encrypted and never shared</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Getting Help -->
+          <div style="background: linear-gradient(135deg, rgba(114, 47, 55, 0.05) 0%, rgba(212, 175, 55, 0.05) 100%); padding: 20px; border-radius: 12px; text-align: center;">
+            <h4 style="color: var(--burgundy); margin-bottom: 12px;">💬 Need Help?</h4>
+            <p style="margin-bottom: 16px;">If you have questions or need assistance, send Ravi a secure message through the portal.</p>
+            <button class="btn btn-primary" onclick="hideClientGuide(); showMessages();">Message Ravi</button>
+          </div>
+
         </div>
       </div>
     </div>
@@ -1141,6 +1261,19 @@
     function showPreferences() {
       document.getElementById('preferencesCard').classList.toggle('hidden');
       document.getElementById('messagesCard').classList.add('hidden');
+      document.getElementById('clientGuideCard').classList.add('hidden');
+    }
+
+    function showClientGuide() {
+      document.getElementById('clientGuideCard').classList.remove('hidden');
+      document.getElementById('messagesCard').classList.add('hidden');
+      document.getElementById('preferencesCard').classList.add('hidden');
+      // Scroll to guide
+      document.getElementById('clientGuideCard').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function hideClientGuide() {
+      document.getElementById('clientGuideCard').classList.add('hidden');
     }
 
     // ===========================================
@@ -1150,6 +1283,7 @@
     async function showMessages() {
       document.getElementById('messagesCard').classList.remove('hidden');
       document.getElementById('preferencesCard').classList.add('hidden');
+      document.getElementById('clientGuideCard').classList.add('hidden');
       await loadMessages();
       // Scroll to messages card
       document.getElementById('messagesCard').scrollIntoView({ behavior: 'smooth' });
