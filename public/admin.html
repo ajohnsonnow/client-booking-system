@@ -7630,7 +7630,7 @@ Example:
         const sequences = {
           lead_magnet: [
             { day: 0, subject: '🪷 Your Sacred Healing Guide is Here', preview: 'Welcome! Your journey begins...' },
-            { day: 2, subject: 'Day 2: Understanding Your Energy Centers', preview: 'Let\\'s explore the chakras...' },
+            { day: 2, subject: 'Day 2: Understanding Your Energy Centers', preview: 'Let\'s explore the chakras...' },
             { day: 5, subject: 'Healing Practice: Morning Meditation', preview: 'Start your day with this simple practice...' },
             { day: 8, subject: 'Special Invitation: Private Healing Session', preview: 'Ready for deeper transformation?' },
             { day: 14, subject: 'Your Progress & Next Steps', preview: 'How has your journey been?' }
@@ -7639,18 +7639,18 @@ Example:
             { day: 0, subject: 'Thank You for Reaching Out 🙏', preview: 'I received your message and will respond soon...' },
             { day: 1, subject: 'About My Healing Approach', preview: 'Learn about the sacred practices I use...' },
             { day: 3, subject: 'Client Testimonials & Transformations', preview: 'See what others have experienced...' },
-            { day: 5, subject: 'Book Your Session Today', preview: 'Let\\'s begin your healing journey...' },
-            { day: 10, subject: 'Still Thinking? Let\\'s Talk', preview: 'Any questions I can answer?' }
+            { day: 5, subject: 'Book Your Session Today', preview: 'Let\'s begin your healing journey...' },
+            { day: 10, subject: 'Still Thinking? Let\'s Talk', preview: 'Any questions I can answer?' }
           ],
           first_booking: [
-            { day: 0, subject: 'Your Session is Confirmed! ✨', preview: 'Here\\'s what to expect...' },
+            { day: 0, subject: 'Your Session is Confirmed! ✨', preview: 'Here\'s what to expect...' },
             { day: 1, subject: 'Preparing for Your Healing Session', preview: 'Tips to maximize your experience...' },
-            { day: 7, subject: 'How Was Your Session?', preview: 'I\\'d love to hear your feedback...' },
+            { day: 7, subject: 'How Was Your Session?', preview: 'I\'d love to hear your feedback...' },
             { day: 14, subject: 'Continue Your Healing Journey', preview: 'Ready for your next session?' },
-            { day: 30, subject: 'It\\'s Been a While - How Are You?', preview: 'Checking in on your wellness...' }
+            { day: 30, subject: 'It\'s Been a While - How Are You?', preview: 'Checking in on your wellness...' }
           ],
           no_booking: [
-            { day: 0, subject: 'We Miss You! 💜', preview: 'It\\'s been a while since your last session...' },
+            { day: 0, subject: 'We Miss You! 💜', preview: 'It\'s been a while since your last session...' },
             { day: 3, subject: 'Special Offer: Return to Healing', preview: '20% off your next session...' },
             { day: 7, subject: 'Free Resource: Self-Healing Techniques', preview: 'Practice these at home...' },
             { day: 14, subject: 'Your Wellness Matters', preview: 'How can I support you?' },
@@ -7662,12 +7662,12 @@ Example:
         window.generatedDripEmails = emails;
 
         preview.innerHTML = `
-          <h4 style=\"color: var(--burgundy); margin-bottom: 15px;\">✨ AI-Generated Email Sequence</h4>
+          <h4 style="color: var(--burgundy); margin-bottom: 15px;">✨ AI-Generated Email Sequence</h4>
           ${emails.map((email, idx) => `
-            <div style=\"padding: 12px; background: var(--background); border-radius: 8px; margin-bottom: 10px; border-left: 4px solid var(--burgundy);\">
-              <div style=\"font-size: 11px; color: var(--gold); font-weight: 600; margin-bottom: 5px;\">DAY ${email.day}</div>
-              <div style=\"font-weight: 600; color: var(--text); margin-bottom: 3px;\">${email.subject}</div>
-              <div style=\"font-size: 13px; color: var(--soft-gray);\">${email.preview}</div>
+            <div style="padding: 12px; background: var(--background); border-radius: 8px; margin-bottom: 10px; border-left: 4px solid var(--burgundy);">
+              <div style="font-size: 11px; color: var(--gold); font-weight: 600; margin-bottom: 5px;">DAY ${email.day}</div>
+              <div style="font-weight: 600; color: var(--text); margin-bottom: 3px;">${email.subject}</div>
+              <div style="font-size: 13px; color: var(--soft-gray);">${email.preview}</div>
             </div>
           `).join('')}
         `;
