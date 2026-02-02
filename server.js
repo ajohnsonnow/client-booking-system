@@ -2389,6 +2389,152 @@ app.delete('/api/admin/inquiries/:id', authenticateAdmin, (req, res) => {
   res.json({ success: true });
 });
 
+// Admin: Schedule video call for inquiry
+app.post('/api/admin/inquiries/:id/schedule-call', authenticateAdmin, async (req, res) => {
+  const { id } = req.params;
+  
+  const inquiries = loadInquiries();
+  const inquiry = inquiries.find(i => i.id === id);
+  
+  if (!inquiry) {
+    return res.status(404).json({ error: 'Inquiry not found' });
+  }
+  
+  // Get video chat link from settings
+  const content = loadContent();
+  const videoChatLink = content.siteSettings?.videoChatLink;
+  
+  if (!videoChatLink) {
+    return res.status(400).json({ error: 'Video chat link not configured. Please set it in Site Settings.' });
+  }
+  
+  // Update inquiry status
+  inquiry.status = 'video_scheduled';
+  inquiry.videoScheduledAt = new Date().toISOString();
+  saveInquiries(inquiries);
+  
+  // Send email with video chat link
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #FDF8F3; padding: 40px; }
+    .container { max-width: 520px; margin: 0 auto; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 30px rgba(114, 47, 55, 0.15); }
+    .header { background: linear-gradient(135deg, #722F37 0%, #8B3A44 100%); color: white; padding: 32px; text-align: center; }
+    .header h1 { font-family: Georgia, serif; margin: 0; font-size: 24px; }
+    .content { padding: 32px; }
+    .button { display: block; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white !important; text-decoration: none; padding: 18px 32px; border-radius: 8px; text-align: center; font-weight: 600; margin: 24px 0; font-size: 16px; }
+    .footer { text-align: center; padding: 24px; background: #f8f5f0; color: #9E9890; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🪷 Let's Connect</h1>
+    </div>
+    <div class="content">
+      <p>Dear ${inquiry.name},</p>
+      <p>Thank you for reaching out about sacred healing work. I'd love to connect with you for a brief discovery call to learn more about your journey and answer any questions you might have.</p>
+      <p>This is a chance for us to get to know each other and see if we're a good fit to work together.</p>
+      <a href="${videoChatLink}" class="button">📅 Schedule Your Discovery Call</a>
+      <p style="font-size: 14px; color: #666;">Click the button above to choose a time that works for you.</p>
+      <p>I look forward to connecting with you.</p>
+      <p style="margin-top: 24px;">With warmth,<br><strong>Ravi</strong></p>
+    </div>
+    <div class="footer">
+      <p>🔒 Your privacy is sacred</p>
+    </div>
+  </div>
+</body>
+</html>
+`;
+
+  try {
+    if (process.env.SENDGRID_API_KEY) {
+      await sgMail.send({
+        to: inquiry.email,
+        from: process.env.SENDGRID_FROM_EMAIL || 'noreply@example.com',
+        subject: "Let's Connect - Discovery Call with Ravi 🪷",
+        html: html
+      });
+    } else {
+      console.log('📧 [DEV] Would send discovery call email to:', inquiry.email);
+      console.log('📧 [DEV] Video chat link:', videoChatLink);
+    }
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Failed to send discovery call email:', error);
+    res.status(500).json({ error: 'Failed to send email' });
+  }
+});
+
+// Admin: Decline inquiry
+app.post('/api/admin/inquiries/:id/decline', authenticateAdmin, async (req, res) => {
+  const { id } = req.params;
+  const { reason } = req.body;
+  
+  const inquiries = loadInquiries();
+  const inquiry = inquiries.find(i => i.id === id);
+  
+  if (!inquiry) {
+    return res.status(404).json({ error: 'Inquiry not found' });
+  }
+  
+  inquiry.status = 'declined';
+  inquiry.declinedAt = new Date().toISOString();
+  inquiry.declineReason = reason || '';
+  saveInquiries(inquiries);
+  
+  // Optionally send a polite decline email
+  if (process.env.SENDGRID_API_KEY) {
+    const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #FDF8F3; padding: 40px; }
+    .container { max-width: 520px; margin: 0 auto; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 30px rgba(114, 47, 55, 0.15); }
+    .header { background: linear-gradient(135deg, #722F37 0%, #8B3A44 100%); color: white; padding: 32px; text-align: center; }
+    .content { padding: 32px; }
+    .footer { text-align: center; padding: 24px; background: #f8f5f0; color: #9E9890; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🪷 Ravi Sacred Healing</h1>
+    </div>
+    <div class="content">
+      <p>Dear ${inquiry.name},</p>
+      <p>Thank you for your interest in sacred healing work. After careful consideration, I don't feel we would be the right fit to work together at this time.</p>
+      <p>I wish you all the best on your healing journey.</p>
+      <p style="margin-top: 24px;">With warmth,<br><strong>Ravi</strong></p>
+    </div>
+    <div class="footer">
+      <p>🔒 Your privacy is sacred</p>
+    </div>
+  </div>
+</body>
+</html>
+`;
+
+    try {
+      await sgMail.send({
+        to: inquiry.email,
+        from: process.env.SENDGRID_FROM_EMAIL || 'noreply@example.com',
+        subject: 'Thank You for Your Interest - Ravi Sacred Healing',
+        html: html
+      });
+    } catch (error) {
+      console.error('Failed to send decline email:', error);
+    }
+  }
+  
+  res.json({ success: true });
+});
+
 // Admin: Send invitation to inquiry
 app.post('/api/admin/inquiries/:id/invite', authenticateAdmin, async (req, res) => {
   const { id } = req.params;

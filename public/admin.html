@@ -3359,6 +3359,11 @@
                   <input type="text" class="form-input" id="siteLocation">
                 </div>
                 <div class="form-group">
+                  <label class="form-label">Discovery Call Link</label>
+                  <input type="url" class="form-input" id="videoChatLink" placeholder="https://calendly.com/ravi or https://zoom.us/j/...">
+                  <small style="color: var(--soft-gray);">Calendly, Zoom, Google Meet, or other scheduling/video link for vetting new clients</small>
+                </div>
+                <div class="form-group">
                   <label class="form-label">
                     <input type="checkbox" id="maintenanceMode"> Maintenance Mode (hide site from public)
                   </label>
@@ -6317,12 +6322,13 @@ Example:
         const statusBadge = {
           new: '<span class="badge" style="background: var(--gold); color: white;">New</span>',
           reviewed: '<span class="badge badge-pending">Reviewed</span>',
+          video_scheduled: '<span class="badge" style="background: #6366f1; color: white;">📹 Call Scheduled</span>',
           invited: '<span class="badge badge-confirmed">Invited</span>',
           declined: '<span class="badge badge-cancelled">Declined</span>'
         };
 
         return `
-          <div class="content-item" style="border-left: 4px solid ${i.status === 'new' ? 'var(--gold)' : i.status === 'invited' ? 'var(--success)' : '#e0d6cc'};">
+          <div class="content-item" style="border-left: 4px solid ${i.status === 'new' ? 'var(--gold)' : i.status === 'video_scheduled' ? '#6366f1' : i.status === 'invited' ? 'var(--success)' : '#e0d6cc'};">
             <div class="content-item-header">
               <div>
                 <h4 style="margin-bottom: 4px;">${i.name}</h4>
@@ -6332,6 +6338,7 @@ Example:
                 <div style="font-size: 12px; color: var(--soft-gray); margin-top: 4px;">
                   ${new Date(i.createdAt).toLocaleDateString()} at ${new Date(i.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                 </div>
+                ${i.videoScheduledAt ? `<div style="font-size: 11px; color: #6366f1; margin-top: 2px;">📹 Call link sent ${new Date(i.videoScheduledAt).toLocaleDateString()}</div>` : ''}
               </div>
               <div style="text-align: right;">
                 ${statusBadge[i.status]}
@@ -6341,22 +6348,33 @@ Example:
             <div style="background: #f8f5f0; padding: 12px; border-radius: 8px; margin: 12px 0; font-style: italic; color: var(--charcoal);">
               "${i.message}"
             </div>
-            <div class="content-item-actions" style="justify-content: flex-start; gap: 8px;">
+            <div class="content-item-actions" style="justify-content: flex-start; gap: 8px; flex-wrap: wrap;">
               ${i.status === 'new' ? `
-                <button class="btn btn-sm btn-primary" onclick="sendInvitationToInquiry('${i.id}')" style="background: var(--gold);">
-                  🎟️ Send Invitation
+                <button class="btn btn-sm" onclick="scheduleVideoCall('${i.id}')" style="background: #6366f1; color: white;">
+                  📹 Schedule Discovery Call
                 </button>
                 <button class="btn btn-sm btn-outline" onclick="markInquiryReviewed('${i.id}')">
                   Mark Reviewed
                 </button>
               ` : ''}
               ${i.status === 'reviewed' ? `
+                <button class="btn btn-sm" onclick="scheduleVideoCall('${i.id}')" style="background: #6366f1; color: white;">
+                  📹 Schedule Discovery Call
+                </button>
+              ` : ''}
+              ${i.status === 'video_scheduled' ? `
                 <button class="btn btn-sm btn-primary" onclick="sendInvitationToInquiry('${i.id}')" style="background: var(--gold);">
-                  🎟️ Send Invitation
+                  ✅ Approved - Send Invitation
+                </button>
+                <button class="btn btn-sm btn-outline" onclick="declineInquiry('${i.id}')" style="color: var(--danger); border-color: var(--danger);">
+                  ❌ Decline
                 </button>
               ` : ''}
               ${i.status === 'invited' ? `
                 <span style="color: var(--success); font-size: 13px;">✓ Invitation sent</span>
+              ` : ''}
+              ${i.status === 'declined' ? `
+                <span style="color: var(--danger); font-size: 13px;">Declined</span>
               ` : ''}
               <button class="btn btn-sm btn-outline" onclick="emailInquiry('${i.id}')" style="margin-left: auto;">
                 📧 Email
@@ -6423,6 +6441,55 @@ Example:
         loadInquiries();
       } else {
         showToast(result?.error || 'Failed to delete inquiry', 'error');
+      }
+    }
+
+    async function scheduleVideoCall(id) {
+      const inquiry = inquiries.find(i => i.id === id);
+      if (!inquiry) return;
+
+      // Check if video chat link is configured
+      const content = await api('/api/admin/content');
+      const videoChatLink = content?.siteSettings?.videoChatLink;
+
+      if (!videoChatLink) {
+        showToast('Please configure your Discovery Call link in Content → Site Settings first', 'error');
+        return;
+      }
+
+      if (!confirm(`Send discovery call scheduling link to ${inquiry.name} (${inquiry.email})?\n\nLink: ${videoChatLink}`)) return;
+
+      showLoading(true);
+      const result = await api(`/api/admin/inquiries/${id}/schedule-call`, { method: 'POST' });
+      showLoading(false);
+
+      if (result?.success) {
+        showToast(`📹 Discovery call link sent to ${inquiry.name}!`, 'success');
+        loadInquiries();
+      } else {
+        showToast(result?.error || 'Failed to send scheduling link', 'error');
+      }
+    }
+
+    async function declineInquiry(id) {
+      const inquiry = inquiries.find(i => i.id === id);
+      if (!inquiry) return;
+
+      const reason = prompt(`Decline inquiry from ${inquiry.name}?\n\nOptionally enter a reason (or leave blank):`);
+      if (reason === null) return; // Cancelled
+
+      showLoading(true);
+      const result = await api(`/api/admin/inquiries/${id}/decline`, {
+        method: 'POST',
+        body: JSON.stringify({ reason })
+      });
+      showLoading(false);
+
+      if (result?.success) {
+        showToast('Inquiry declined', 'success');
+        loadInquiries();
+      } else {
+        showToast(result?.error || 'Failed to decline inquiry', 'error');
       }
     }
 
@@ -6718,6 +6785,7 @@ Example:
         document.getElementById('siteTagline').value = content.siteSettings.tagline || '';
         document.getElementById('siteEmail').value = content.siteSettings.email || '';
         document.getElementById('siteLocation').value = content.siteSettings.location || '';
+        document.getElementById('videoChatLink').value = content.siteSettings.videoChatLink || '';
         document.getElementById('maintenanceMode').checked = content.siteSettings.maintenanceMode || false;
       }
     }
@@ -6828,6 +6896,7 @@ Example:
         tagline: document.getElementById('siteTagline').value,
         email: document.getElementById('siteEmail').value,
         location: document.getElementById('siteLocation').value,
+        videoChatLink: document.getElementById('videoChatLink').value,
         maintenanceMode: document.getElementById('maintenanceMode').checked
       };
 
