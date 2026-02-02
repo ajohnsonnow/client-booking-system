@@ -6361,6 +6361,9 @@ Example:
               <button class="btn btn-sm btn-outline" onclick="emailInquiry('${i.id}')" style="margin-left: auto;">
                 📧 Email
               </button>
+              <button class="btn btn-sm" onclick="deleteInquiry('${i.id}')" style="background: var(--danger); color: white;" title="Delete inquiry">
+                🗑️
+              </button>
             </div>
           </div>
         `;
@@ -6402,6 +6405,24 @@ Example:
       const inquiry = inquiries.find(i => i.id === id);
       if (inquiry) {
         window.open(`mailto:${inquiry.email}?subject=Re: Your Inquiry - Ravi Sacred Healing`);
+      }
+    }
+
+    async function deleteInquiry(id) {
+      const inquiry = inquiries.find(i => i.id === id);
+      if (!inquiry) return;
+
+      if (!confirm(`Are you sure you want to delete the inquiry from ${inquiry.name}?\n\nThis action cannot be undone.`)) return;
+
+      showLoading(true);
+      const result = await api(`/api/admin/inquiries/${id}`, { method: 'DELETE' });
+      showLoading(false);
+
+      if (result?.success) {
+        showToast('Inquiry deleted', 'success');
+        loadInquiries();
+      } else {
+        showToast(result?.error || 'Failed to delete inquiry', 'error');
       }
     }
 

@@ -2372,6 +2372,23 @@ app.patch('/api/admin/inquiries/:id/status', authenticateAdmin, (req, res) => {
   res.json({ success: true });
 });
 
+// Admin: Delete inquiry
+app.delete('/api/admin/inquiries/:id', authenticateAdmin, (req, res) => {
+  const { id } = req.params;
+  
+  const inquiries = loadInquiries();
+  const index = inquiries.findIndex(i => i.id === id);
+  
+  if (index === -1) {
+    return res.status(404).json({ error: 'Inquiry not found' });
+  }
+  
+  inquiries.splice(index, 1);
+  saveInquiries(inquiries);
+  
+  res.json({ success: true });
+});
+
 // Admin: Send invitation to inquiry
 app.post('/api/admin/inquiries/:id/invite', authenticateAdmin, async (req, res) => {
   const { id } = req.params;
