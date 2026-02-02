@@ -1477,6 +1477,154 @@ section {
 }
 
 /* ===========================================
+   TIP JAR SECTION
+   =========================================== */
+
+.tip-jar-section {
+  background: linear-gradient(135deg, #fef9f3 0%, #fff5f8 50%, #f8f4ff 100%);
+  text-align: center;
+  padding: var(--spacing-xxl) var(--spacing-lg);
+  border-top: 1px solid rgba(114, 47, 55, 0.1);
+}
+
+.tip-jar-content {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.tip-jar-icon {
+  font-size: 4rem;
+  margin-bottom: var(--spacing-md);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.tip-jar-section h2 {
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  color: var(--color-burgundy);
+  margin-bottom: var(--spacing-md);
+}
+
+.tip-jar-text {
+  font-size: 1.1rem;
+  color: var(--color-text);
+  line-height: 1.7;
+  margin-bottom: var(--spacing-xl);
+}
+
+.tip-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.tip-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.tip-btn:hover {
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.tip-btn:active {
+  transform: translateY(-2px) scale(1.02);
+}
+
+.tip-btn-small {
+  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+  border: 2px solid #81c784;
+}
+
+.tip-btn-small:hover {
+  background: linear-gradient(135deg, #c8e6c9 0%, #a5d6a7 100%);
+}
+
+.tip-btn-medium {
+  background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+  border: 2px solid #ffb74d;
+}
+
+.tip-btn-medium:hover {
+  background: linear-gradient(135deg, #ffe0b2 0%, #ffcc80 100%);
+}
+
+.tip-btn-large {
+  background: linear-gradient(135deg, #fce4ec 0%, #f8bbd9 100%);
+  border: 2px solid #f48fb1;
+}
+
+.tip-btn-large:hover {
+  background: linear-gradient(135deg, #f8bbd9 0%, #f48fb1 100%);
+}
+
+.tip-btn-custom {
+  background: linear-gradient(135deg, #ede7f6 0%, #d1c4e9 100%);
+  border: 2px solid #b39ddb;
+}
+
+.tip-btn-custom:hover {
+  background: linear-gradient(135deg, #d1c4e9 0%, #b39ddb 100%);
+}
+
+.tip-amount {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--color-text);
+  line-height: 1;
+}
+
+.tip-label {
+  font-size: 0.75rem;
+  color: var(--color-text-light);
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tip-note {
+  font-size: 0.9rem;
+  color: var(--color-text-light);
+  opacity: 0.8;
+}
+
+/* Tip jar mobile responsiveness */
+@media (max-width: 480px) {
+  .tip-btn {
+    width: 85px;
+    height: 85px;
+  }
+  
+  .tip-amount {
+    font-size: 1.1rem;
+  }
+  
+  .tip-label {
+    font-size: 0.65rem;
+  }
+  
+  .tip-jar-icon {
+    font-size: 3rem;
+  }
+}
+
+/* ===========================================
    FINAL NOTE SECTION
    =========================================== */
 
