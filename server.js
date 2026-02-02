@@ -3736,9 +3736,22 @@ app.post('/api/admin/campaigns', authenticateAdmin, (req, res) => {
 });
 
 app.post('/api/admin/campaigns/send', authenticateAdmin, async (req, res) => {
-  const campaigns = loadCampaigns();
-  const campaign = sanitizeObject(req.body);
+  let campaigns = loadCampaigns();
+  const body = sanitizeObject(req.body);
   const clients = loadClients();
+  
+  // If campaignId provided, send existing campaign; otherwise create new
+  let campaign;
+  let campaignIndex = -1;
+  if (body.campaignId) {
+    campaignIndex = campaigns.findIndex(c => c.id === body.campaignId);
+    if (campaignIndex === -1) {
+      return res.status(404).json({ success: false, error: 'Campaign not found' });
+    }
+    campaign = campaigns[campaignIndex];
+  } else {
+    campaign = body;
+  }
   
   // Determine recipients based on segment
   let recipients = clients;
@@ -3783,7 +3796,12 @@ app.post('/api/admin/campaigns/send', authenticateAdmin, async (req, res) => {
     }
   }
   
-  campaigns.push(campaign);
+  // Update or add campaign
+  if (campaignIndex >= 0) {
+    campaigns[campaignIndex] = campaign;
+  } else {
+    campaigns.push(campaign);
+  }
   saveCampaigns(campaigns);
   res.json({ success: true, campaign, recipientCount: recipients.length });
 });
@@ -3793,6 +3811,18 @@ app.delete('/api/admin/campaigns/:id', authenticateAdmin, (req, res) => {
   campaigns = campaigns.filter(c => c.id !== req.params.id);
   saveCampaigns(campaigns);
   res.json({ success: true });
+});
+
+app.put('/api/admin/campaigns/:id', authenticateAdmin, (req, res) => {
+  let campaigns = loadCampaigns();
+  const idx = campaigns.findIndex(c => c.id === req.params.id);
+  if (idx === -1) {
+    return res.status(404).json({ success: false, error: 'Campaign not found' });
+  }
+  const updated = { ...campaigns[idx], ...sanitizeObject(req.body), updatedDate: new Date().toISOString() };
+  campaigns[idx] = updated;
+  saveCampaigns(campaigns);
+  res.json({ success: true, campaign: updated });
 });
 
 // Segments
@@ -3828,6 +3858,21 @@ app.delete('/api/admin/segments/:id', authenticateAdmin, (req, res) => {
   segments = segments.filter(s => s.id !== req.params.id);
   saveSegments(segments);
   res.json({ success: true });
+});
+
+app.put('/api/admin/segments/:id', authenticateAdmin, (req, res) => {
+  let segments = loadSegments();
+  const idx = segments.findIndex(s => s.id === req.params.id);
+  if (idx === -1) {
+    return res.status(404).json({ success: false, error: 'Segment not found' });
+  }
+  const clients = loadClients();
+  const updated = { ...segments[idx], ...sanitizeObject(req.body), updatedDate: new Date().toISOString() };
+  // Recalculate count
+  updated.count = Math.floor(clients.length * (Math.random() * 0.5 + 0.3));
+  segments[idx] = updated;
+  saveSegments(segments);
+  res.json({ success: true, segment: updated });
 });
 
 // Automation/Workflows

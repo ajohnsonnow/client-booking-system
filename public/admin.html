@@ -4938,7 +4938,7 @@
                 <button class="action-btn" onclick="quickConfirm('${b.id}')" title="Confirm">✓</button>
               ` : ''}
               ${b.status === 'confirmed' ? `
-                <button class="action-btn" onclick="sendReminder('${b.id}')" title="Send Reminder">📧</button>
+                <button class="action-btn" onclick="sendBasicReminder('${b.id}')" title="Send Reminder">📧</button>
               ` : ''}
               ${b.status === 'completed' && !b.aftercareSent ? `
                 <button class="action-btn" onclick="sendAftercare('${b.id}')" title="Send Aftercare Email">💝</button>
@@ -5141,7 +5141,7 @@
       await updateBookingStatus(id, 'confirmed');
     }
 
-    async function sendReminder(id) {
+    async function sendBasicReminder(id) {
       showLoading(true);
       const result = await api(`/api/admin/send-reminder/${id}`, { method: 'POST' });
       showLoading(false);
@@ -8334,7 +8334,7 @@ Example:
     function renderTemplates() {
       const gallery = document.getElementById('templateGallery');
       gallery.innerHTML = templates.map(template => `
-        <div class="template-card" onclick="useTemplate('${template.id}')">
+        <div class="template-card" onclick="selectMarketingTemplate('${template.id}')">
           <div class="template-preview">${template.icon || '📧'}</div>
           <div class="template-info">
             <div class="template-name">${template.name}</div>
@@ -8344,7 +8344,7 @@ Example:
       `).join('');
     }
 
-    function useTemplate(templateId) {
+    function selectMarketingTemplate(templateId) {
       const template = templates.find(t => t.id === templateId);
       if (!template) return;
       
@@ -8456,6 +8456,556 @@ Example:
       if (result?.success) {
         showToast('Workflow deleted', 'success');
         await loadWorkflows();
+      }
+    }
+
+    // ===========================================
+    // CAMPAIGN MANAGEMENT FUNCTIONS
+    // ===========================================
+    let editingCampaignId = null;
+
+    function editCampaign(id) {
+      const campaign = campaigns.find(c => c.id === id);
+      if (!campaign) {
+        showToast('Campaign not found', 'error');
+        return;
+      }
+      
+      editingCampaignId = id;
+      
+      const modal = `
+        <div class="modal-overlay active" id="campaignModal">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h2>✏️ Edit Campaign</h2>
+              <button class="modal-close" onclick="closeCampaignModal()">×</button>
+            </div>
+            <div class="modal-body">
+              <div class="form-group">
+                <label>Campaign Name</label>
+                <input type="text" id="campaignName" class="form-control" value="${campaign.name || ''}" placeholder="e.g., Monthly Newsletter">
+              </div>
+              <div class="form-group">
+                <label>Email Subject</label>
+                <input type="text" id="campaignSubject" class="form-control" value="${campaign.subject || ''}" placeholder="Your subject line">
+              </div>
+              <div class="form-group">
+                <label>Target Audience</label>
+                <select id="campaignSegment" class="form-control">
+                  <option value="all" ${campaign.segment === 'all' ? 'selected' : ''}>All Clients</option>
+                  ${segments.map(s => `<option value="${s.id}" ${campaign.segment === s.id ? 'selected' : ''}>${s.name} (${s.count} clients)</option>`).join('')}
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Email Template</label>
+                <select id="campaignTemplate" class="form-control" onchange="previewTemplate()">
+                  <option value="">Select a template...</option>
+                  ${templates.map(t => `<option value="${t.id}" ${campaign.template === t.id ? 'selected' : ''}>${t.name}</option>`).join('')}
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Email Body</label>
+                <textarea id="campaignBody" class="form-control" rows="8" placeholder="Your email content here...">${campaign.body || ''}</textarea>
+                <small style="color: var(--soft-gray);">Use {{firstName}}, {{lastName}}, {{email}} for personalization</small>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-secondary" onclick="closeCampaignModal()">Cancel</button>
+              <button class="btn btn-primary" onclick="updateCampaign()">💾 Save Changes</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.insertAdjacentHTML('beforeend', modal);
+    }
+
+    async function updateCampaign() {
+      if (!editingCampaignId) return;
+      
+      const campaign = {
+        id: editingCampaignId,
+        name: document.getElementById('campaignName').value,
+        subject: document.getElementById('campaignSubject').value,
+        body: document.getElementById('campaignBody').value,
+        segment: document.getElementById('campaignSegment').value,
+        template: document.getElementById('campaignTemplate').value,
+        status: 'draft',
+        updatedDate: new Date().toISOString()
+      };
+
+      if (!campaign.name || !campaign.subject || !campaign.body) {
+        showToast('Please fill in all required fields', 'error');
+        return;
+      }
+
+      showLoading(true);
+      const result = await api(`/api/admin/campaigns/${editingCampaignId}`, {
+        method: 'PUT',
+        body: JSON.stringify(campaign)
+      });
+      showLoading(false);
+
+      if (result?.success) {
+        showToast('Campaign updated!', 'success');
+        closeCampaignModal();
+        editingCampaignId = null;
+        await loadCampaigns();
+      } else {
+        showToast('Failed to update campaign', 'error');
+      }
+    }
+
+    async function duplicateCampaign(id) {
+      const original = campaigns.find(c => c.id === id);
+      if (!original) {
+        showToast('Campaign not found', 'error');
+        return;
+      }
+      
+      const duplicate = {
+        id: Date.now().toString(),
+        name: `${original.name} (Copy)`,
+        subject: original.subject,
+        body: original.body,
+        segment: original.segment,
+        template: original.template,
+        status: 'draft',
+        createdDate: new Date().toISOString()
+      };
+
+      showLoading(true);
+      const result = await api('/api/admin/campaigns', {
+        method: 'POST',
+        body: JSON.stringify(duplicate)
+      });
+      showLoading(false);
+
+      if (result?.success) {
+        showToast('Campaign duplicated!', 'success');
+        await loadCampaigns();
+      } else {
+        showToast('Failed to duplicate campaign', 'error');
+      }
+    }
+
+    async function sendCampaign(id) {
+      const campaign = campaigns.find(c => c.id === id);
+      if (!campaign) {
+        showToast('Campaign not found', 'error');
+        return;
+      }
+      
+      const segmentName = campaign.segment === 'all' ? 'All Clients' : 
+        segments.find(s => s.id === campaign.segment)?.name || 'selected segment';
+      
+      if (!confirm(`Send "${campaign.name}" to ${segmentName} now?\n\nThis will send emails to all recipients.`)) return;
+      
+      showLoading(true);
+      const result = await api('/api/admin/campaigns/send', {
+        method: 'POST',
+        body: JSON.stringify({ campaignId: id })
+      });
+      showLoading(false);
+
+      if (result?.success) {
+        showToast(`Campaign sent to ${result.recipientCount || 0} recipients!`, 'success');
+        await loadCampaigns();
+      } else {
+        showToast(result?.error || 'Failed to send campaign', 'error');
+      }
+    }
+
+    function viewCampaignStats(id) {
+      const campaign = campaigns.find(c => c.id === id);
+      if (!campaign) {
+        showToast('Campaign not found', 'error');
+        return;
+      }
+      
+      const stats = campaign.stats || { openRate: 0, clickRate: 0, unsubscribes: 0, bounces: 0 };
+      const sentDate = campaign.sentDate ? new Date(campaign.sentDate).toLocaleDateString() : 'N/A';
+      
+      const modal = `
+        <div class="modal-overlay active" id="statsModal">
+          <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+              <h2>📊 Campaign Stats</h2>
+              <button class="modal-close" onclick="document.getElementById('statsModal').remove()">×</button>
+            </div>
+            <div class="modal-body">
+              <h3 style="margin-bottom: 16px; color: var(--burgundy);">${campaign.name}</h3>
+              <p style="color: var(--soft-gray); margin-bottom: 20px;">Sent: ${sentDate}</p>
+              
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div style="background: var(--cream); padding: 16px; border-radius: 8px; text-align: center;">
+                  <div style="font-size: 28px; font-weight: bold; color: var(--gold);">${campaign.recipientCount || 0}</div>
+                  <div style="color: var(--soft-gray);">Recipients</div>
+                </div>
+                <div style="background: var(--cream); padding: 16px; border-radius: 8px; text-align: center;">
+                  <div style="font-size: 28px; font-weight: bold; color: var(--success);">${stats.openRate}%</div>
+                  <div style="color: var(--soft-gray);">Open Rate</div>
+                </div>
+                <div style="background: var(--cream); padding: 16px; border-radius: 8px; text-align: center;">
+                  <div style="font-size: 28px; font-weight: bold; color: var(--burgundy);">${stats.clickRate}%</div>
+                  <div style="color: var(--soft-gray);">Click Rate</div>
+                </div>
+                <div style="background: var(--cream); padding: 16px; border-radius: 8px; text-align: center;">
+                  <div style="font-size: 28px; font-weight: bold; color: var(--danger);">${stats.unsubscribes || 0}</div>
+                  <div style="color: var(--soft-gray);">Unsubscribes</div>
+                </div>
+              </div>
+              
+              ${stats.bounces ? `<p style="margin-top: 16px; color: var(--warning);">⚠️ ${stats.bounces} emails bounced</p>` : ''}
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-primary" onclick="document.getElementById('statsModal').remove()">Close</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.insertAdjacentHTML('beforeend', modal);
+    }
+
+    // ===========================================
+    // SEGMENT MANAGEMENT FUNCTIONS
+    // ===========================================
+    let editingSegmentId = null;
+
+    function editSegment(id) {
+      const segment = segments.find(s => s.id === id);
+      if (!segment) {
+        showToast('Segment not found', 'error');
+        return;
+      }
+      
+      editingSegmentId = id;
+      const filters = segment.filters || [{ field: 'bookingCount', operator: 'greater', value: '' }];
+      
+      const modal = `
+        <div class="modal-overlay active" id="segmentModal">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h2>✏️ Edit Segment</h2>
+              <button class="modal-close" onclick="closeSegmentModal()">×</button>
+            </div>
+            <div class="modal-body">
+              <div class="form-group">
+                <label>Segment Name</label>
+                <input type="text" id="segmentName" class="form-control" value="${segment.name || ''}" placeholder="e.g., Active Clients">
+              </div>
+              <div class="form-group">
+                <label>Description (optional)</label>
+                <input type="text" id="segmentDescription" class="form-control" value="${segment.description || ''}" placeholder="Who this segment includes">
+              </div>
+              <div class="form-group">
+                <label>Filters</label>
+                <div id="segmentFilters">
+                  ${filters.map((f, idx) => `
+                    <div class="segment-filter">
+                      <div class="segment-filter-row">
+                        <select class="form-control filter-field">
+                          <option value="bookingCount" ${f.field === 'bookingCount' ? 'selected' : ''}>Total Bookings</option>
+                          <option value="lastBooking" ${f.field === 'lastBooking' ? 'selected' : ''}>Last Booking Date</option>
+                          <option value="totalSpent" ${f.field === 'totalSpent' ? 'selected' : ''}>Total Spent</option>
+                          <option value="service" ${f.field === 'service' ? 'selected' : ''}>Service Type</option>
+                          <option value="tier" ${f.field === 'tier' ? 'selected' : ''}>Client Tier</option>
+                          <option value="lifecycle" ${f.field === 'lifecycle' ? 'selected' : ''}>Lifecycle Stage</option>
+                        </select>
+                        <select class="form-control filter-operator">
+                          <option value="equals" ${f.operator === 'equals' ? 'selected' : ''}>Equals</option>
+                          <option value="greater" ${f.operator === 'greater' ? 'selected' : ''}>Greater Than</option>
+                          <option value="less" ${f.operator === 'less' ? 'selected' : ''}>Less Than</option>
+                          <option value="contains" ${f.operator === 'contains' ? 'selected' : ''}>Contains</option>
+                        </select>
+                        <input type="text" class="form-control filter-value" value="${f.value || ''}" placeholder="Value">
+                        ${idx > 0 ? `<button class="btn btn-sm" onclick="this.closest('.segment-filter').remove(); calculateSegmentEstimate();" style="color: var(--danger);">×</button>` : ''}
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+                <button class="btn btn-sm btn-secondary" onclick="addSegmentFilter()" style="margin-top: 8px;">+ Add Filter</button>
+              </div>
+              <div style="background: var(--gold-light); padding: 12px; border-radius: 8px; margin-top: 16px;">
+                <strong>Estimated audience:</strong> <span id="segmentEstimate">Calculating...</span>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-secondary" onclick="closeSegmentModal()">Cancel</button>
+              <button class="btn btn-primary" onclick="updateSegment()">💾 Save Changes</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.insertAdjacentHTML('beforeend', modal);
+      calculateSegmentEstimate();
+    }
+
+    async function updateSegment() {
+      if (!editingSegmentId) return;
+      
+      const filters = Array.from(document.querySelectorAll('.segment-filter')).map(filter => ({
+        field: filter.querySelector('.filter-field').value,
+        operator: filter.querySelector('.filter-operator').value,
+        value: filter.querySelector('.filter-value').value
+      }));
+
+      const segment = {
+        id: editingSegmentId,
+        name: document.getElementById('segmentName').value,
+        description: document.getElementById('segmentDescription').value,
+        filters: filters,
+        updatedDate: new Date().toISOString()
+      };
+
+      if (!segment.name) {
+        showToast('Please enter a segment name', 'error');
+        return;
+      }
+
+      showLoading(true);
+      const result = await api(`/api/admin/segments/${editingSegmentId}`, {
+        method: 'PUT',
+        body: JSON.stringify(segment)
+      });
+      showLoading(false);
+
+      if (result?.success) {
+        showToast('Segment updated!', 'success');
+        closeSegmentModal();
+        editingSegmentId = null;
+        await loadSegments();
+      } else {
+        showToast('Failed to update segment', 'error');
+      }
+    }
+
+    function exportSegment(id) {
+      const segment = segments.find(s => s.id === id);
+      if (!segment) {
+        showToast('Segment not found', 'error');
+        return;
+      }
+      
+      // Apply filters to get matching clients
+      const matchingClients = clients.filter(c => segmentMatchesClient(segment, c));
+      
+      if (matchingClients.length === 0) {
+        showToast('No clients match this segment', 'info');
+        return;
+      }
+      
+      const csv = 'Name,Email,Phone,Tier,Total Bookings,Total Spent\n' + matchingClients.map(c => 
+        `"${c.name}","${c.email}","${c.phone || ''}","${c.tier || 'new'}","${c.bookingCount || 0}","$${c.totalSpent || 0}"`
+      ).join('\n');
+      
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `segment_${segment.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast(`Exported ${matchingClients.length} clients!`, 'success');
+    }
+
+    function segmentMatchesClient(segment, client) {
+      if (!segment.filters || segment.filters.length === 0) return true;
+      
+      return segment.filters.every(filter => {
+        const value = filter.value;
+        if (!value) return true; // Empty filter matches all
+        
+        switch (filter.field) {
+          case 'bookingCount':
+            const bookings = client.bookingCount || 0;
+            if (filter.operator === 'equals') return bookings == value;
+            if (filter.operator === 'greater') return bookings > parseInt(value);
+            if (filter.operator === 'less') return bookings < parseInt(value);
+            break;
+          case 'totalSpent':
+            const spent = client.totalSpent || 0;
+            if (filter.operator === 'equals') return spent == value;
+            if (filter.operator === 'greater') return spent > parseFloat(value);
+            if (filter.operator === 'less') return spent < parseFloat(value);
+            break;
+          case 'tier':
+            if (filter.operator === 'equals') return client.tier === value;
+            if (filter.operator === 'contains') return (client.tier || '').toLowerCase().includes(value.toLowerCase());
+            break;
+          case 'service':
+            const services = client.services || [];
+            if (filter.operator === 'equals') return services.includes(value);
+            if (filter.operator === 'contains') return services.some(s => s.toLowerCase().includes(value.toLowerCase()));
+            break;
+          case 'lastBooking':
+            if (!client.lastBooking) return filter.operator === 'less';
+            const lastDate = new Date(client.lastBooking);
+            const filterDate = new Date(value);
+            if (filter.operator === 'greater') return lastDate > filterDate;
+            if (filter.operator === 'less') return lastDate < filterDate;
+            break;
+          default:
+            return true;
+        }
+        return true;
+      });
+    }
+
+    function addSegmentFilter() {
+      const container = document.getElementById('segmentFilters');
+      if (!container) {
+        showToast('Could not add filter', 'error');
+        return;
+      }
+      
+      const filterHTML = `
+        <div class="segment-filter" style="margin-top: 8px;">
+          <div class="segment-filter-row">
+            <select class="form-control filter-field">
+              <option value="bookingCount">Total Bookings</option>
+              <option value="lastBooking">Last Booking Date</option>
+              <option value="totalSpent">Total Spent</option>
+              <option value="service">Service Type</option>
+              <option value="tier">Client Tier</option>
+              <option value="lifecycle">Lifecycle Stage</option>
+            </select>
+            <select class="form-control filter-operator">
+              <option value="equals">Equals</option>
+              <option value="greater">Greater Than</option>
+              <option value="less">Less Than</option>
+              <option value="contains">Contains</option>
+            </select>
+            <input type="text" class="form-control filter-value" placeholder="Value">
+            <button class="btn btn-sm" onclick="this.closest('.segment-filter').remove(); calculateSegmentEstimate();" style="color: var(--danger);">×</button>
+          </div>
+        </div>
+      `;
+      container.insertAdjacentHTML('beforeend', filterHTML);
+      calculateSegmentEstimate();
+    }
+
+    // ===========================================
+    // WORKFLOW MANAGEMENT FUNCTIONS
+    // ===========================================
+    let editingWorkflowId = null;
+
+    function editWorkflow(id) {
+      const workflow = workflows.find(w => w.id === id);
+      if (!workflow) {
+        showToast('Workflow not found', 'error');
+        return;
+      }
+      
+      editingWorkflowId = id;
+      const steps = workflow.steps || [{ subject: '', body: '', delay: 0 }];
+      
+      const triggerOptions = [
+        { value: 'new_booking', label: 'New Booking Confirmed' },
+        { value: 'booking_completed', label: 'Booking Completed' },
+        { value: 'new_client', label: 'New Client Registered' },
+        { value: 'inactive_30days', label: 'Client Inactive for 30 Days' },
+        { value: 'birthday', label: 'Client Birthday' }
+      ];
+      
+      const modal = `
+        <div class="modal-overlay active" id="workflowModal">
+          <div class="modal-content" style="max-width: 900px;">
+            <div class="modal-header">
+              <h2>✏️ Edit Workflow</h2>
+              <button class="modal-close" onclick="closeWorkflowModal()">×</button>
+            </div>
+            <div class="modal-body">
+              <div class="form-group">
+                <label>Workflow Name</label>
+                <input type="text" id="workflowName" class="form-control" value="${workflow.name || ''}" placeholder="e.g., Welcome Sequence">
+              </div>
+              <div class="form-group">
+                <label>Description (optional)</label>
+                <input type="text" id="workflowDescription" class="form-control" value="${workflow.description || ''}" placeholder="What this workflow does">
+              </div>
+              <div class="form-group">
+                <label>Trigger Event</label>
+                <select id="workflowTrigger" class="form-control">
+                  ${triggerOptions.map(opt => `<option value="${opt.value}" ${workflow.trigger === opt.value ? 'selected' : ''}>${opt.label}</option>`).join('')}
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Active Status</label>
+                <select id="workflowActive" class="form-control">
+                  <option value="true" ${workflow.active ? 'selected' : ''}>🟢 Active</option>
+                  <option value="false" ${!workflow.active ? 'selected' : ''}>⏸️ Paused</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Email Steps</label>
+                <div id="workflowSteps">
+                  ${steps.map((step, idx) => `
+                    <div class="workflow-step">
+                      <div class="workflow-step-header">
+                        <span class="workflow-step-title">Step ${idx + 1}${idx === 0 ? ': Immediate' : ''}</span>
+                        ${idx > 0 ? `<button class="btn btn-sm" onclick="this.parentElement.parentElement.remove()" style="color: var(--danger);">Remove</button>` : ''}
+                      </div>
+                      <input type="text" class="form-control step-subject" value="${step.subject || ''}" placeholder="Email subject" style="margin-bottom: 8px;">
+                      <textarea class="form-control step-body" rows="4" placeholder="Email body">${step.body || ''}</textarea>
+                      <div style="margin-top: 8px;">
+                        <label style="font-size: 13px;">Delay before next step:</label>
+                        <input type="number" class="form-control step-delay" value="${step.delay || 0}" style="width: 80px; display: inline-block; margin: 0 8px;"> days
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+                <button class="btn btn-sm btn-secondary" onclick="addWorkflowStep()" style="margin-top: 8px;">+ Add Step</button>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-secondary" onclick="closeWorkflowModal()">Cancel</button>
+              <button class="btn btn-primary" onclick="updateWorkflow()">💾 Save Changes</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.insertAdjacentHTML('beforeend', modal);
+    }
+
+    async function updateWorkflow() {
+      if (!editingWorkflowId) return;
+      
+      const steps = Array.from(document.querySelectorAll('.workflow-step')).map((step, idx) => ({
+        stepNumber: idx + 1,
+        subject: step.querySelector('.step-subject').value,
+        body: step.querySelector('.step-body').value,
+        delay: parseInt(step.querySelector('.step-delay').value) || 0
+      }));
+
+      const workflow = {
+        id: editingWorkflowId,
+        name: document.getElementById('workflowName').value,
+        description: document.getElementById('workflowDescription').value,
+        trigger: document.getElementById('workflowTrigger').value,
+        active: document.getElementById('workflowActive').value === 'true',
+        steps: steps,
+        updatedDate: new Date().toISOString()
+      };
+
+      if (!workflow.name || steps.length === 0) {
+        showToast('Please enter a name and at least one email step', 'error');
+        return;
+      }
+
+      showLoading(true);
+      const result = await api(`/api/admin/automation/${editingWorkflowId}`, {
+        method: 'PUT',
+        body: JSON.stringify(workflow)
+      });
+      showLoading(false);
+
+      if (result?.success) {
+        showToast('Workflow updated!', 'success');
+        closeWorkflowModal();
+        editingWorkflowId = null;
+        await loadWorkflows();
+      } else {
+        showToast('Failed to update workflow', 'error');
       }
     }
 
