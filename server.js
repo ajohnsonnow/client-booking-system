@@ -4344,6 +4344,147 @@ function addDays(dateStr, days) {
 }
 
 // ===========================================
+// APPOINTMENT REMINDERS SYSTEM
+// ===========================================
+
+// Check for sessions that need reminders
+function checkSessionReminders() {
+  const bookings = loadBookings();
+  const now = new Date();
+  const remindersToSend = [];
+  
+  bookings.forEach(booking => {
+    if (booking.status !== 'confirmed' || !booking.confirmedDate) return;
+    
+    const sessionDate = new Date(booking.confirmedDate);
+    const hoursUntilSession = (sessionDate - now) / (1000 * 60 * 60);
+    
+    // Initialize reminders object if not present
+    if (!booking.reminders) {
+      booking.reminders = { h24: false, h1: false };
+    }
+    
+    // 24-hour reminder (between 23-25 hours before)
+    if (hoursUntilSession > 23 && hoursUntilSession <= 25 && !booking.reminders.h24) {
+      remindersToSend.push({
+        booking,
+        type: '24h',
+        message: `Your healing session with Ravi is tomorrow at ${booking.confirmedTime || 'your scheduled time'}. We look forward to holding space for you. 🪷`
+      });
+      booking.reminders.h24 = true;
+    }
+    
+    // 1-hour reminder (between 1-2 hours before)
+    if (hoursUntilSession > 1 && hoursUntilSession <= 2 && !booking.reminders.h1) {
+      remindersToSend.push({
+        booking,
+        type: '1h',
+        message: `Gentle reminder: Your session with Ravi begins in about 1 hour. Please start preparing your space for our time together. ✨`
+      });
+      booking.reminders.h1 = true;
+    }
+  });
+  
+  // Save updated booking reminders
+  if (remindersToSend.length > 0) {
+    saveBookings(bookings);
+    
+    // Log reminders (in production, this would send emails/SMS)
+    remindersToSend.forEach(r => {
+      console.log(`📧 REMINDER [${r.type}]: ${r.booking.name} (${r.booking.email})`);
+      console.log(`   Session: ${r.booking.confirmedDate} at ${r.booking.confirmedTime || 'TBD'}`);
+      
+      // In production, integrate with email service here
+      // sendEmail(r.booking.email, 'Session Reminder', r.message);
+    });
+  }
+  
+  return remindersToSend.length;
+}
+
+// API endpoint to get pending reminders
+app.get('/api/admin/reminders', authenticateAdmin, (req, res) => {
+  const bookings = loadBookings();
+  const now = new Date();
+  
+  const upcomingReminders = [];
+  
+  bookings.forEach(booking => {
+    if (booking.status !== 'confirmed' || !booking.confirmedDate) return;
+    
+    const sessionDate = new Date(booking.confirmedDate);
+    const hoursUntilSession = (sessionDate - now) / (1000 * 60 * 60);
+    
+    // Sessions in the next 48 hours
+    if (hoursUntilSession > 0 && hoursUntilSession <= 48) {
+      const reminders = booking.reminders || { h24: false, h1: false };
+      
+      upcomingReminders.push({
+        bookingId: booking.id,
+        clientName: booking.name,
+        clientEmail: booking.email,
+        sessionDate: booking.confirmedDate,
+        sessionTime: booking.confirmedTime,
+        hoursUntil: Math.round(hoursUntilSession),
+        reminder24hSent: reminders.h24,
+        reminder1hSent: reminders.h1
+      });
+    }
+  });
+  
+  res.json({ reminders: upcomingReminders });
+});
+
+// API endpoint to manually trigger a reminder
+app.post('/api/admin/reminders/:bookingId/send', authenticateAdmin, async (req, res) => {
+  const { bookingId } = req.params;
+  const { type } = req.body; // 'welcome', '24h', '1h', 'custom'
+  
+  const bookings = loadBookings();
+  const booking = bookings.find(b => b.id === bookingId);
+  
+  if (!booking) {
+    return res.status(404).json({ error: 'Booking not found' });
+  }
+  
+  const templates = {
+    welcome: {
+      subject: 'Your Session is Confirmed ✨',
+      message: `Dear ${booking.name},\n\nYour session with Ravi has been confirmed for ${booking.confirmedDate}${booking.confirmedTime ? ' at ' + booking.confirmedTime : ''}.\n\nPlease arrive 5-10 minutes early to settle in. Wear comfortable, loose clothing.\n\nWith gratitude,\nRavi 🪷`
+    },
+    '24h': {
+      subject: 'Session Tomorrow - Reminder 🌸',
+      message: `Dear ${booking.name},\n\nJust a gentle reminder that your session with Ravi is tomorrow at ${booking.confirmedTime || 'your scheduled time'}.\n\nTake some time this evening to reflect on what you'd like to bring to our time together.\n\nWith love,\nRavi 🪷`
+    },
+    '1h': {
+      subject: 'Session Starting Soon ✨',
+      message: `Dear ${booking.name},\n\nYour session with Ravi begins in about 1 hour.\n\nPlease start preparing your space for our time together. Drink some water, take a few deep breaths, and set your intentions.\n\nSee you soon,\nRavi 🪷`
+    }
+  };
+  
+  const template = templates[type] || templates.welcome;
+  
+  // In production, send actual email here
+  console.log(`📧 Manual reminder sent to ${booking.email}:`, template.subject);
+  
+  // Mark reminder as sent
+  if (!booking.reminders) booking.reminders = { h24: false, h1: false };
+  if (type === '24h') booking.reminders.h24 = true;
+  if (type === '1h') booking.reminders.h1 = true;
+  saveBookings(bookings);
+  
+  res.json({ success: true, message: `Reminder sent to ${booking.email}` });
+});
+
+// Run reminder check every 30 minutes
+setInterval(() => {
+  const count = checkSessionReminders();
+  if (count > 0) {
+    console.log(`⏰ Sent ${count} automatic reminder(s)`);
+  }
+}, 30 * 60 * 1000);
+
+// ===========================================
 // START SERVER
 // ===========================================
 

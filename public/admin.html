@@ -20,9 +20,181 @@
       --warning: #FF9800;
       --danger: #f44336;
       --info: #2196F3;
+      /* Dark mode vars */
+      --bg-primary: #FDF8F3;
+      --bg-secondary: #FEFCFA;
+      --bg-card: white;
+      --text-primary: #3D3630;
+      --text-secondary: #9E9890;
+      --border-color: #e0d6cc;
+    }
+
+    /* Dark Mode */
+    [data-theme="dark"] {
+      --cream: #1a1a1a;
+      --warm-white: #242424;
+      --bg-primary: #1a1a1a;
+      --bg-secondary: #242424;
+      --bg-card: #2d2d2d;
+      --text-primary: #e8e8e8;
+      --text-secondary: #a0a0a0;
+      --charcoal: #e8e8e8;
+      --soft-gray: #a0a0a0;
+      --border-color: #404040;
+    }
+
+    [data-theme="dark"] .sidebar {
+      background: #242424;
+      border-right-color: #404040;
+    }
+
+    [data-theme="dark"] .card,
+    [data-theme="dark"] .stat-card,
+    [data-theme="dark"] .modal,
+    [data-theme="dark"] .client-card,
+    [data-theme="dark"] .booking-card,
+    [data-theme="dark"] .template-btn,
+    [data-theme="dark"] .insight-card,
+    [data-theme="dark"] .timeline-content {
+      background: var(--bg-card);
+      border-color: var(--border-color);
+    }
+
+    [data-theme="dark"] .insights-panel {
+      background: linear-gradient(135deg, #2d2520 0%, #1a1a1a 100%);
+      border-color: #5c4a3a;
+    }
+
+    [data-theme="dark"] input,
+    [data-theme="dark"] select,
+    [data-theme="dark"] textarea {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border-color: var(--border-color);
+    }
+
+    [data-theme="dark"] .client-filter-btn {
+      background: var(--bg-card);
+      border-color: var(--border-color);
+      color: var(--text-primary);
+    }
+
+    [data-theme="dark"] .client-filter-btn.active {
+      background: var(--burgundy);
+      color: white;
+    }
+
+    [data-theme="dark"] table th {
+      background: #2d2d2d;
+    }
+
+    [data-theme="dark"] table td {
+      border-color: var(--border-color);
+    }
+
+    [data-theme="dark"] .detail-grid {
+      background: var(--bg-card);
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    /* Global subtle animations */
+    *, *::before, *::after {
+      transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    /* Page fade in */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    .page.active {
+      animation: fadeInUp 0.3s ease;
+    }
+
+    /* Loading skeleton */
+    .skeleton {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 4px;
+    }
+
+    [data-theme="dark"] .skeleton {
+      background: linear-gradient(90deg, #2d2d2d 25%, #3d3d3d 50%, #2d2d2d 75%);
+      background-size: 200% 100%;
+    }
+
+    /* Card hover effects */
+    .client-card, .insight-card, .stat-card {
+      transition: transform 0.2s ease, box-shadow 0.3s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    }
+
+    /* Button press effect */
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    /* Badge pulse for new items */
+    .badge.gold-badge {
+      animation: pulse 2s infinite;
+    }
+
+    /* Smooth modal transitions */
+    .modal-overlay {
+      transition: opacity 0.2s ease;
+    }
+
+    .modal-overlay.active .modal {
+      animation: fadeInUp 0.25s ease;
+    }
+
+    /* Focus states for accessibility */
+    button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+      outline: 2px solid var(--gold);
+      outline-offset: 2px;
+    }
+
+    /* Hover ripple effect for nav items */
+    .nav-item::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+
+    .nav-item:hover::after {
+      opacity: 1;
+    }
+
+    .nav-item {
+      position: relative;
+    }
 
     body {
       font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -172,6 +344,28 @@
       margin: 16px 0;
     }
 
+    /* Theme Toggle */
+    .theme-toggle {
+      margin: 16px;
+      padding: 12px 16px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 14px;
+    }
+
+    .theme-toggle:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    [data-theme="dark"] .theme-toggle {
+      background: rgba(255,255,255,0.05);
+    }
+
     .main-content {
       margin-left: 260px;
       padding: 24px;
@@ -252,6 +446,97 @@
     .stat-change.positive { color: var(--success); }
     .stat-change.negative { color: var(--danger); }
 
+    /* ============ SMART INSIGHTS ============ */
+    .insights-panel {
+      background: linear-gradient(135deg, #fff9f0 0%, #fff5eb 100%);
+      border: 2px solid #ffd9b3;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 30px;
+    }
+
+    .insight-count {
+      background: var(--burgundy);
+      color: white;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 13px;
+    }
+
+    .insights-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .insight-card {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .insight-card:hover {
+      transform: translateX(4px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .insight-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .insight-icon.urgent { background: #ffebee; }
+    .insight-icon.important { background: #fff3e0; }
+    .insight-icon.info { background: #e3f2fd; }
+    .insight-icon.success { background: #e8f5e9; }
+
+    .insight-content {
+      flex: 1;
+    }
+
+    .insight-title {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .insight-desc {
+      font-size: 13px;
+      color: var(--soft-gray);
+    }
+
+    .insight-action {
+      padding: 8px 16px;
+      background: var(--burgundy);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 12px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .insight-action:hover {
+      background: var(--burgundy-light);
+    }
+
+    .insights-empty {
+      text-align: center;
+      padding: 32px;
+      color: var(--soft-gray);
+    }
+
     /* ============ BUTTONS ============ */
     .btn {
       padding: 10px 20px;
@@ -314,6 +599,25 @@
     .btn-icon {
       padding: 8px;
       min-width: auto;
+    }
+
+    /* ============ MESSAGE TEMPLATES ============ */
+    .template-btn {
+      padding: 6px 12px;
+      border: 1px solid #e0d6cc;
+      border-radius: 16px;
+      background: #faf8f5;
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .template-btn:hover {
+      background: var(--burgundy);
+      color: white;
+      border-color: var(--burgundy);
+      transform: translateY(-1px);
     }
 
     /* ============ CARDS & PANELS ============ */
@@ -696,6 +1000,76 @@
       color: white;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+    }
+
+    /* Journey Timeline */
+    .journey-timeline {
+      position: relative;
+      padding-left: 24px;
+    }
+
+    .journey-timeline::before {
+      content: '';
+      position: absolute;
+      left: 11px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--burgundy), #e0d6cc);
+    }
+
+    .timeline-event {
+      position: relative;
+      padding-bottom: 24px;
+      padding-left: 24px;
+    }
+
+    .timeline-event:last-child {
+      padding-bottom: 0;
+    }
+
+    .timeline-dot {
+      position: absolute;
+      left: -24px;
+      width: 24px;
+      height: 24px;
+      background: white;
+      border: 3px solid var(--event-color, var(--burgundy));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      z-index: 1;
+    }
+
+    .timeline-content {
+      background: #faf8f5;
+      padding: 12px 16px;
+      border-radius: 8px;
+      border-left: 3px solid var(--event-color, var(--burgundy));
+    }
+
+    .timeline-event.milestone .timeline-content {
+      background: linear-gradient(135deg, #fff8e1 0%, #fffde7 100%);
+    }
+
+    .timeline-date {
+      font-size: 11px;
+      color: var(--soft-gray);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .timeline-title {
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .timeline-desc {
+      font-size: 13px;
+      color: var(--soft-gray);
     }
 
     .client-card-header {
@@ -2253,6 +2627,12 @@
           <span class="nav-icon">🚪</span> Logout
         </li>
       </ul>
+      
+      <!-- Dark Mode Toggle -->
+      <div class="theme-toggle" onclick="toggleDarkMode()">
+        <span id="themeIcon">🌙</span>
+        <span id="themeLabel">Dark Mode</span>
+      </div>
     </aside>
 
     <!-- MOBILE MENU BUTTON -->
@@ -2271,6 +2651,17 @@
 
         <div class="stats-grid" id="statsGrid">
           <!-- Stats populated by JS -->
+        </div>
+
+        <!-- Smart Insights Panel -->
+        <div class="insights-panel" id="insightsPanel">
+          <h3 style="margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+            🎯 Action Items
+            <span class="insight-count" id="insightCount">0</span>
+          </h3>
+          <div id="insightsList" class="insights-list">
+            <!-- Populated by JS -->
+          </div>
         </div>
 
         <div class="card">
@@ -2392,6 +2783,20 @@
           </div>
           <div class="card-body" id="upcomingList">
             <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Appointment Reminders Card -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">⏰ Appointment Reminders</h3>
+            <button class="btn btn-sm btn-outline" onclick="loadReminders()">🔄 Refresh</button>
+          </div>
+          <div class="card-body" id="remindersCard">
+            <p style="color: var(--soft-gray); text-align: center; padding: 20px;">
+              Reminders are automatically sent 24 hours and 1 hour before confirmed sessions.
+            </p>
+            <div id="remindersList"></div>
           </div>
         </div>
       </section>
@@ -3882,6 +4287,20 @@
         <p id="clientMessageRecipient" style="margin-bottom: 16px; color: var(--soft-gray);"></p>
         <input type="hidden" id="clientMessageId">
         <input type="hidden" id="clientMessageType">
+        
+        <!-- Quick Message Templates -->
+        <div class="message-templates" style="margin-bottom: 16px;">
+          <label class="form-label" style="margin-bottom: 8px;">Quick Templates</label>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+            <button type="button" class="template-btn" onclick="useTemplate('confirm')">✅ Confirm Session</button>
+            <button type="button" class="template-btn" onclick="useTemplate('reminder')">⏰ Reminder</button>
+            <button type="button" class="template-btn" onclick="useTemplate('followup')">💝 Follow-up</button>
+            <button type="button" class="template-btn" onclick="useTemplate('reschedule')">📅 Reschedule</button>
+            <button type="button" class="template-btn" onclick="useTemplate('checkin')">🌸 Check-in</button>
+            <button type="button" class="template-btn" onclick="useTemplate('thanks')">🙏 Thank You</button>
+          </div>
+        </div>
+        
         <div class="form-group">
           <label class="form-label">Subject</label>
           <input type="text" class="form-input" id="clientMessageSubject" value="A Message from Ravi 🪷" required>
@@ -4199,7 +4618,7 @@
 
       // Load page data
       if (pageName === 'bookings') loadBookings();
-      if (pageName === 'calendar') renderCalendar();
+      if (pageName === 'calendar') { renderCalendar(); loadReminders(); }
       if (pageName === 'clients') loadClients();
       if (pageName === 'invitations') loadInvitationCodes();
       if (pageName === 'inquiries') loadInquiries();
@@ -4294,6 +4713,9 @@
         </div>
       `;
 
+      // Generate smart insights
+      await generateInsights(stats, recentBookings);
+
       // Render recent bookings
       document.getElementById('recentBookingsTable').innerHTML = recentBookings.map(b => `
         <tr>
@@ -4306,6 +4728,155 @@
           </td>
         </tr>
       `).join('') || '<tr><td colspan="5" class="empty-state">No bookings yet</td></tr>';
+    }
+
+    // ===========================================
+    // SMART INSIGHTS
+    // ===========================================
+    async function generateInsights(stats, recentBookings) {
+      const insights = [];
+      
+      // Load clients for check-in analysis
+      const clientsForInsights = await api('/api/admin/clients-with-messages') || [];
+      
+      // 1. Pending bookings that need attention
+      if (stats.pending > 0) {
+        insights.push({
+          icon: '⏳',
+          type: 'urgent',
+          title: `${stats.pending} booking${stats.pending > 1 ? 's' : ''} awaiting response`,
+          desc: 'New clients are waiting to hear from you',
+          action: 'View Bookings',
+          onclick: "showPage('bookings')"
+        });
+      }
+      
+      // 2. Unread messages
+      const unreadTotal = clientsForInsights.reduce((sum, c) => sum + (c.unreadMessages || 0), 0);
+      if (unreadTotal > 0) {
+        insights.push({
+          icon: '💬',
+          type: 'urgent',
+          title: `${unreadTotal} unread message${unreadTotal > 1 ? 's' : ''}`,
+          desc: 'Clients are waiting for your response',
+          action: 'View Messages',
+          onclick: "showPage('clients'); filterClients('unread')"
+        });
+      }
+      
+      // 3. Clients who haven't booked in 30+ days (non-regulars only)
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      
+      const needsCheckin = clientsForInsights.filter(c => {
+        if (!c.lastContact) return false;
+        if (c.tier === 'vip' || c.tier === 'favored' || c.tier === 'regular') return false;
+        if (c.status === 'banned' || c.status === 'suspended') return false;
+        const lastContact = new Date(c.lastContact);
+        return lastContact < thirtyDaysAgo && (c.totalSessions || 0) > 0;
+      });
+      
+      if (needsCheckin.length > 0) {
+        insights.push({
+          icon: '🌸',
+          type: 'important',
+          title: `${needsCheckin.length} client${needsCheckin.length > 1 ? 's' : ''} may need a check-in`,
+          desc: 'Returning clients who haven\'t booked in 30+ days',
+          action: 'View List',
+          onclick: `showCheckinList(${JSON.stringify(needsCheckin.map(c => c.id))})`
+        });
+      }
+      
+      // 4. Upcoming sessions this week
+      const oneWeekFromNow = new Date();
+      oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 7);
+      
+      const upcomingSessions = recentBookings.filter(b => {
+        if (b.status !== 'confirmed') return false;
+        if (!b.confirmedDate) return false;
+        const sessionDate = new Date(b.confirmedDate);
+        return sessionDate >= new Date() && sessionDate <= oneWeekFromNow;
+      });
+      
+      if (upcomingSessions.length > 0) {
+        insights.push({
+          icon: '📅',
+          type: 'info',
+          title: `${upcomingSessions.length} session${upcomingSessions.length > 1 ? 's' : ''} this week`,
+          desc: 'Confirmed appointments coming up',
+          action: 'View Calendar',
+          onclick: "showPage('calendar')"
+        });
+      }
+      
+      // 5. Revenue milestone check
+      if (stats.revenueThisMonth >= 1000 && stats.revenueThisMonth >= stats.revenueLastMonth * 1.2) {
+        insights.push({
+          icon: '🎉',
+          type: 'success',
+          title: 'Great month so far!',
+          desc: `$${stats.revenueThisMonth} this month - ${Math.round((stats.revenueThisMonth / stats.revenueLastMonth - 1) * 100)}% increase`,
+          action: null,
+          onclick: null
+        });
+      }
+      
+      // 6. New VIP client potential
+      const potentialVIPs = clientsForInsights.filter(c => 
+        (c.totalSessions || 0) === 5 && c.tier !== 'favored'
+      );
+      
+      if (potentialVIPs.length > 0) {
+        insights.push({
+          icon: '⭐',
+          type: 'info',
+          title: `${potentialVIPs.length} client${potentialVIPs.length > 1 ? 's' : ''} close to VIP status`,
+          desc: 'One more session to become VIP',
+          action: 'View',
+          onclick: `openClientModal('${potentialVIPs[0].id}')`
+        });
+      }
+      
+      // Render insights
+      const insightsList = document.getElementById('insightsList');
+      const insightCount = document.getElementById('insightCount');
+      
+      insightCount.textContent = insights.length;
+      insightCount.style.display = insights.length > 0 ? 'inline' : 'none';
+      
+      if (insights.length === 0) {
+        insightsList.innerHTML = `
+          <div class="insights-empty">
+            <div style="font-size: 48px; margin-bottom: 12px;">✨</div>
+            <div>All caught up! No action items right now.</div>
+          </div>
+        `;
+      } else {
+        insightsList.innerHTML = insights.map(insight => `
+          <div class="insight-card" ${insight.onclick ? `onclick="${insight.onclick}"` : ''}>
+            <div class="insight-icon ${insight.type}">${insight.icon}</div>
+            <div class="insight-content">
+              <div class="insight-title">${insight.title}</div>
+              <div class="insight-desc">${insight.desc}</div>
+            </div>
+            ${insight.action ? `<button class="insight-action">${insight.action}</button>` : ''}
+          </div>
+        `).join('');
+      }
+    }
+    
+    // Show check-in list modal
+    function showCheckinList(clientIds) {
+      const clientsNeedingCheckin = clients.filter(c => clientIds.includes(c.id));
+      
+      // Create a simple alert with the list
+      const names = clientsNeedingCheckin.map(c => `• ${c.name} (${c.email})`).join('\n');
+      
+      if (confirm(`Clients who may appreciate a check-in:\n\n${names}\n\nWould you like to go to the Clients page?`)) {
+        showPage('clients');
+        // Filter to show these clients
+        filterClients('new');
+      }
     }
 
     // ===========================================
@@ -4676,6 +5247,67 @@
     }
 
     // ===========================================
+    // APPOINTMENT REMINDERS
+    // ===========================================
+    async function loadReminders() {
+      const data = await api('/api/admin/reminders');
+      if (!data || !data.reminders) return;
+      
+      const remindersList = document.getElementById('remindersList');
+      
+      if (data.reminders.length === 0) {
+        remindersList.innerHTML = `
+          <div style="text-align: center; padding: 20px; color: var(--soft-gray);">
+            <div style="font-size: 32px; margin-bottom: 8px;">✨</div>
+            No sessions in the next 48 hours
+          </div>
+        `;
+        return;
+      }
+      
+      remindersList.innerHTML = data.reminders.map(r => `
+        <div style="display: flex; align-items: center; gap: 16px; padding: 16px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 12px; background: ${r.hoursUntil <= 2 ? '#fff8e1' : 'var(--bg-card)'};">
+          <div style="flex-shrink: 0; width: 48px; height: 48px; background: ${r.hoursUntil <= 2 ? 'var(--warning)' : r.hoursUntil <= 24 ? 'var(--gold)' : 'var(--burgundy)'}; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600;">
+            ${r.hoursUntil}h
+          </div>
+          <div style="flex: 1;">
+            <div style="font-weight: 600;">${r.clientName}</div>
+            <div style="font-size: 13px; color: var(--soft-gray);">
+              ${new Date(r.sessionDate).toLocaleDateString()} ${r.sessionTime ? 'at ' + r.sessionTime : ''}
+            </div>
+            <div style="font-size: 12px; margin-top: 4px;">
+              ${r.reminder24hSent ? '✅ 24h sent' : '⏳ 24h pending'} 
+              ${r.reminder1hSent ? '✅ 1h sent' : '⏳ 1h pending'}
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            ${!r.reminder24hSent && r.hoursUntil > 24 ? `
+              <button class="btn btn-sm btn-outline" onclick="sendReminder('${r.bookingId}', '24h')">Send 24h</button>
+            ` : ''}
+            ${!r.reminder1hSent && r.hoursUntil > 1 ? `
+              <button class="btn btn-sm btn-outline" onclick="sendReminder('${r.bookingId}', '1h')">Send 1h</button>
+            ` : ''}
+            <button class="btn btn-sm btn-outline" onclick="sendReminder('${r.bookingId}', 'welcome')">Send Welcome</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function sendReminder(bookingId, type) {
+      const result = await api(`/api/admin/reminders/${bookingId}/send`, {
+        method: 'POST',
+        body: JSON.stringify({ type })
+      });
+      
+      if (result?.success) {
+        showToast(result.message, 'success');
+        loadReminders();
+      } else {
+        showToast('Failed to send reminder', 'error');
+      }
+    }
+
+    // ===========================================
     // CLIENTS
     // ===========================================
     let clientFilter = 'all';
@@ -5011,30 +5643,146 @@
             <strong>Status Reason:</strong> ${client.statusReason}
           </div>
         ` : ''}
+        
+        <!-- Private Session Notes -->
+        <div style="margin-top: 24px; padding-top: 20px; border-top: 2px solid #f0ebe4;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+            <h4 style="margin: 0; display: flex; align-items: center; gap: 8px;">
+              📝 Private Session Notes
+              <span style="font-size: 11px; background: #e8f5e9; color: #2e7d32; padding: 3px 8px; border-radius: 10px;">Only you can see</span>
+            </h4>
+            <button class="btn btn-sm btn-outline" onclick="saveClientNotes('${client.id}')" id="saveNotesBtn">💾 Save</button>
+          </div>
+          <textarea id="clientNotesTextarea" 
+            style="width: 100%; min-height: 120px; padding: 12px; border: 2px solid #e0d6cc; border-radius: 8px; font-size: 14px; line-height: 1.6; resize: vertical;"
+            placeholder="Add notes about sessions, breakthroughs, things to remember for next time...
+
+Example:
+- Jan 15: Focused on heart opening, emotional release around mother
+- Jan 22: Follow-up session, noticed more openness. Mentioned job stress.
+- Prefers lavender essential oil. Sensitive to cold."
+          >${client.notes || ''}</textarea>
+          <div style="font-size: 11px; color: var(--soft-gray); margin-top: 8px;">
+            💡 Tip: Note patterns, breakthroughs, preferences, or anything that helps continuity of care.
+          </div>
+        </div>
       `;
     }
 
     function renderClientHistoryTab(client) {
       const bookings = client.bookings || [];
+      const tierInfo = client.tierInfo || { emoji: '🌱', label: 'New', color: '#9E9E9E' };
+      
+      // Create timeline events from bookings and other milestones
+      const events = [];
+      
+      // Add first contact event
+      if (client.createdAt) {
+        events.push({
+          date: client.createdAt,
+          type: 'milestone',
+          icon: '🌱',
+          title: 'Journey Began',
+          desc: 'First contact with Ravi'
+        });
+      }
+      
+      // Add booking events
+      bookings.forEach(b => {
+        events.push({
+          date: b.confirmedDate || b.createdAt,
+          type: 'session',
+          status: b.status,
+          icon: b.status === 'completed' ? '✨' : b.status === 'confirmed' ? '📅' : b.status === 'cancelled' ? '❌' : '⏳',
+          title: b.serviceName || 'Session',
+          desc: b.status === 'completed' ? `Completed session - $${b.servicePrice || 0}` : 
+                b.status === 'confirmed' ? `Scheduled${b.confirmedTime ? ' at ' + b.confirmedTime : ''}` :
+                b.status === 'cancelled' ? 'Cancelled' : 'Pending approval',
+          price: b.servicePrice
+        });
+      });
+      
+      // Add tier milestones
+      if ((client.totalSessions || 0) >= 3 && (client.totalSessions || 0) < 6) {
+        events.push({
+          date: bookings[2]?.confirmedDate || new Date().toISOString(),
+          type: 'milestone',
+          icon: '🌳',
+          title: 'Became Regular Client',
+          desc: 'Completed 3rd session'
+        });
+      }
+      
+      if ((client.totalSessions || 0) >= 6) {
+        events.push({
+          date: bookings[5]?.confirmedDate || new Date().toISOString(),
+          type: 'milestone',
+          icon: '⭐',
+          title: 'Achieved VIP Status',
+          desc: 'Completed 6th session'
+        });
+      }
+      
+      if (client.tier === 'favored') {
+        events.push({
+          date: new Date().toISOString(),
+          type: 'milestone',
+          icon: '💎',
+          title: 'Marked as Favored',
+          desc: client.tierNotes || 'Special client status'
+        });
+      }
+      
+      // Sort events by date (newest first)
+      events.sort((a, b) => new Date(b.date) - new Date(a.date));
+      
+      // Calculate relationship stats
+      const completedSessions = bookings.filter(b => b.status === 'completed').length;
+      const totalSpent = bookings.filter(b => b.status === 'completed').reduce((sum, b) => sum + (b.servicePrice || 0), 0);
+      const firstSession = bookings.length > 0 ? new Date(Math.min(...bookings.map(b => new Date(b.createdAt || b.confirmedDate)))) : null;
+      const relationshipDays = firstSession ? Math.floor((new Date() - firstSession) / (1000 * 60 * 60 * 24)) : 0;
+      
       document.getElementById('clientTabHistory').innerHTML = `
-        <h4 style="margin-bottom: 16px;">📜 Session History (${bookings.length} total)</h4>
-        ${bookings.length ? bookings.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map(b => `
-          <div style="padding: 16px; border: 1px solid #e0d6cc; border-radius: 8px; margin-bottom: 12px; border-left: 4px solid ${b.status === 'completed' ? 'var(--success)' : b.status === 'confirmed' ? 'var(--burgundy)' : 'var(--warning)'};">
-            <div style="display: flex; justify-content: space-between; align-items: start;">
-              <div>
-                <strong>${b.serviceName || 'Session'}</strong>
-                <br><small style="color: var(--soft-gray);">
-                  ${b.confirmedDate ? new Date(b.confirmedDate).toLocaleDateString() : b.createdAt ? new Date(b.createdAt).toLocaleDateString() : 'Date TBD'}
-                  ${b.confirmedTime ? ` at ${b.confirmedTime}` : ''}
-                </small>
-              </div>
-              <div style="text-align: right;">
-                <span class="badge ${b.status === 'completed' ? 'badge-confirmed' : b.status === 'confirmed' ? 'badge-info' : 'badge-pending'}">${b.status}</span>
-                <br><strong style="color: var(--burgundy);">$${b.servicePrice || 0}</strong>
-              </div>
+        <!-- Journey Overview -->
+        <div style="background: linear-gradient(135deg, ${tierInfo.color}15 0%, white 100%); padding: 20px; border-radius: 12px; margin-bottom: 24px; border: 1px solid ${tierInfo.color}40;">
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; text-align: center;">
+            <div>
+              <div style="font-size: 28px; font-weight: 600; color: var(--burgundy);">${completedSessions}</div>
+              <div style="font-size: 12px; color: var(--soft-gray);">Sessions</div>
+            </div>
+            <div>
+              <div style="font-size: 28px; font-weight: 600; color: var(--success);">$${totalSpent}</div>
+              <div style="font-size: 12px; color: var(--soft-gray);">Total Spent</div>
+            </div>
+            <div>
+              <div style="font-size: 28px; font-weight: 600; color: var(--gold);">${relationshipDays}</div>
+              <div style="font-size: 12px; color: var(--soft-gray);">Days Together</div>
+            </div>
+            <div>
+              <div style="font-size: 28px;">${tierInfo.emoji}</div>
+              <div style="font-size: 12px; color: var(--soft-gray);">${tierInfo.label}</div>
             </div>
           </div>
-        `).join('') : '<p style="color: var(--soft-gray); text-align: center; padding: 40px;">No sessions yet</p>'}
+        </div>
+        
+        <!-- Timeline -->
+        <h4 style="margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+          🕐 Journey Timeline
+          <span style="font-size: 12px; color: var(--soft-gray); font-weight: normal;">${events.length} events</span>
+        </h4>
+        
+        <div class="journey-timeline">
+          ${events.length ? events.map((e, i) => `
+            <div class="timeline-event ${e.type}" style="--event-color: ${e.type === 'milestone' ? 'var(--gold)' : e.status === 'completed' ? 'var(--success)' : e.status === 'confirmed' ? 'var(--burgundy)' : e.status === 'cancelled' ? 'var(--danger)' : 'var(--warning)'}">
+              <div class="timeline-dot">${e.icon}</div>
+              <div class="timeline-content">
+                <div class="timeline-date">${new Date(e.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+                <div class="timeline-title">${e.title}</div>
+                <div class="timeline-desc">${e.desc}</div>
+              </div>
+            </div>
+          `).join('') : '<p style="color: var(--soft-gray); text-align: center; padding: 40px;">No events yet</p>'}
+        </div>
       `;
     }
 
@@ -5339,6 +6087,31 @@
         method: 'PATCH',
         body: JSON.stringify({ notes })
       });
+    }
+
+    async function saveClientNotes(clientId) {
+      const notes = document.getElementById('clientNotesTextarea')?.value || '';
+      const btn = document.getElementById('saveNotesBtn');
+      
+      if (btn) {
+        btn.textContent = '⏳ Saving...';
+        btn.disabled = true;
+      }
+      
+      const result = await api(`/api/admin/clients/${clientId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ notes })
+      });
+      
+      if (btn) {
+        btn.textContent = '✓ Saved!';
+        setTimeout(() => {
+          btn.textContent = '💾 Save';
+          btn.disabled = false;
+        }, 2000);
+      }
+      
+      showToast('Notes saved', 'success');
     }
 
     // ===========================================
@@ -8063,6 +8836,107 @@
       openModal('clientMessageModal');
     }
 
+    // Message Templates
+    const messageTemplates = {
+      confirm: {
+        subject: 'Your Session is Confirmed ✨',
+        message: `Dear {name},
+
+I'm looking forward to our session together. Please remember to:
+
+• Arrive 5-10 minutes early to settle in
+• Wear comfortable, loose clothing
+• Bring any intentions you'd like to focus on
+
+If you need to reschedule, please let me know at least 24 hours in advance.
+
+With gratitude,
+Ravi 🪷`
+      },
+      reminder: {
+        subject: 'Session Reminder - Tomorrow 🌸',
+        message: `Dear {name},
+
+Just a gentle reminder that we have a session scheduled for tomorrow. 
+
+Please take some time this evening to reflect on what you'd like to bring to our time together.
+
+Looking forward to holding space for you.
+
+With love,
+Ravi 🪷`
+      },
+      followup: {
+        subject: 'Holding You in My Heart 💝',
+        message: `Dear {name},
+
+I wanted to check in and see how you're feeling after our session. The work we did together was beautiful, and I'm curious how it's integrating for you.
+
+Remember to be gentle with yourself as you process. Drink plenty of water and allow yourself rest if needed.
+
+I'm here if you need anything.
+
+With deep care,
+Ravi 🪷`
+      },
+      reschedule: {
+        subject: 'Let\'s Find a New Time 📅',
+        message: `Dear {name},
+
+I understand that schedules can shift. Let's find a time that works better for you.
+
+Please let me know your availability, or you can book directly through the website when you're ready.
+
+No pressure - we'll connect when the time is right.
+
+Warmly,
+Ravi 🪷`
+      },
+      checkin: {
+        subject: 'Thinking of You 🌸',
+        message: `Dear {name},
+
+It's been a little while since we last connected, and I wanted to reach out and see how you're doing.
+
+Your healing journey is important, and I'm here whenever you feel called to continue our work together.
+
+I hope life is treating you gently.
+
+With warmth,
+Ravi 🪷`
+      },
+      thanks: {
+        subject: 'Thank You for Your Trust 🙏',
+        message: `Dear {name},
+
+I wanted to express my deep gratitude for choosing to work with me. Your openness and courage inspire me.
+
+Thank you for trusting me to hold space for your healing. It's an honor I don't take lightly.
+
+Wishing you continued blessings on your path.
+
+With love and appreciation,
+Ravi 🪷`
+      }
+    };
+
+    function useTemplate(templateName) {
+      const template = messageTemplates[templateName];
+      if (!template) return;
+      
+      // Get client name from the recipient text
+      const recipientEl = document.getElementById('clientMessageRecipient');
+      const recipientText = recipientEl?.textContent || '';
+      const nameMatch = recipientText.match(/to\s+(.+?)\s*\(/);
+      const clientName = nameMatch ? nameMatch[1].split(' ')[0] : 'there';
+      
+      document.getElementById('clientMessageSubject').value = template.subject;
+      document.getElementById('clientMessageText').value = template.message.replace(/{name}/g, clientName);
+      
+      // Focus on the message to allow editing
+      document.getElementById('clientMessageText').focus();
+    }
+
     function openBookingMessageModal(bookingId) {
       const booking = bookings.find(b => b.id === bookingId);
       if (!booking) return;
@@ -8215,6 +9089,35 @@
       setTimeout(() => toast.remove(), 4000);
     }
 
+    // ===========================================
+    // DARK MODE
+    // ===========================================
+    function toggleDarkMode() {
+      const html = document.documentElement;
+      const currentTheme = html.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      
+      html.setAttribute('data-theme', newTheme);
+      localStorage.setItem('adminTheme', newTheme);
+      
+      // Update toggle button
+      const icon = document.getElementById('themeIcon');
+      const label = document.getElementById('themeLabel');
+      if (icon) icon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+      if (label) label.textContent = newTheme === 'dark' ? 'Light Mode' : 'Dark Mode';
+    }
+
+    // Initialize theme on load
+    function initTheme() {
+      const savedTheme = localStorage.getItem('adminTheme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      
+      const icon = document.getElementById('themeIcon');
+      const label = document.getElementById('themeLabel');
+      if (icon) icon.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+      if (label) label.textContent = savedTheme === 'dark' ? 'Light Mode' : 'Dark Mode';
+    }
+
     // Close modals on overlay click
     document.querySelectorAll('.modal-overlay').forEach(overlay => {
       overlay.addEventListener('click', (e) => {
@@ -8227,6 +9130,8 @@
     // ===========================================
     // INIT
     // ===========================================
+    initTheme();  // Initialize dark/light mode
+    
     if (token) {
       showDashboard();
     }
