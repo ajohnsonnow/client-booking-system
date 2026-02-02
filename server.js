@@ -4630,6 +4630,114 @@ app.get('/api/admin/backups/stats', authenticateAdmin, (req, res) => {
 });
 
 // ===========================================
+// EMAIL TEMPLATES API
+// ===========================================
+
+const EMAIL_TEMPLATES_FILE = path.join(DATA_DIR, 'email_templates.enc');
+
+function loadEmailTemplates() {
+  if (fs.existsSync(EMAIL_TEMPLATES_FILE)) {
+    try {
+      const encrypted = fs.readFileSync(EMAIL_TEMPLATES_FILE, 'utf8');
+      const decrypted = decrypt(encrypted);
+      return JSON.parse(decrypted);
+    } catch (err) {
+      console.error('Error loading email templates:', err);
+      return [];
+    }
+  }
+  return [];
+}
+
+function saveEmailTemplates(templates) {
+  try {
+    const json = JSON.stringify(templates, null, 2);
+    const encrypted = encrypt(json);
+    fs.writeFileSync(EMAIL_TEMPLATES_FILE, encrypted, 'utf8');
+    return true;
+  } catch (err) {
+    console.error('Error saving email templates:', err);
+    return false;
+  }
+}
+
+// Get all email templates
+app.get('/api/admin/email-templates', authenticateAdmin, (req, res) => {
+  const templates = loadEmailTemplates();
+  res.json({ success: true, templates });
+});
+
+// Get single email template
+app.get('/api/admin/email-templates/:id', authenticateAdmin, (req, res) => {
+  const templates = loadEmailTemplates();
+  const template = templates.find(t => t.id === req.params.id);
+  
+  if (template) {
+    res.json({ success: true, template });
+  } else {
+    res.status(404).json({ error: 'Template not found' });
+  }
+});
+
+// Create email template
+app.post('/api/admin/email-templates', authenticateAdmin, (req, res) => {
+  const templates = loadEmailTemplates();
+  const newTemplate = {
+    id: Date.now().toString(),
+    ...req.body,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+  
+  templates.push(newTemplate);
+  
+  if (saveEmailTemplates(templates)) {
+    res.json({ success: true, template: newTemplate });
+  } else {
+    res.status(500).json({ error: 'Failed to save template' });
+  }
+});
+
+// Update email template
+app.put('/api/admin/email-templates/:id', authenticateAdmin, (req, res) => {
+  const templates = loadEmailTemplates();
+  const index = templates.findIndex(t => t.id === req.params.id);
+  
+  if (index === -1) {
+    return res.status(404).json({ error: 'Template not found' });
+  }
+  
+  templates[index] = {
+    ...templates[index],
+    ...req.body,
+    id: req.params.id, // Preserve original ID
+    updatedAt: new Date().toISOString()
+  };
+  
+  if (saveEmailTemplates(templates)) {
+    res.json({ success: true, template: templates[index] });
+  } else {
+    res.status(500).json({ error: 'Failed to update template' });
+  }
+});
+
+// Delete email template
+app.delete('/api/admin/email-templates/:id', authenticateAdmin, (req, res) => {
+  const templates = loadEmailTemplates();
+  const filtered = templates.filter(t => t.id !== req.params.id);
+  
+  if (filtered.length === templates.length) {
+    return res.status(404).json({ error: 'Template not found' });
+  }
+  
+  if (saveEmailTemplates(filtered)) {
+    res.json({ success: true });
+  } else {
+    res.status(500).json({ error: 'Failed to delete template' });
+  }
+});
+
+// ===========================================
 // DEMO MODE
 // ===========================================
 

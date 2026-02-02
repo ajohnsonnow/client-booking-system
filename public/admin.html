@@ -96,6 +96,37 @@
       background: var(--bg-card);
     }
 
+    [data-theme="dark"] .btn-secondary {
+      background: #5a4a3a;
+      color: #f0e6c8;
+      border-color: #7a6a5a;
+    }
+
+    [data-theme="dark"] .btn-secondary:hover {
+      background: var(--gold);
+      color: #1a1a1a;
+    }
+
+    [data-theme="dark"] .btn-outline {
+      border-color: var(--burgundy-light);
+      color: var(--burgundy-light);
+    }
+
+    [data-theme="dark"] .template-btn {
+      background: #3a3a3a;
+      border-color: #5a5a5a;
+      color: #e8e8e8;
+    }
+
+    [data-theme="dark"] .badge-pending { background: #5a4a1a; color: #f0d070; }
+    [data-theme="dark"] .badge-confirmed { background: #1a3a1a; color: #70e090; }
+    [data-theme="dark"] .badge-completed { background: #1a2a4a; color: #70b0ff; }
+    [data-theme="dark"] .badge-cancelled { background: #4a1a1a; color: #ff7070; }
+
+    [data-theme="dark"] .form-label {
+      color: var(--text-primary);
+    }
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     /* Global subtle animations */
@@ -1726,15 +1757,34 @@
       background: white;
       border: 2px solid #e0d6cc;
       border-radius: 12px;
-      overflow: hidden;
-      cursor: pointer;
+      padding: 20px;
       transition: all 0.3s;
     }
 
     .template-card:hover {
       border-color: var(--burgundy);
       box-shadow: 0 8px 24px rgba(114, 47, 55, 0.15);
-      transform: translateY(-4px);
+      transform: translateY(-2px);
+    }
+
+    .template-card h4 {
+      color: var(--burgundy);
+      margin-bottom: 8px;
+    }
+
+    .template-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    [data-theme="dark"] .template-card {
+      background: var(--bg-card);
+      border-color: var(--border-color);
+    }
+
+    [data-theme="dark"] .template-card h4 {
+      color: var(--burgundy-light);
     }
 
     .template-preview {
@@ -3296,7 +3346,7 @@
         </div>
 
         <!-- Testimonials Tab -->
-        <div class="tab-content active" id="tab-testimonials">
+        <div class="tab-content active" data-content="testimonials">
           <div class="card">
             <div class="card-header">
               <h3 class="card-title">Testimonials</h3>
@@ -3309,7 +3359,7 @@
         </div>
 
         <!-- Pending Testimonials Tab -->
-        <div class="tab-content" id="tab-pending-testimonials">
+        <div class="tab-content" data-content="pending-testimonials">
           <div class="card">
             <div class="card-header">
               <h3 class="card-title">Pending Testimonials</h3>
@@ -3322,7 +3372,7 @@
         </div>
 
         <!-- FAQs Tab -->
-        <div class="tab-content" id="tab-faqs">
+        <div class="tab-content" data-content="faqs">
           <div class="card">
             <div class="card-header">
               <h3 class="card-title">Frequently Asked Questions</h3>
@@ -3335,7 +3385,7 @@
         </div>
 
         <!-- Site Settings Tab -->
-        <div class="tab-content" id="tab-site-settings">
+        <div class="tab-content" data-content="site-settings">
           <div class="card">
             <div class="card-header">
               <h3 class="card-title">Site Settings</h3>
@@ -3389,7 +3439,7 @@
         </div>
 
         <!-- Services Tab -->
-        <div class="tab-content active" id="tab-services">
+        <div class="tab-content active" data-content="services">
           <div class="card">
             <div class="card-header">
               <h3 class="card-title">Services & Pricing</h3>
@@ -3401,7 +3451,7 @@
         </div>
 
         <!-- Availability Tab -->
-        <div class="tab-content" id="tab-availability">
+        <div class="tab-content" data-content="availability">
           <div class="card">
             <div class="card-header">
               <h3 class="card-title">Weekly Availability</h3>
@@ -3426,7 +3476,7 @@
         </div>
 
         <!-- Email Tab -->
-        <div class="tab-content" id="tab-email">
+        <div class="tab-content" data-content="email">
           <div class="card">
             <div class="card-header">
               <h3 class="card-title">Email Notification Settings</h3>
@@ -3459,7 +3509,7 @@
         </div>
 
         <!-- Security Tab -->
-        <div class="tab-content" id="tab-security">
+        <div class="tab-content" data-content="security">
           <div class="card">
             <div class="card-header">
               <h3 class="card-title">Change Admin Password</h3>
@@ -7539,7 +7589,7 @@ Example:
         </div>
         <div id=\"aiGeneratedContent\" style=\"display: none; margin-top: 15px; padding: 15px; background: var(--background); border-radius: 8px;\"></div>
         <div class=\"btn-group\">
-          <button class=\"btn btn-secondary\" onclick=\"closeModal()\">Cancel</button>
+          <button class=\"btn btn-secondary\" onclick=\"hideModal()\">Cancel</button>
           <button class=\"btn btn-primary\" onclick=\"saveLeadMagnet()\">Create Lead Magnet</button>
         </div>
       `);
@@ -7699,7 +7749,7 @@ Example:
         <div id=\"dripEmailsPreview\" style=\"margin-top: 20px;\"></div>
 
         <div class=\"btn-group\">
-          <button class=\"btn btn-secondary\" onclick=\"closeModal()\">Cancel</button>
+          <button class=\"btn btn-secondary\" onclick=\"hideModal()\">Cancel</button>
           <button class=\"btn btn-primary\" onclick=\"saveDripCampaign()\">Create Campaign</button>
         </div>
       `);
@@ -8272,6 +8322,9 @@ Example:
     }
 
     async function loadTemplates() {
+      await loadEmailTemplates();
+      
+      // Load message templates
       const result = await api('/api/admin/templates');
       if (result?.templates) {
         templates = result.templates;
@@ -8353,7 +8406,420 @@ Example:
     }
 
     function showTemplateEditor() {
-      showToast('Custom template editor coming soon! Use the built-in templates for now.', 'info');
+      const templates = [
+        { name: 'Booking Confirmation', category: 'Booking' },
+        { name: 'Session Reminder', category: 'Booking' },
+        { name: 'Aftercare Follow-up', category: 'Booking' },
+        { name: 'Welcome Email', category: 'Client' },
+        { name: 'Thank You', category: 'Client' },
+        { name: 'Newsletter', category: 'Marketing' },
+        { name: 'Promotional Offer', category: 'Marketing' },
+        { name: 'Event Invitation', category: 'Marketing' },
+        { name: 'Re-engagement', category: 'Marketing' },
+        { name: 'Blank Template', category: 'Custom' }
+      ];
+
+      const templateOptions = templates.map(t => 
+        `<option value="${t.name}">${t.name} (${t.category})</option>`
+      ).join('');
+
+      showModal(`
+        <div style="max-width: 800px; width: 100%;">
+          <h3 style="color: var(--burgundy); margin-bottom: 20px;">📄 Create Email Template</h3>
+          
+          <div class="form-group">
+            <label class="form-label">Template Type</label>
+            <select id="templateType" class="form-input" onchange="loadTemplatePreset()">
+              <option value="">Select a starting point...</option>
+              ${templateOptions}
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Template Name</label>
+            <input type="text" id="templateName" class="form-input" placeholder="e.g., Booking Confirmation">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Subject Line</label>
+            <input type="text" id="templateSubject" class="form-input" placeholder="e.g., Your Session with Ravi is Confirmed ✨">
+            <small style="color: var(--soft-gray); display: block; margin-top: 4px;">
+              Variables: {{clientName}}, {{serviceName}}, {{date}}, {{time}}
+            </small>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Email Body</label>
+            <textarea id="templateBody" class="form-input" rows="12" placeholder="Write your email content here...
+
+You can use these variables:
+{{clientName}} - Client's name
+{{serviceName}} - Service booked
+{{date}} - Appointment date
+{{time}} - Appointment time
+{{practitionerName}} - Your name
+{{location}} - Session location"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              <input type="checkbox" id="templateActive" checked> Active (available for use)
+            </label>
+          </div>
+
+          <div style="background: var(--cream); padding: 15px; border-radius: 8px; border-left: 4px solid var(--gold); margin-bottom: 20px;">
+            <strong style="color: var(--burgundy);">💡 Pro Tips:</strong>
+            <ul style="margin: 10px 0 0 20px; color: var(--charcoal);">
+              <li>Use variables to personalize emails automatically</li>
+              <li>Keep subject lines under 50 characters for mobile</li>
+              <li>Include a clear call-to-action</li>
+              <li>End with your signature for authenticity</li>
+            </ul>
+          </div>
+
+          <div class="btn-group">
+            <button class="btn btn-secondary" onclick="hideModal()">Cancel</button>
+            <button class="btn btn-primary" onclick="saveEmailTemplate()">💾 Save Template</button>
+          </div>
+        </div>
+      `, { id: 'emailTemplateModal' });
+    }
+
+    function loadTemplatePreset() {
+      const type = document.getElementById('templateType').value;
+      const nameField = document.getElementById('templateName');
+      const subjectField = document.getElementById('templateSubject');
+      const bodyField = document.getElementById('templateBody');
+
+      if (!type) return;
+
+      const presets = {
+        'Booking Confirmation': {
+          name: 'Booking Confirmation',
+          subject: 'Your Session is Confirmed! ✨',
+          body: `Namaste {{clientName}},
+
+🙏 Thank you for booking your {{serviceName}} session with me. I'm honored to support your healing journey.
+
+📅 Session Details:
+• Date: {{date}}
+• Time: {{time}}
+• Location: {{location}}
+• Duration: {{duration}}
+
+🌟 What to Expect:
+Please arrive 5-10 minutes early to settle in and center yourself. Wear comfortable clothing and bring an open heart.
+
+If you have any questions or need to reschedule, simply reply to this email.
+
+Looking forward to our time together.
+
+With love and light,
+{{practitionerName}}`
+        },
+        'Session Reminder': {
+          name: 'Session Reminder',
+          subject: 'Your Session Tomorrow at {{time}} 🪷',
+          body: `Hi {{clientName}},
+
+This is a gentle reminder about your {{serviceName}} session tomorrow.
+
+📅 Tomorrow, {{date}} at {{time}}
+📍 {{location}}
+
+I'm looking forward to holding space for your healing.
+
+Please let me know if you need to reschedule.
+
+Blessings,
+{{practitionerName}}`
+        },
+        'Aftercare Follow-up': {
+          name: 'Aftercare Follow-up',
+          subject: 'How are you feeling? 💜',
+          body: `Dear {{clientName}},
+
+I hope you're feeling the gentle shifts from our {{serviceName}} session.
+
+🌸 Aftercare Recommendations:
+• Drink plenty of water to support integration
+• Rest when your body calls for it
+• Journal about any insights or feelings that arise
+• Be gentle with yourself
+
+Your healing journey is sacred, and I'm honored to walk alongside you.
+
+If you'd like to schedule a follow-up session or have any questions, I'm here.
+
+With love,
+{{practitionerName}}`
+        },
+        'Welcome Email': {
+          name: 'Welcome Email',
+          subject: 'Welcome to Our Sacred Space 🙏',
+          body: `Namaste {{clientName}},
+
+Welcome! I'm so grateful you've found your way here.
+
+At Ravi Sacred Healing, we believe in the power of ancient wisdom combined with modern understanding to support your journey toward wholeness.
+
+🌟 What You Can Expect:
+• Compassionate, trauma-informed care
+• Personalized healing sessions
+• A safe, sacred space for transformation
+• Support for your unique journey
+
+Feel free to explore our services and reach out with any questions. I'm here to support you.
+
+With light and love,
+{{practitionerName}}`
+        },
+        'Thank You': {
+          name: 'Thank You',
+          subject: 'Thank You for Trusting Me 💝',
+          body: `Dear {{clientName}},
+
+Thank you for allowing me to hold space for your healing. It's an honor I don't take lightly.
+
+Your trust, vulnerability, and commitment to your wellness inspire me.
+
+If you felt called to share your experience, I'd be deeply grateful. Your testimonial helps others find the healing they seek.
+
+Until we meet again,
+
+With gratitude,
+{{practitionerName}}`
+        },
+        'Newsletter': {
+          name: 'Monthly Newsletter',
+          subject: 'Sacred Healing News & Wisdom 🪷',
+          body: `Namaste {{clientName}},
+
+Welcome to this month's newsletter, filled with healing wisdom, updates, and offerings.
+
+✨ This Month's Wisdom:
+[Add your monthly teaching or reflection here]
+
+🌟 Special Offerings:
+[Add any promotions or new services]
+
+📅 Upcoming Events:
+[List any workshops, circles, or events]
+
+Thank you for being part of this sacred community.
+
+Blessings,
+{{practitionerName}}`
+        },
+        'Promotional Offer': {
+          name: 'Special Offer',
+          subject: 'Special Healing Offer Just for You 🎁',
+          body: `Hi {{clientName}},
+
+I'm excited to offer you something special...
+
+[Describe your offer]
+
+This is available for a limited time as a thank you for being part of our healing community.
+
+To book, simply reply to this email or visit our booking page.
+
+With love,
+{{practitionerName}}`
+        },
+        'Event Invitation': {
+          name: 'Event Invitation',
+          subject: 'You\'re Invited: Sacred Healing Circle 🌙',
+          body: `Dear {{clientName}},
+
+You're warmly invited to join us for a special healing gathering.
+
+🌙 Event Details:
+• What: [Event name]
+• When: [Date and time]
+• Where: [Location]
+• Investment: [Price or "Free"]
+
+[Describe what participants will experience]
+
+Space is limited. Reserve your spot by replying to this email.
+
+I hope to see you there!
+
+Blessings,
+{{practitionerName}}`
+        },
+        'Re-engagement': {
+          name: 'Re-engagement',
+          subject: 'We Miss You 💜',
+          body: `Hi {{clientName}},
+
+It's been a while since we've connected, and I wanted to reach out.
+
+Your wellness journey matters, and I'm here whenever you're ready to continue.
+
+If life has been busy or challenging, I understand. Sometimes we need to step back before stepping forward.
+
+When you're ready, I'm here.
+
+With love,
+{{practitionerName}}`
+        },
+        'Blank Template': {
+          name: 'Custom Template',
+          subject: 'Subject line here...',
+          body: 'Write your custom email content here...\n\nYou can use these variables:\n{{clientName}}\n{{serviceName}}\n{{date}}\n{{time}}\n{{practitionerName}}\n{{location}}'
+        }
+      };
+
+      const preset = presets[type];
+      if (preset) {
+        nameField.value = preset.name;
+        subjectField.value = preset.subject;
+        bodyField.value = preset.body;
+      }
+    }
+
+    async function saveEmailTemplate() {
+      const template = {
+        id: Date.now().toString(),
+        name: document.getElementById('templateName').value,
+        subject: document.getElementById('templateSubject').value,
+        body: document.getElementById('templateBody').value,
+        active: document.getElementById('templateActive').checked,
+        createdAt: new Date().toISOString()
+      };
+
+      if (!template.name || !template.subject || !template.body) {
+        showToast('Please fill in all required fields', 'error');
+        return;
+      }
+
+      showLoading(true);
+      const result = await api('/api/admin/email-templates', {
+        method: 'POST',
+        body: JSON.stringify(template)
+      });
+      showLoading(false);
+
+      if (result?.success) {
+        showToast('Template saved successfully! ✨', 'success');
+        hideModal('emailTemplateModal');
+        await loadEmailTemplates();
+      } else {
+        showToast('Failed to save template', 'error');
+      }
+    }
+
+    async function loadEmailTemplates() {
+      showLoading(true);
+      const result = await api('/api/admin/email-templates');
+      showLoading(false);
+
+      if (result?.templates) {
+        const gallery = document.getElementById('templateGallery');
+        if (result.templates.length === 0) {
+          gallery.innerHTML = '<p class="no-items-message">No templates yet. Click "Create Template" to get started!</p>';
+        } else {
+          gallery.innerHTML = result.templates.map(t => `
+            <div class="template-card">
+              <h4>${t.name}</h4>
+              <p style="color: var(--soft-gray); font-size: 13px; margin: 8px 0;">
+                Subject: ${t.subject}
+              </p>
+              <div class="template-actions">
+                <button class="btn btn-sm btn-outline" onclick="editEmailTemplate('${t.id}')">Edit</button>
+                <button class="btn btn-sm btn-danger" onclick="deleteEmailTemplate('${t.id}')">Delete</button>
+              </div>
+            </div>
+          `).join('');
+        }
+      }
+    }
+
+    async function deleteEmailTemplate(id) {
+      if (!confirm('Delete this template?')) return;
+
+      showLoading(true);
+      const result = await api(`/api/admin/email-templates/${id}`, {
+        method: 'DELETE'
+      });
+      showLoading(false);
+
+      if (result?.success) {
+        showToast('Template deleted', 'success');
+        await loadEmailTemplates();
+      }
+    }
+
+    async function editEmailTemplate(id) {
+      showLoading(true);
+      const result = await api(`/api/admin/email-templates/${id}`);
+      showLoading(false);
+
+      if (result?.template) {
+        const t = result.template;
+        showModal(`
+          <div style="max-width: 800px; width: 100%;">
+            <h3 style="color: var(--burgundy); margin-bottom: 20px;">✏️ Edit Email Template</h3>
+            
+            <div class="form-group">
+              <label class="form-label">Template Name</label>
+              <input type="text" id="editTemplateName" class="form-input" value="${t.name}">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Subject Line</label>
+              <input type="text" id="editTemplateSubject" class="form-input" value="${t.subject}">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Email Body</label>
+              <textarea id="editTemplateBody" class="form-input" rows="12">${t.body}</textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">
+                <input type="checkbox" id="editTemplateActive" ${t.active ? 'checked' : ''}> Active
+              </label>
+            </div>
+
+            <div class="btn-group">
+              <button class="btn btn-secondary" onclick="hideModal()">Cancel</button>
+              <button class="btn btn-primary" onclick="updateEmailTemplate('${id}')">💾 Update Template</button>
+            </div>
+          </div>
+        `, { id: 'editTemplateModal' });
+      }
+    }
+
+    async function updateEmailTemplate(id) {
+      const template = {
+        name: document.getElementById('editTemplateName').value,
+        subject: document.getElementById('editTemplateSubject').value,
+        body: document.getElementById('editTemplateBody').value,
+        active: document.getElementById('editTemplateActive').checked
+      };
+
+      if (!template.name || !template.subject || !template.body) {
+        showToast('Please fill in all required fields', 'error');
+        return;
+      }
+
+      showLoading(true);
+      const result = await api(`/api/admin/email-templates/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(template)
+      });
+      showLoading(false);
+
+      if (result?.success) {
+        showToast('Template updated! ✨', 'success');
+        hideModal('editTemplateModal');
+        await loadEmailTemplates();
+      } else {
+        showToast('Failed to update template', 'error');
+      }
     }
 
     async function loadMarketingAnalytics() {
@@ -9083,6 +9549,13 @@ Example:
       try {
         const stats = await api('/api/admin/backups/stats');
         
+        // Check if response is valid
+        if (!stats || !stats.autoBackups) {
+          console.error('Invalid backup stats response:', stats);
+          showToast('Failed to load backup stats - invalid response', 'error');
+          return;
+        }
+        
         // Update stat cards
         document.getElementById('totalAutoBackups').textContent = stats.autoBackups.total || 0;
         document.getElementById('totalManualBackups').textContent = stats.manualBackups.total || 0;
@@ -9712,6 +10185,41 @@ Ravi 🪷`
 
     function closeModal(id) {
       document.getElementById(id).classList.remove('active');
+    }
+
+    // Dynamic modal for HTML content
+    function showModal(htmlContent, options = {}) {
+      const modalId = options.id || 'dynamicModal';
+      let modal = document.getElementById(modalId);
+      
+      // Create modal if it doesn't exist
+      if (!modal) {
+        modal = document.createElement('div');
+        modal.id = modalId;
+        modal.className = 'modal-overlay';
+        modal.innerHTML = `
+          <div class="modal">
+            <div class="modal-content" id="${modalId}Content"></div>
+          </div>
+        `;
+        document.body.appendChild(modal);
+        
+        // Close on overlay click
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) hideModal(modalId);
+        });
+      }
+      
+      // Set content and show
+      document.getElementById(`${modalId}Content`).innerHTML = htmlContent;
+      modal.classList.add('active');
+      
+      return modalId;
+    }
+
+    function hideModal(modalId = 'dynamicModal') {
+      const modal = document.getElementById(modalId);
+      if (modal) modal.classList.remove('active');
     }
 
     function showLoading(show) {
