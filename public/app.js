@@ -279,19 +279,6 @@
           // Add visual feedback to the card
           serviceCards.forEach(c => c.classList.remove('selected'));
           card.classList.add('selected');
-          
-          // Scroll to the service selection section smoothly
-          const formSection = document.getElementById('service-options');
-          if (formSection) {
-            formSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            
-            // Add a brief highlight effect to the selected option in the form
-            const selectedOption = radioButton.closest('.service-option');
-            if (selectedOption) {
-              selectedOption.classList.add('highlight-pulse');
-              setTimeout(() => selectedOption.classList.remove('highlight-pulse'), 1500);
-            }
-          }
         }
       });
       
