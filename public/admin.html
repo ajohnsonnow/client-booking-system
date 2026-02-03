@@ -6751,6 +6751,38 @@ e.g., Rose Quartz on heart, Amethyst on third eye, Black Tourmaline at feet"></t
 
   <script>
     // ===========================================
+    // TIMEZONE CONFIG - Pacific Standard Time
+    // ===========================================
+    const TIMEZONE = 'America/Los_Angeles';
+    
+    // Format date in PST
+    function formatDatePST(dateStr, options = {}) {
+      if (!dateStr) return '';
+      const date = new Date(dateStr);
+      return date.toLocaleString('en-US', { timeZone: TIMEZONE, ...options });
+    }
+    
+    // Format date only in PST
+    function formatDateOnlyPST(dateStr) {
+      return formatDatePST(dateStr, { dateStyle: 'medium' });
+    }
+    
+    // Get current date in PST as YYYY-MM-DD
+    function getTodayPST() {
+      const now = new Date();
+      const pstDate = new Date(now.toLocaleString('en-US', { timeZone: TIMEZONE }));
+      return `${pstDate.getFullYear()}-${String(pstDate.getMonth() + 1).padStart(2, '0')}-${String(pstDate.getDate()).padStart(2, '0')}`;
+    }
+    
+    // Parse date string as local date (avoids timezone shift)
+    function parseLocalDate(dateStr) {
+      if (!dateStr) return null;
+      const parts = dateStr.split('T')[0].split('-');
+      if (parts.length !== 3) return new Date(dateStr);
+      return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+    }
+
+    // ===========================================
     // STATE & CONFIG
     // ===========================================
     let token = localStorage.getItem('adminToken');
@@ -6986,7 +7018,7 @@ e.g., Rose Quartz on heart, Amethyst on third eye, Black Tourmaline at feet"></t
       // Render recent bookings
       document.getElementById('recentBookingsTable').innerHTML = recentBookings.map(b => `
         <tr>
-          <td>${new Date(b.createdAt).toLocaleDateString()}</td>
+          <td>${formatDateOnlyPST(b.createdAt)}</td>
           <td>${b.name}</td>
           <td>${b.serviceName}</td>
           <td><span class="badge badge-${b.status}">${b.status}</span></td>
@@ -7270,7 +7302,7 @@ e.g., Rose Quartz on heart, Amethyst on third eye, Black Tourmaline at feet"></t
               </div>
               <div class="booking-card-detail">
                 <span class="booking-card-detail-label">Submitted</span>
-                <span class="booking-card-detail-value">${new Date(b.createdAt).toLocaleDateString()}</span>
+                <span class="booking-card-detail-value">${formatDateOnlyPST(b.createdAt)}</span>
               </div>
               <div class="booking-card-detail">
                 <span class="booking-card-detail-label">Scheduled</span>
@@ -7367,7 +7399,7 @@ e.g., Rose Quartz on heart, Amethyst on third eye, Black Tourmaline at feet"></t
             </div>
             <div class="detail-item">
               <div class="detail-label">Submitted</div>
-              <div class="detail-value">${new Date(booking.createdAt).toLocaleString()}</div>
+              <div class="detail-value">${formatDatePST(booking.createdAt, { dateStyle: 'medium', timeStyle: 'short' })}</div>
             </div>
           </div>
         </div>

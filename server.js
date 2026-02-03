@@ -45,6 +45,42 @@ if (IS_PRODUCTION) {
 }
 
 // ===========================================
+// TIMEZONE CONFIGURATION - PST (Pacific Standard Time)
+// ===========================================
+const TIMEZONE = 'America/Los_Angeles';
+
+// Get current date/time in PST
+function getNowPST() {
+  return new Date(new Date().toLocaleString('en-US', { timeZone: TIMEZONE }));
+}
+
+// Get today's date string in PST (YYYY-MM-DD)
+function getTodayPST() {
+  const now = getNowPST();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+}
+
+// Parse a date string (YYYY-MM-DD) as a local PST date
+function parseLocalDate(dateStr) {
+  if (!dateStr) return null;
+  const parts = dateStr.split('T')[0].split('-');
+  if (parts.length !== 3) return new Date(dateStr);
+  return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+}
+
+// Format date for display in PST
+function formatDatePST(dateStr, options = {}) {
+  if (!dateStr) return '';
+  const date = new Date(dateStr);
+  return date.toLocaleString('en-US', { timeZone: TIMEZONE, ...options });
+}
+
+// Format date as ISO string but in PST context
+function toISOStringPST() {
+  return new Date().toLocaleString('en-US', { timeZone: TIMEZONE });
+}
+
+// ===========================================
 // SECURITY UTILITIES
 // ===========================================
 
@@ -530,7 +566,7 @@ are stored securely and can only be viewed in the admin panel.
 Consent Signature: ${booking.consentSignature}
 
 ---
-Submitted: ${new Date(booking.createdAt).toLocaleString()}
+Submitted: ${formatDatePST(booking.createdAt, { dateStyle: 'full', timeStyle: 'short' })}
 Booking ID: ${booking.id}
 
 🔒 View Full Details Securely: ${process.env.SITE_URL || 'http://localhost:3000'}/admin.html
@@ -1205,18 +1241,9 @@ app.post('/api/bookings', authenticateToken, async (req, res) => {
 app.get('/api/admin/dashboard', authenticateAdmin, (req, res) => {
   const bookings = loadBookings();
   const clients = loadClients();
-  const now = new Date();
+  const now = getNowPST();
   const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
   const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-
-  // Helper to parse date string (YYYY-MM-DD) as local date (avoids timezone issues)
-  const parseLocalDate = (dateStr) => {
-    if (!dateStr) return null;
-    // Handle both "YYYY-MM-DD" and ISO strings
-    const parts = dateStr.split('T')[0].split('-');
-    if (parts.length !== 3) return new Date(dateStr);
-    return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
-  };
 
   // Calculate monthly revenue for chart (last 6 months)
   const monthlyRevenue = [];
@@ -5102,14 +5129,14 @@ app.post('/api/client/validate-demo', (req, res) => {
 
 // Populate demo data
 app.post('/api/admin/demo/populate', authenticateAdmin, (req, res) => {
-  const now = new Date();
-  const today = now.toISOString().split('T')[0];
+  const now = getNowPST();
+  const today = getTodayPST();
   
-  // Helper to add/subtract days from today
+  // Helper to add/subtract days from today (in PST)
   const addDays = (dateStr, days) => {
-    const d = new Date(dateStr);
+    const d = parseLocalDate(dateStr);
     d.setDate(d.getDate() + days);
-    return d.toISOString().split('T')[0];
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   };
   
   // Generate booking from session data for consistency
