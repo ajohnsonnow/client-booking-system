@@ -9,13 +9,14 @@
 ## Why Render.com Web Service?
 
 ✅ **Correct Choice**: Web Service (NOT Private Service)
-- Provides public HTTPS access for client bookings
-- Free tier: 750 hours/month (enough for 24/7 with sleep mode)
-- Automatic SSL certificates
+- **Free Tier Specs**: 512 MB RAM, 0.1 CPU, $0/month
+- **750 hours/month** runtime (enough for 24/7 with sleep mode)
+- **Spins down after 15 min** of inactivity (first request takes 30-60s to wake)
+- Automatic HTTPS with SSL certificates
 - Custom domain support
-- GitHub auto-deploy on push
+- GitHub auto-deploy on every push
 - Environment variable management
-- Health checks and monitoring
+- No SSH, scaling, persistent disks on free tier (not needed for this app)
 
 ---
 
@@ -59,9 +60,11 @@ git push origin ravi-sacred-healing
 - **Start Command**: `npm start`
 
 **Instance Type:**
-- Select **"Free"** (750 hours/month)
-- Note: Service will sleep after 15 min of inactivity
-- First request after sleep takes 30-60 seconds
+- Select **"Free"** ($0/month)
+- **Specs**: 512 MB RAM, 0.1 CPU, 750 hours/month
+- **Sleep mode**: Spins down after 15 min of inactivity
+- **Wake time**: First request takes 30-60 seconds
+- **Perfect for**: Client booking system with occasional traffic
 
 ### 5. Environment Variables
 
@@ -217,13 +220,17 @@ npm start
 
 ---
 
-## Cost Breakdown
+## Cost BreakdownRAM | CPU | Sleep | SSL | Custom Domain |
+|------|-------|-----|-----|-------|-----|---------------|
+| Free | $0 | 512 MB | 0.1 | Yes (15min) | ✅ | ✅ |
+| Starter | $7/mo | 512 MB | 0.5 | No | ✅ | ✅ |
 
-| Tier | Price | Hours/Month | Sleep | SSL | Custom Domain |
-|------|-------|-------------|-------|-----|---------------|
-| Free | $0 | 750 | Yes (15min) | ✅ | ✅ |
-| Starter | $7/mo | Always On | No | ✅ | ✅ |
+**Current Setup**: Free tier is perfect for client booking system
+- 512 MB RAM is plenty (lightweight encrypted JSON storage)
+- 0.1 CPU sufficient for low-concurrent requests
+- Sleep mode acceptable (clients book during business hours)
 
+**Upgrade When**: You consistently have 24/7 traffic needing instant respons
 **Current Setup**: Free tier is sufficient
 **Upgrade When**: You need 24/7 instant response time
 

@@ -194,11 +194,12 @@ EMAIL_TO=RavishingRavi77@gmail.com
 
 ## 🚨 Important Notes
 
-### Free Tier Sleep Mode
-- Service sleeps after 15 min of inactivity
-- First request takes 30-60 seconds to wake
-- **This is normal and acceptable** for free tier
-- Upgrade to $7/month for always-on if needed
+### Free Tier Sleep Mode (Normal Behavior)
+- **Specs**: 512 MB RAM, 0.1 CPU, $0/month
+- **Sleep**: Spins down after 15 min of inactivity
+- **Wake**: First request takes 30-60 seconds
+- **Perfect for**: Booking system (clients book during business hours, not 3am)
+- **Upgrade**: $7/month for always-on if you need instant 24/7 response
 
 ### Data Persistence
 - Data files persist across deploys
