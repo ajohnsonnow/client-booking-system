@@ -171,40 +171,46 @@ function calculateDevelopmentMetrics() {
 
   log.info(`Code changes: +${metrics.insertions.toLocaleString()} / -${metrics.deletions.toLocaleString()}`);
 
-  // Calculate actual development time using commit timestamps
-  const timestamps = execCommand(`git log ${CONFIG.branch} --format=%at`);
-  if (timestamps) {
-    const times = timestamps.split('\n').map(t => parseInt(t)).filter(t => !isNaN(t));
-    if (times.length > 0) {
-      const timeSpanHours = (Math.max(...times) - Math.min(...times)) / 3600;
-      const timeSpanDays = timeSpanHours / 24;
-      metrics.timeSpanHours = Math.round(timeSpanHours * 10) / 10;
-      metrics.timeSpanDays = Math.round(timeSpanDays * 10) / 10;
-      log.info(`Development period span: ${metrics.timeSpanHours} hours (${metrics.timeSpanDays} days)`);
-    }
+  // Calculate actual work sessions (unique days with commits)
+  const commitDates = execCommand(`git log ${CONFIG.branch} --format=%ad --date=short`);
+  if (commitDates) {
+    const uniqueDays = [...new Set(commitDates.split('\n').filter(d => d))];
+    metrics.workDays = uniqueDays.length;
+    log.info(`Actual work days: ${metrics.workDays} days`);
+    
+    // Get commits per day to understand work intensity
+    const daysMap = {};
+    commitDates.split('\n').filter(d => d).forEach(date => {
+      daysMap[date] = (daysMap[date] || 0) + 1;
+    });
+    const commitsPerDay = Object.entries(daysMap).map(([date, count]) => ({ date, count }));
+    commitsPerDay.forEach(({ date, count }) => {
+      log.info(`  - ${date}: ${count} commits`);
+    });
   }
 
-  // REALISTIC development hours estimation
-  // Method 1: Commits * average time (45 min per meaningful commit)
-  const avgCommitTime = 0.75; // 45 minutes per commit (includes planning, coding, testing)
+  // REALISTIC development hours based on actual work patterns
+  // Method 1: Conservative per-commit estimate (20 min for quick fixes, features, docs)
+  const avgCommitTime = 0.33; // 20 minutes per commit (realistic for focused work)
   const method1 = metrics.commits * avgCommitTime;
   
-  // Method 2: Lines of code / realistic rate (75 LOC/hour for quality full-stack with security)
-  const method2 = metrics.linesOfCode / 75;
+  // Method 2: Work days * estimated hours per day (3-5 hours per work day is realistic)
+  const avgHoursPerWorkDay = 4; // 4 hours per day (focused coding time)
+  const method2 = (metrics.workDays || 0) * avgHoursPerWorkDay;
   
-  // Method 3: Based on time span (assume 25% productivity - rest is breaks, planning, research)
-  const method3 = (metrics.timeSpanHours || 0) * 0.25;
+  // Method 3: Conservative LOC estimate (100 LOC/hour including HTML/CSS/docs)
+  const method3 = metrics.linesOfCode / 100;
   
-  // Use the median of three methods (more conservative than average)
-  const estimates = [method1, method2, method3].sort((a, b) => a - b);
-  metrics.devHoursEstimate = Math.round(estimates[1]); // median
+  // Use the MINIMUM of the three methods (most conservative)
+  const estimates = [method1, method2, method3];
+  metrics.devHoursEstimate = Math.round(Math.min(...estimates));
   metrics.devValueEstimate = metrics.devHoursEstimate * CONFIG.devHourlyRate;
   
   log.info(`Development time estimates:`);
-  log.info(`  - Commit-based: ${Math.round(method1)} hours (${metrics.commits} commits × ${avgCommitTime}h)`);
-  log.info(`  - LOC-based: ${Math.round(method2)} hours (${metrics.linesOfCode.toLocaleString()} LOC ÷ 75/hr)`);
-  log.info(`  - Time-span-based: ${Math.round(method3)} hours (${metrics.timeSpanHours}h span × 25% productivity)`);
-  log.success(`Estimated development time: ${metrics.devHoursEstimate} hours (median)`);
+  log.info(`  - Commit-based: ${Math.round(method1)} hours (${metrics.commits} commits × 20 min)`);
+  log.info(`  - Work-day-based: ${Math.round(method2)} hours (${metrics.workDays} days × 4 hrs/day)`);
+  log.info(`  - LOC-based: ${Math.round(method3)} hours (${metrics.linesOfCode.toLocaleString()} LOC ÷ 100/hr)`);
+  log.success(`Estimated development time: ${metrics.devHoursEstimate} hours (conservative minimum)`);
   log.success(`Estimated development value: $${metrics.devValueEstimate.toLocaleString()} at $${CONFIG.devHourlyRate}/hr`);
 
   // ROI calculation
@@ -265,7 +271,7 @@ function updateValueProposition(metrics) {
 
 ### Codebase Statistics
 - **Total Commits**: ${metrics.commits} commits on ${CONFIG.branch} branch
-- **Lines of Code**: ${metrics.linesOfCode.toLocaleString()} lines across core files
+- **Lines of Codconservatively: ${metrics.workDays} work days, ${metrics.commits} commits, realistic coding pace
 - **Code Changes**: +${metrics.insertions.toLocaleString()} insertions / -${metrics.deletions.toLocaleString()} deletions
 - **Development Period**: ${metrics.firstCommitDate} to ${metrics.lastCommitDate}
 
