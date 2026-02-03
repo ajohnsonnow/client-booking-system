@@ -7114,6 +7114,50 @@ e.g., Rose Quartz on heart, Amethyst on third eye, Black Tourmaline at feet"></t
         });
       }
       
+      // 1b. New inquiries that need attention
+      const newInquiries = inquiries.filter(i => i.status === 'new');
+      if (newInquiries.length > 0) {
+        insights.push({
+          icon: '📬',
+          type: 'urgent',
+          title: `${newInquiries.length} new inquir${newInquiries.length > 1 ? 'ies' : 'y'} awaiting review`,
+          desc: 'New visitors want to learn about your services',
+          action: 'Review Inquiries',
+          onclick: "showPage('inquiries')"
+        });
+      }
+      
+      // 1c. Inquiries with scheduled discovery calls needing follow-up
+      const pendingCallInquiries = inquiries.filter(i => 
+        (i.status === 'video_scheduled' || i.status === 'call_scheduled') && 
+        i.discoveryCallScheduledAt
+      );
+      const nowDate = new Date();
+      const pastDueCalls = pendingCallInquiries.filter(i => new Date(i.discoveryCallScheduledAt) < nowDate);
+      if (pastDueCalls.length > 0) {
+        insights.push({
+          icon: '📹',
+          type: 'important',
+          title: `${pastDueCalls.length} discovery call${pastDueCalls.length > 1 ? 's' : ''} past due`,
+          desc: 'Update status after completing the call',
+          action: 'View',
+          onclick: "showPage('inquiries')"
+        });
+      }
+      
+      // 1d. Follow-up inquiries
+      const followUpInquiries = inquiries.filter(i => i.status === 'follow_up');
+      if (followUpInquiries.length > 0) {
+        insights.push({
+          icon: '🔄',
+          type: 'important',
+          title: `${followUpInquiries.length} inquir${followUpInquiries.length > 1 ? 'ies' : 'y'} need follow-up`,
+          desc: 'Reach out to these potential clients',
+          action: 'Follow Up',
+          onclick: "showPage('inquiries')"
+        });
+      }
+      
       // 2. Unread messages
       const unreadTotal = clientsForInsights.reduce((sum, c) => sum + (c.unreadMessages || 0), 0);
       if (unreadTotal > 0) {
