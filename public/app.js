@@ -435,6 +435,20 @@
     });
   }
 
+  const inquiryPhoneInput = document.getElementById('inquiry-phone');
+  if (inquiryPhoneInput) {
+    inquiryPhoneInput.addEventListener('input', (e) => {
+      const cursorPosition = e.target.selectionStart;
+      const oldLength = e.target.value.length;
+      const formatted = formatPhoneNumber(e.target.value);
+      e.target.value = formatted;
+
+      const newLength = formatted.length;
+      const lengthDiff = newLength - oldLength;
+      e.target.setSelectionRange(cursorPosition + lengthDiff, cursorPosition + lengthDiff);
+    });
+  }
+
   // ===========================================
   // BOOKING FORM
   // ===========================================

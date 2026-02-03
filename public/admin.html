@@ -3530,17 +3530,25 @@
           <div class="card mt-20">
             <div class="card-header">
               <h3>Active Leads</h3>
-              <div class="filter-chips">
+              <div class="header-actions">
+                <button class="btn btn-secondary" onclick="showBulkImportModal()" style="margin-right: 10px;">
+                  📤 Import Contacts
+                </button>
+                <button class="btn btn-primary" onclick="showAddLeadModal()">
+                  ➕ Add Lead
+                </button>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="filter-chips" style="margin-bottom: 16px;">
                 <button class="chip active" data-filter="all">All</button>
                 <button class="chip" data-filter="new">New</button>
                 <button class="chip" data-filter="contacted">Contacted</button>
                 <button class="chip" data-filter="qualified">Qualified</button>
                 <button class="chip" data-filter="converted">Converted</button>
               </div>
-            </div>
-            <div class="card-body">
               <div id="leadsList">
-                <p class="no-items-message">No leads yet. Create a lead magnet to start capturing leads!</p>
+                <p class="no-items-message">No leads yet. Add leads manually or import from a CSV file!</p>
               </div>
             </div>
           </div>
@@ -4938,6 +4946,105 @@
     </div>
   </div>
 
+  <!-- ADD LEAD MODAL -->
+  <div class="modal-overlay" id="addLeadModal">
+    <div class="modal" style="max-width: 700px;">
+      <div class="modal-header">
+        <h2 class="modal-title">➕ Add Lead Manually</h2>
+        <button class="modal-close" onclick="closeModal('addLeadModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="text-muted mb-20">Add contacts from old lists or intake forms who couldn't fit in your schedule.</p>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Name *</label>
+            <input type="text" id="leadName" class="form-input" placeholder="Full Name" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email *</label>
+            <input type="email" id="leadEmail" class="form-input" placeholder="email@example.com" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Phone</label>
+            <input type="tel" id="leadPhone" class="form-input" placeholder="(555) 123-4567">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Status</label>
+            <select id="leadStatus" class="form-input">
+              <option value="new">New</option>
+              <option value="contacted">Contacted</option>
+              <option value="qualified">Qualified</option>
+              <option value="converted">Converted</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Source</label>
+          <input type="text" id="leadSource" class="form-input" placeholder="e.g., Old Contact List, Referral, Website Inquiry">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Notes / Intake Details</label>
+          <textarea id="leadNotes" class="form-input" rows="4" placeholder="Add any notes from their intake form or previous interactions..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Interests / Services</label>
+          <input type="text" id="leadInterests" class="form-input" placeholder="e.g., Energy Healing, Reiki, Sound Therapy">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('addLeadModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="saveManualLead()">💾 Add Lead</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BULK IMPORT MODAL -->
+  <div class="modal-overlay" id="bulkImportModal">
+    <div class="modal" style="max-width: 800px;">
+      <div class="modal-header">
+        <h2 class="modal-title">📤 Import Contacts from CSV</h2>
+        <button class="modal-close" onclick="closeModal('bulkImportModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="text-muted mb-20">Upload a CSV file with your old contact list or intake forms. Perfect for importing clients who couldn't fit in your schedule.</p>
+        
+        <div style="background: #f5f0eb; padding: 16px; border-radius: 8px; margin-bottom: 20px;">
+          <h4 style="margin-bottom: 12px; color: var(--burgundy);">📋 CSV Format</h4>
+          <p style="font-size: 14px; margin-bottom: 8px;">Your CSV should have these column headers (case-insensitive):</p>
+          <code style="display: block; background: white; padding: 12px; border-radius: 4px; font-size: 13px;">
+            name, email, phone, source, notes, interests, status
+          </code>
+          <p style="font-size: 13px; color: var(--soft-gray); margin-top: 8px;">
+            <strong>Required:</strong> name, email<br>
+            <strong>Optional:</strong> phone, source, notes, interests, status
+          </p>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Choose CSV File</label>
+          <input type="file" id="csvFileInput" class="form-input" accept=".csv" onchange="previewCSV()">
+        </div>
+
+        <div id="csvPreview" style="display: none; margin-top: 20px;">
+          <h4 style="margin-bottom: 12px;">Preview (first 5 rows)</h4>
+          <div style="overflow-x: auto; max-height: 300px; border: 1px solid #e0d6cc; border-radius: 8px;">
+            <table id="csvPreviewTable" style="width: 100%; font-size: 13px;">
+              <thead style="background: #f5f0eb; position: sticky; top: 0;">
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
+          </div>
+          <p id="csvStats" class="text-muted mt-12" style="font-size: 14px;"></p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('bulkImportModal')">Cancel</button>
+        <button class="btn btn-primary" id="importButton" onclick="importCSVLeads()" disabled>📥 Import Leads</button>
+      </div>
+    </div>
+  </div>
+
   <!-- TOAST CONTAINER -->
   <div class="toast-container" id="toastContainer"></div>
 
@@ -5155,7 +5262,7 @@
         </div>
         <div class="stat-card gold">
           <div class="stat-label">This Month</div>
-          <div class="stat-value">$${stats.revenueThisMonth}</div>
+          <div class="stat-value">${formatCurrency(stats.revenueThisMonth)}</div>
           ${stats.revenueLastMonth > 0 ? `
             <div class="stat-change ${stats.revenueThisMonth >= stats.revenueLastMonth ? 'positive' : 'negative'}">
               ${stats.revenueThisMonth >= stats.revenueLastMonth ? '↑' : '↓'} vs last month
@@ -5164,7 +5271,7 @@
         </div>
         <div class="stat-card">
           <div class="stat-label">Total Revenue</div>
-          <div class="stat-value">$${stats.totalRevenue}</div>
+          <div class="stat-value">${formatCurrency(stats.totalRevenue)}</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Total Clients</div>
@@ -5275,7 +5382,7 @@
           icon: '🎉',
           type: 'success',
           title: 'Great month so far!',
-          desc: `$${stats.revenueThisMonth} this month - ${Math.round((stats.revenueThisMonth / stats.revenueLastMonth - 1) * 100)}% increase`,
+          desc: `${formatCurrency(stats.revenueThisMonth)} this month - ${Math.round((stats.revenueThisMonth / stats.revenueLastMonth - 1) * 100)}% increase`,
           action: null,
           onclick: null
         });
@@ -5895,6 +6002,17 @@
       setMsgBadge('msg-new', newMsgs);
     }
 
+    function formatCurrency(value) {
+      const amount = Number(value);
+      if (Number.isNaN(amount)) return '$0';
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      }).format(amount);
+    }
+
     function renderClients() {
       const search = document.getElementById('clientSearch').value.toLowerCase();
       let filtered = [...clients];
@@ -5932,12 +6050,12 @@
       // Update stats
       const needResponse = clients.filter(c => c.unreadMessages > 0).length;
       const repeatClients = clients.filter(c => c.totalSessions > 1).length;
-      const lifetimeValue = clients.reduce((sum, c) => sum + (c.totalSpent || 0), 0);
+      const lifetimeValue = clients.reduce((sum, c) => sum + Number(c.totalSpent || 0), 0);
 
       document.getElementById('clientsNeedResponseCount').textContent = needResponse;
       document.getElementById('totalClientsCount').textContent = clients.length;
       document.getElementById('repeatClientsCount').textContent = repeatClients;
-      document.getElementById('totalLifetimeValue').textContent = `$${lifetimeValue.toLocaleString()}`;
+      document.getElementById('totalLifetimeValue').textContent = formatCurrency(lifetimeValue);
 
       // Calculate filter counts and message counts per tier
       updateFilterCounts();
@@ -5974,7 +6092,7 @@
                 <div class="client-stat-label">Sessions</div>
               </div>
               <div class="client-stat">
-                <div class="client-stat-value">$${c.totalSpent || 0}</div>
+                <div class="client-stat-value">${formatCurrency(c.totalSpent || 0)}</div>
                 <div class="client-stat-label">Total</div>
               </div>
               <div class="client-stat">
@@ -6125,7 +6243,7 @@
             </div>
             <div class="detail-item">
               <div class="detail-label">💰 Lifetime Value</div>
-              <div class="detail-value" style="font-size: 24px; color: var(--success);">$${client.totalSpent || 0}</div>
+              <div class="detail-value" style="font-size: 24px; color: var(--success);">${formatCurrency(client.totalSpent || 0)}</div>
             </div>
             <div class="detail-item">
               <div class="detail-label">⏰ Last Contact</div>
@@ -6254,7 +6372,7 @@ Example:
               <div style="font-size: 12px; color: var(--soft-gray);">Sessions</div>
             </div>
             <div>
-              <div style="font-size: 28px; font-weight: 600; color: var(--success);">$${totalSpent}</div>
+              <div style="font-size: 28px; font-weight: 600; color: var(--success);">${formatCurrency(totalSpent)}</div>
               <div style="font-size: 12px; color: var(--soft-gray);">Total Spent</div>
             </div>
             <div>
@@ -8546,6 +8664,199 @@ Example:
         showToast('✅ Lead magnet created successfully!', 'success');
         closeModal();
         loadLeadMagnets();
+      }
+    }
+
+    // ============ MANUAL LEAD ENTRY ============
+    function showAddLeadModal() {
+      openModal('addLeadModal');
+      // Clear form
+      document.getElementById('leadName').value = '';
+      document.getElementById('leadEmail').value = '';
+      document.getElementById('leadPhone').value = '';
+      document.getElementById('leadStatus').value = 'new';
+      document.getElementById('leadSource').value = '';
+      document.getElementById('leadNotes').value = '';
+      document.getElementById('leadInterests').value = '';
+    }
+
+    async function saveManualLead() {
+      const name = document.getElementById('leadName').value.trim();
+      const email = document.getElementById('leadEmail').value.trim();
+
+      if (!name || !email) {
+        showToast('❌ Name and email are required', 'error');
+        return;
+      }
+
+      const leadData = {
+        name,
+        email,
+        phone: document.getElementById('leadPhone').value.trim(),
+        status: document.getElementById('leadStatus').value,
+        source: document.getElementById('leadSource').value.trim() || 'Manual Entry',
+        notes: document.getElementById('leadNotes').value.trim(),
+        interests: document.getElementById('leadInterests').value.trim(),
+        stage: 'lead'
+      };
+
+      try {
+        const result = await api('/api/admin/leads', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(leadData)
+        });
+
+        if (result?.success) {
+          showToast('✅ Lead added successfully!', 'success');
+          closeModal('addLeadModal');
+          loadLeads();
+        }
+      } catch (error) {
+        showToast('❌ Failed to add lead', 'error');
+        console.error(error);
+      }
+    }
+
+    // ============ BULK CSV IMPORT ============
+    let csvData = [];
+
+    function showBulkImportModal() {
+      openModal('bulkImportModal');
+      document.getElementById('csvFileInput').value = '';
+      document.getElementById('csvPreview').style.display = 'none';
+      document.getElementById('importButton').disabled = true;
+      csvData = [];
+    }
+
+    function previewCSV() {
+      const fileInput = document.getElementById('csvFileInput');
+      const file = fileInput.files[0];
+
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const text = e.target.result;
+        parseCSV(text);
+      };
+      reader.readAsText(file);
+    }
+
+    function parseCSV(text) {
+      const lines = text.split('\n').filter(line => line.trim());
+      if (lines.length < 2) {
+        showToast('❌ CSV file appears to be empty', 'error');
+        return;
+      }
+
+      // Parse headers
+      const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+      
+      // Validate required columns
+      if (!headers.includes('name') || !headers.includes('email')) {
+        showToast('❌ CSV must have "name" and "email" columns', 'error');
+        return;
+      }
+
+      // Parse data
+      csvData = [];
+      for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].split(',').map(v => v.trim());
+        const row = {};
+        
+        headers.forEach((header, index) => {
+          row[header] = values[index] || '';
+        });
+
+        // Skip rows without name or email
+        if (row.name && row.email) {
+          csvData.push({
+            name: row.name,
+            email: row.email,
+            phone: row.phone || '',
+            source: row.source || 'CSV Import',
+            notes: row.notes || '',
+            interests: row.interests || '',
+            status: row.status || 'new',
+            stage: 'lead'
+          });
+        }
+      }
+
+      if (csvData.length === 0) {
+        showToast('❌ No valid rows found in CSV', 'error');
+        return;
+      }
+
+      // Show preview
+      displayCSVPreview(headers, csvData);
+      document.getElementById('importButton').disabled = false;
+    }
+
+    function displayCSVPreview(headers, data) {
+      const preview = document.getElementById('csvPreview');
+      const table = document.getElementById('csvPreviewTable');
+      const stats = document.getElementById('csvStats');
+
+      // Build table header
+      const thead = table.querySelector('thead');
+      thead.innerHTML = '<tr>' + headers.map(h => `<th style="padding: 8px; border-bottom: 2px solid #e0d6cc; text-transform: capitalize;">${h}</th>`).join('') + '</tr>';
+
+      // Build table body (first 5 rows)
+      const tbody = table.querySelector('tbody');
+      const previewRows = data.slice(0, 5);
+      tbody.innerHTML = previewRows.map(row => 
+        '<tr>' + headers.map(h => `<td style="padding: 8px; border-bottom: 1px solid #f0f0f0;">${row[h] || ''}</td>`).join('') + '</tr>'
+      ).join('');
+
+      stats.textContent = `✅ Found ${data.length} valid contacts ready to import`;
+      preview.style.display = 'block';
+    }
+
+    async function importCSVLeads() {
+      if (csvData.length === 0) {
+        showToast('❌ No data to import', 'error');
+        return;
+      }
+
+      const importButton = document.getElementById('importButton');
+      importButton.disabled = true;
+      importButton.textContent = '⏳ Importing...';
+
+      try {
+        let successCount = 0;
+        let errorCount = 0;
+
+        // Import leads one by one (could be batched in production)
+        for (const lead of csvData) {
+          try {
+            const result = await api('/api/admin/leads', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(lead)
+            });
+
+            if (result?.success) {
+              successCount++;
+            } else {
+              errorCount++;
+            }
+          } catch (error) {
+            errorCount++;
+            console.error('Failed to import lead:', lead.email, error);
+          }
+        }
+
+        showToast(`✅ Imported ${successCount} contacts successfully${errorCount > 0 ? ` (${errorCount} failed)` : ''}`, 'success');
+        closeModal('bulkImportModal');
+        loadLeads();
+      } catch (error) {
+        showToast('❌ Import failed', 'error');
+        console.error(error);
+      } finally {
+        importButton.disabled = false;
+        importButton.textContent = '📥 Import Leads';
       }
     }
 
@@ -11533,14 +11844,10 @@ Ravi 🪷`
     // INIT
     // ===========================================
     initTheme();  // Initialize dark/light mode
-    
-    if (token) {
-      showDashboard();
-    }
   </script>
 
   <div style="position: fixed; bottom: 0; right: 0; padding: 8px 16px; font-size: 11px; color: #9E9890; background: rgba(253, 248, 243, 0.95); border-top-left-radius: 8px; box-shadow: 0 -2px 8px rgba(0,0,0,0.05); z-index: 9999;">
-    <p style="margin: 0;">Built by <a href="mailto:Anth@StructuredForGrowth.com" style="color: #722F37; text-decoration: none;">Anth@StructuredForGrowth.com</a></p>
+    <p style="margin: 0;"><a href="https://www.StructuredForGrowth.com" style="color: #722F37; text-decoration: none;">Built by Anth@StructuredForGrowth.com</a></p>
   </div>
 </body>
 </html>

@@ -1199,13 +1199,13 @@ app.get('/api/admin/dashboard', authenticateAdmin, (req, res) => {
     repeatClients: clients.filter(c => c.sessions.length > 1).length,
     revenueThisMonth: bookings
       .filter(b => b.status === 'completed' && new Date(b.updatedAt) >= thisMonth)
-      .reduce((sum, b) => sum + (b.servicePrice || 0), 0),
+      .reduce((sum, b) => sum + Number(b.servicePrice || 0), 0),
     revenueLastMonth: bookings
       .filter(b => b.status === 'completed' && new Date(b.updatedAt) >= lastMonth && new Date(b.updatedAt) < thisMonth)
-      .reduce((sum, b) => sum + (b.servicePrice || 0), 0),
+      .reduce((sum, b) => sum + Number(b.servicePrice || 0), 0),
     totalRevenue: bookings
       .filter(b => b.status === 'completed')
-      .reduce((sum, b) => sum + (b.servicePrice || 0), 0),
+      .reduce((sum, b) => sum + Number(b.servicePrice || 0), 0),
     upcomingThisWeek: bookings.filter(b => {
       if (b.status !== 'confirmed' || !b.confirmedDate) return false;
       const date = new Date(b.confirmedDate);
@@ -2540,13 +2540,9 @@ app.post('/api/admin/inquiries/:id/schedule-call', authenticateAdmin, async (req
     return res.status(404).json({ error: 'Inquiry not found' });
   }
   
-  // Get video chat link from settings
+  // Get video chat link from settings (optional)
   const content = loadContent();
-  const videoChatLink = content.siteSettings?.videoChatLink;
-  
-  if (!videoChatLink) {
-    return res.status(400).json({ error: 'Video chat link not configured. Please set it in Site Settings.' });
-  }
+  const videoChatLink = content.siteSettings?.videoChatLink || '';
   
   // Update inquiry status
   inquiry.status = 'video_scheduled';
@@ -2577,8 +2573,8 @@ app.post('/api/admin/inquiries/:id/schedule-call', authenticateAdmin, async (req
       <p>Dear ${inquiry.name},</p>
       <p>Thank you for reaching out about sacred healing work. I'd love to connect with you for a brief discovery call to learn more about your journey and answer any questions you might have.</p>
       <p>This is a chance for us to get to know each other and see if we're a good fit to work together.</p>
-      <a href="${videoChatLink}" class="button">📅 Schedule Your Discovery Call</a>
-      <p style="font-size: 14px; color: #666;">Click the button above to choose a time that works for you.</p>
+      ${videoChatLink ? `<a href="${videoChatLink}" class="button">📅 Schedule Your Discovery Call</a>
+      <p style="font-size: 14px; color: #666;">Click the button above to choose a time that works for you.</p>` : `<p style="font-size: 14px; color: #666;">I'll reach out shortly to schedule a time that works for both of us.</p>`}
       <p>I look forward to connecting with you.</p>
       <p style="margin-top: 24px;">With warmth,<br><strong>Ravi</strong></p>
     </div>
