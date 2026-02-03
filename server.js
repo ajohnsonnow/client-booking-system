@@ -772,7 +772,15 @@ function findOrCreateClient(booking) {
 
 // Calculate client tier based on sessions
 function calculateClientTier(client) {
-  const completedSessions = client.sessions?.filter(s => s.status === 'completed').length || 0;
+  // Handle sessions being either an array or a number (legacy data)
+  let completedSessions = 0;
+  if (Array.isArray(client.sessions)) {
+    completedSessions = client.sessions.filter(s => s.status === 'completed').length;
+  } else if (typeof client.sessions === 'number') {
+    completedSessions = client.sessions;
+  } else if (client.totalSessions) {
+    completedSessions = client.totalSessions;
+  }
   
   if (completedSessions === 0) return 'new';
   if (completedSessions <= 2) return 'returning';
@@ -1201,6 +1209,34 @@ app.get('/api/admin/dashboard', authenticateAdmin, (req, res) => {
   const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
   const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
 
+  // Helper to parse date string (YYYY-MM-DD) as local date (avoids timezone issues)
+  const parseLocalDate = (dateStr) => {
+    if (!dateStr) return null;
+    // Handle both "YYYY-MM-DD" and ISO strings
+    const parts = dateStr.split('T')[0].split('-');
+    if (parts.length !== 3) return new Date(dateStr);
+    return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+  };
+
+  // Calculate monthly revenue for chart (last 6 months)
+  const monthlyRevenue = [];
+  for (let i = 5; i >= 0; i--) {
+    const monthStart = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const monthEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 0, 23, 59, 59);
+    const monthName = monthStart.toLocaleString('default', { month: 'short' });
+    
+    const revenue = bookings
+      .filter(b => {
+        if (b.status !== 'completed') return false;
+        const date = parseLocalDate(b.confirmedDate || b.updatedAt);
+        if (!date) return false;
+        return date >= monthStart && date <= monthEnd;
+      })
+      .reduce((sum, b) => sum + Number(b.servicePrice || 0), 0);
+    
+    monthlyRevenue.push({ month: monthName, revenue });
+  }
+
   const stats = {
     totalBookings: bookings.length,
     pending: bookings.filter(b => b.status === 'pending').length,
@@ -1208,22 +1244,37 @@ app.get('/api/admin/dashboard', authenticateAdmin, (req, res) => {
     completed: bookings.filter(b => b.status === 'completed').length,
     cancelled: bookings.filter(b => b.status === 'cancelled').length,
     totalClients: clients.length,
-    repeatClients: clients.filter(c => c.sessions.length > 1).length,
+    repeatClients: clients.filter(c => {
+      // Handle sessions being array or number
+      if (Array.isArray(c.sessions)) return c.sessions.length > 1;
+      if (typeof c.sessions === 'number') return c.sessions > 1;
+      return (c.totalSessions || 0) > 1;
+    }).length,
     revenueThisMonth: bookings
-      .filter(b => b.status === 'completed' && new Date(b.updatedAt) >= thisMonth)
+      .filter(b => {
+        if (b.status !== 'completed') return false;
+        const date = parseLocalDate(b.confirmedDate || b.updatedAt);
+        return date && date >= thisMonth;
+      })
       .reduce((sum, b) => sum + Number(b.servicePrice || 0), 0),
     revenueLastMonth: bookings
-      .filter(b => b.status === 'completed' && new Date(b.updatedAt) >= lastMonth && new Date(b.updatedAt) < thisMonth)
+      .filter(b => {
+        if (b.status !== 'completed') return false;
+        const date = parseLocalDate(b.confirmedDate || b.updatedAt);
+        return date && date >= lastMonth && date < thisMonth;
+      })
       .reduce((sum, b) => sum + Number(b.servicePrice || 0), 0),
     totalRevenue: bookings
       .filter(b => b.status === 'completed')
       .reduce((sum, b) => sum + Number(b.servicePrice || 0), 0),
     upcomingThisWeek: bookings.filter(b => {
       if (b.status !== 'confirmed' || !b.confirmedDate) return false;
-      const date = new Date(b.confirmedDate);
-      const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-      return date >= now && date <= weekFromNow;
-    }).length
+      const date = parseLocalDate(b.confirmedDate);
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const weekFromNow = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
+      return date && date >= today && date <= weekFromNow;
+    }).length,
+    monthlyRevenue // Add chart data
   };
 
   // Recent activity
@@ -1388,7 +1439,7 @@ app.get('/api/admin/clients/:id', authenticateAdmin, (req, res) => {
   
   // Get full booking history
   const bookings = loadBookings();
-  const clientBookings = bookings.filter(b => b.email.toLowerCase() === client.email);
+  const clientBookings = bookings.filter(b => b.email.toLowerCase() === client.email.toLowerCase());
   
   res.json({ ...client, bookings: clientBookings });
 });
@@ -1502,35 +1553,54 @@ app.post('/api/admin/clients/:id/suspend', authenticateAdmin, async (req, res) =
 
 // Get client with message counts
 app.get('/api/admin/clients-with-messages', authenticateAdmin, (req, res) => {
-  const clients = loadClients();
-  const messages = loadMessages();
-  const bookings = loadBookings();
-  
-  // Enrich clients with unread message counts
-  const enrichedClients = clients.map(client => {
-    const clientMessages = messages.filter(m => m.conversationId === client.email.toLowerCase());
-    const unreadCount = clientMessages.filter(m => m.from === 'client' && !m.read).length;
-    const lastMessage = clientMessages.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
-    const clientBookings = bookings.filter(b => b.email.toLowerCase() === client.email.toLowerCase());
+  try {
+    const clients = loadClients();
+    const messages = loadMessages();
+    const bookings = loadBookings();
     
-    return {
-      ...client,
-      unreadMessages: unreadCount,
-      lastMessageAt: lastMessage?.createdAt,
-      totalSessions: clientBookings.filter(b => b.status === 'completed').length,
-      totalSpent: clientBookings.filter(b => b.status === 'completed').reduce((sum, b) => sum + (b.servicePrice || 0), 0),
-      pendingBookings: clientBookings.filter(b => b.status === 'pending').length
-    };
-  });
-  
-  enrichedClients.sort((a, b) => {
-    // Sort by unread messages first, then by last contact
-    if (a.unreadMessages > 0 && b.unreadMessages === 0) return -1;
-    if (b.unreadMessages > 0 && a.unreadMessages === 0) return 1;
-    return new Date(b.lastContact || 0) - new Date(a.lastContact || 0);
-  });
-  
-  res.json(enrichedClients);
+    // Enrich clients with unread message counts
+    const enrichedClients = clients.map(client => {
+      const clientMessages = messages.filter(m => m.conversationId === client.email?.toLowerCase());
+      const unreadCount = clientMessages.filter(m => m.from === 'client' && !m.read).length;
+      const lastMessage = clientMessages.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
+      const clientBookings = bookings.filter(b => b.email?.toLowerCase() === client.email?.toLowerCase());
+      
+      // Calculate tier if not set
+      const tier = client.tier || calculateClientTier(client);
+      const tierInfo = getTierInfo(tier);
+      
+      // Handle sessions being either an array or a number (legacy data)
+      const sessionsArray = Array.isArray(client.sessions) ? client.sessions : [];
+      const completedFromSessions = sessionsArray.filter(s => s.status === 'completed').length;
+      const spentFromSessions = sessionsArray.filter(s => s.status === 'completed').reduce((sum, s) => sum + (s.price || 0), 0);
+      
+      const completedFromBookings = clientBookings.filter(b => b.status === 'completed').length;
+      const spentFromBookings = clientBookings.filter(b => b.status === 'completed').reduce((sum, b) => sum + (b.servicePrice || 0), 0);
+      
+      return {
+        ...client,
+        tier,
+        tierInfo,
+        unreadMessages: unreadCount,
+        lastMessageAt: lastMessage?.createdAt,
+        totalSessions: completedFromSessions || completedFromBookings || client.totalSessions || 0,
+        totalSpent: spentFromSessions || spentFromBookings || client.totalSpent || 0,
+        pendingBookings: clientBookings.filter(b => b.status === 'pending').length
+      };
+    });
+    
+    enrichedClients.sort((a, b) => {
+      // Sort by unread messages first, then by last contact
+      if (a.unreadMessages > 0 && b.unreadMessages === 0) return -1;
+      if (b.unreadMessages > 0 && a.unreadMessages === 0) return 1;
+      return new Date(b.lastContact || 0) - new Date(a.lastContact || 0);
+    });
+    
+    res.json(enrichedClients);
+  } catch (err) {
+    console.error('Error in clients-with-messages:', err);
+    res.status(500).json({ error: 'Failed to load clients', details: err.message });
+  }
 });
 
 app.get('/api/admin/clients/search/:query', authenticateAdmin, (req, res) => {
@@ -2881,6 +2951,38 @@ app.post('/api/admin/inquiries/:id/invite', authenticateAdmin, async (req, res) 
   inquiry.invitedAt = new Date().toISOString();
   saveInquiries(inquiries);
   
+  // Create a client record for this person (so they show in Clients tab)
+  const clients = loadClients();
+  const existingClient = clients.find(c => c.email.toLowerCase() === inquiry.email.toLowerCase());
+  if (!existingClient) {
+    const newClient = {
+      id: uuidv4(),
+      email: inquiry.email.toLowerCase(),
+      name: inquiry.name,
+      phone: inquiry.phone || '',
+      createdAt: new Date().toISOString(),
+      lastContact: new Date().toISOString(),
+      sessions: [],
+      notes: `From inquiry: ${inquiry.message || ''}`,
+      tags: ['lead', 'invited'],
+      tier: 'new',
+      tierManual: false,
+      totalSessions: 0,
+      totalSpent: 0,
+      source: 'inquiry',
+      spiritualTools: {
+        astrology: null,
+        tarotReadings: [],
+        pendulumSessions: [],
+        kundaliniPractices: [],
+        pranayamaTechniques: [],
+        bioenergetics: []
+      }
+    };
+    clients.push(newClient);
+    saveClients(clients);
+  }
+  
   // Send invitation email
   const portalUrl = `${process.env.BASE_URL || 'http://localhost:' + PORT}/portal.html`;
   
@@ -3147,6 +3249,38 @@ app.post('/api/admin/discovery-calls/:id/outcome', authenticateAdmin, async (req
         inquiry.status = 'invited';
         inquiry.invitationCode = code;
         inquiry.invitedAt = new Date().toISOString();
+        
+        // Create a client record for this person (so they show in Clients tab)
+        const clients = loadClients();
+        const existingClient = clients.find(c => c.email.toLowerCase() === inquiry.email.toLowerCase());
+        if (!existingClient) {
+          const newClient = {
+            id: uuidv4(),
+            email: inquiry.email.toLowerCase(),
+            name: inquiry.name,
+            phone: inquiry.phone || '',
+            createdAt: new Date().toISOString(),
+            lastContact: new Date().toISOString(),
+            sessions: [],
+            notes: `From discovery call: ${notes || ''}`,
+            tags: ['lead', 'approved', 'invited'],
+            tier: 'new',
+            tierManual: false,
+            totalSessions: 0,
+            totalSpent: 0,
+            source: 'discovery-call',
+            spiritualTools: {
+              astrology: null,
+              tarotReadings: [],
+              pendulumSessions: [],
+              kundaliniPractices: [],
+              pranayamaTechniques: [],
+              bioenergetics: []
+            }
+          };
+          clients.push(newClient);
+          saveClients(clients);
+        }
         
         // Send invitation email
         await sendInvitationEmail(inquiry, code);
@@ -4971,142 +5105,348 @@ app.post('/api/admin/demo/populate', authenticateAdmin, (req, res) => {
   const now = new Date();
   const today = now.toISOString().split('T')[0];
   
-  // Sample bookings
-  const demoBookings = [
+  // Helper to add/subtract days from today
+  const addDays = (dateStr, days) => {
+    const d = new Date(dateStr);
+    d.setDate(d.getDate() + days);
+    return d.toISOString().split('T')[0];
+  };
+  
+  // Generate booking from session data for consistency
+  const makeBooking = (client, session, index) => ({
+    id: uuidv4(),
+    name: client.name,
+    email: client.email,
+    phone: client.phone,
+    serviceName: session.service,
+    serviceDuration: session.service.includes('2 hours') ? 120 : session.service.includes('90') ? 90 : 30,
+    servicePrice: session.price,
+    status: session.status,
+    confirmedDate: session.date,
+    confirmedTime: ['10:00', '14:00', '16:00', '11:00'][index % 4],
+    availability: 'Flexible',
+    intentions: session.intentions || 'Personal growth and healing',
+    concerns: session.concerns || '',
+    healthNotes: '',
+    sensitivities: '',
+    notes: session.notes || '',
+    sessionNotes: session.status === 'completed' ? (session.sessionNotes || 'Great session.') : '',
+    createdAt: addDays(session.date, -3),
+    updatedAt: now.toISOString()
+  });
+  
+  // =====================================================
+  // COMPREHENSIVE DEMO DATA - All features showcased
+  // =====================================================
+  
+  // Client IDs (pre-generate for cross-referencing)
+  const sarahId = uuidv4();
+  const michaelId = uuidv4();
+  const emmaId = uuidv4();
+  const davidId = uuidv4();
+  const lisaId = uuidv4();
+  const jamesId = uuidv4();
+  const amandaId = uuidv4();
+  const robertId = uuidv4();
+  
+  const demoClients = [
+    // ===== FAVORED CLIENT - Top tier, full spiritual work =====
     {
-      id: uuidv4(),
+      id: lisaId,
+      name: 'Lisa Thompson',
+      email: 'lisa@example.com',
+      phone: '503-555-0105',
+      sessions: [
+        { date: addDays(today, -150), service: 'Discovery Call (30 min)', price: 0, status: 'completed', sessionNotes: 'Initial consultation. Very open and ready for deep work.' },
+        { date: addDays(today, -143), service: 'BlissFlow Ritual (2 hours)', price: 350, status: 'completed' },
+        { date: addDays(today, -120), service: 'BlissFlow Ritual (2 hours)', price: 350, status: 'completed' },
+        { date: addDays(today, -100), service: 'Sacred Pelvic Healing (90 min)', price: 275, status: 'completed' },
+        { date: addDays(today, -80), service: 'BlissFlow Ritual (2 hours)', price: 350, status: 'completed' },
+        { date: addDays(today, -60), service: 'BlissFlow Ritual (2 hours)', price: 350, status: 'completed' },
+        { date: addDays(today, -45), service: 'BlissFlow Ritual (2 hours)', price: 350, status: 'completed' },
+        { date: addDays(today, -30), service: 'Sacred Pelvic Healing (90 min)', price: 275, status: 'completed' },
+        { date: addDays(today, -15), service: 'BlissFlow Ritual (2 hours)', price: 350, status: 'completed' },
+        { date: addDays(today, -2), service: 'BlissFlow Ritual (2 hours)', price: 350, status: 'completed', sessionNotes: 'Wonderful session. Exploring deeper heart opening work.' },
+        { date: addDays(today, 12), service: 'BlissFlow Ritual (2 hours)', price: 350, status: 'confirmed' }
+      ],
+      totalSessions: 11,
+      totalSpent: 3350,
+      lastContact: addDays(today, -1),
+      tier: 'favored',
+      tierManual: true,
+      tags: ['favored', 'monthly', 'referred-others', 'vip'],
+      notes: '⭐ FAVORED CLIENT - My most dedicated client. Weekly sessions for 5 months. Refers many friends. Always tips $50+. Prefers Tuesday afternoons.',
+      birthday: '1979-08-30',
+      address: '789 Cedar Heights, Lake Oswego, OR 97034',
+      createdAt: addDays(today, -150),
+      // Spiritual tool data
+      tarotReadings: [
+        { id: uuidv4(), date: addDays(today, -30), spread: 'Celtic Cross', cards: ['The High Priestess', 'The Star', 'Three of Cups', 'The Empress'], interpretation: 'Powerful feminine energy emerging. Time for nurturing self and others.', notes: 'Very receptive to the reading. Emotional release.' }
+      ],
+      reikiSessions: [
+        { id: uuidv4(), date: addDays(today, -45), type: 'Full Body', duration: 60, chakrasWorked: ['Heart', 'Solar Plexus', 'Crown'], findings: 'Strong heart chakra opening. Some blockage in solar plexus releasing.', clientFeedback: 'Felt waves of warmth and peace.' }
+      ],
+      auraReadings: [
+        { id: uuidv4(), date: addDays(today, -15), colors: ['Violet', 'Gold', 'Pink'], interpretation: 'Highly spiritual aura with strong intuition. Pink indicates opening heart.', recommendations: 'Continue meditation practice. Consider crystal work.' }
+      ]
+    },
+    
+    // ===== VIP CLIENT - High value, regular =====
+    {
+      id: sarahId,
       name: 'Sarah Mitchell',
       email: 'sarah@example.com',
       phone: '503-555-0101',
-      serviceName: 'BlissFlow Ritual (2 hours)',
-      serviceDuration: 120,
-      servicePrice: 350,
-      status: 'confirmed',
-      confirmedDate: addDays(today, 3),
-      confirmedTime: '14:00',
-      availability: 'Weekday afternoons',
-      intentions: 'Release tension and reconnect with my body',
-      concerns: 'Lower back sensitivity',
-      healthNotes: 'No major concerns',
-      sensitivities: 'Sensitive to strong scents',
-      notes: 'Returning client, very relaxed energy',
-      createdAt: addDays(today, -5),
-      updatedAt: now.toISOString()
+      sessions: [
+        { date: addDays(today, -90), service: 'Discovery Call (30 min)', price: 0, status: 'completed' },
+        { date: addDays(today, -83), service: 'BlissFlow Ritual (2 hours)', price: 350, status: 'completed' },
+        { date: addDays(today, -60), service: 'BlissFlow Ritual (2 hours)', price: 350, status: 'completed' },
+        { date: addDays(today, -45), service: 'Sacred Pelvic Healing (90 min)', price: 275, status: 'completed' },
+        { date: addDays(today, -30), service: 'BlissFlow Ritual (2 hours)', price: 350, status: 'completed' },
+        { date: addDays(today, -14), service: 'BlissFlow Ritual (2 hours)', price: 350, status: 'completed' },
+        { date: addDays(today, 5), service: 'BlissFlow Ritual (2 hours)', price: 350, status: 'confirmed' }
+      ],
+      totalSessions: 7,
+      totalSpent: 1675,
+      lastContact: addDays(today, -3),
+      tier: 'vip',
+      tags: ['vip', 'referred-others'],
+      notes: 'Wonderful VIP client. Prefers afternoon sessions. Has referred 3 friends.',
+      birthday: '1988-06-15',
+      address: '123 Rose Garden Lane, Portland, OR 97201',
+      createdAt: addDays(today, -90),
+      crystalSessions: [
+        { id: uuidv4(), date: addDays(today, -30), crystals: ['Rose Quartz', 'Amethyst', 'Clear Quartz'], layout: 'Heart-centered grid', intentions: 'Opening to love and healing past wounds', observations: 'Strong energy response to rose quartz on heart.' }
+      ]
     },
+    
+    // ===== REGULAR CLIENT - Consistent =====
     {
-      id: uuidv4(),
+      id: jamesId,
+      name: 'James Wilson',
+      email: 'james@example.com',
+      phone: '503-555-0106',
+      sessions: [
+        { date: addDays(today, -75), service: 'Discovery Call (30 min)', price: 0, status: 'completed' },
+        { date: addDays(today, -68), service: 'BlissFlow Ritual (2 hours)', price: 350, status: 'completed' },
+        { date: addDays(today, -50), service: 'BlissFlow Ritual (2 hours)', price: 350, status: 'completed' },
+        { date: addDays(today, -35), service: 'BlissFlow Ritual (2 hours)', price: 350, status: 'completed' },
+        { date: addDays(today, -20), service: 'BlissFlow Ritual (2 hours)', price: 350, status: 'completed' }
+      ],
+      totalSessions: 5,
+      totalSpent: 1400,
+      lastContact: addDays(today, -20),
+      tier: 'regular',
+      tags: ['regular', 'evening-preferred'],
+      notes: 'Comes every 2 weeks. Prefers evening appointments after work.',
+      birthday: '1990-02-14',
+      createdAt: addDays(today, -75),
+      kundaliniWork: [
+        { id: uuidv4(), date: addDays(today, -35), technique: 'Breath of Fire', duration: 20, observations: 'Strong energy movement. Some kriyas present.', guidance: 'Continue grounding practices between sessions.' }
+      ]
+    },
+    
+    // ===== REGULAR CLIENT - Growing =====
+    {
+      id: davidId,
+      name: 'David Park',
+      email: 'david@example.com',
+      phone: '503-555-0104',
+      sessions: [
+        { date: addDays(today, -42), service: 'Discovery Call (30 min)', price: 0, status: 'completed' },
+        { date: addDays(today, -35), service: 'BlissFlow Ritual (2 hours)', price: 350, status: 'completed' },
+        { date: addDays(today, -21), service: 'BlissFlow Ritual (2 hours)', price: 350, status: 'completed' },
+        { date: addDays(today, -7), service: 'Sacred Pelvic Healing (90 min)', price: 275, status: 'completed' }
+      ],
+      totalSessions: 4,
+      totalSpent: 975,
+      lastContact: addDays(today, -7),
+      tier: 'regular',
+      tags: ['regular', 'membership-interested'],
+      notes: 'Great progress! Interested in monthly membership. Works in tech, needs stress relief.',
+      birthday: '1985-11-08',
+      address: '456 Willow Street, Portland, OR 97202',
+      createdAt: addDays(today, -42),
+      soundHealingSessions: [
+        { id: uuidv4(), date: addDays(today, -21), instruments: ['Singing Bowls', 'Tuning Forks'], duration: 45, frequencies: ['528 Hz', '432 Hz'], response: 'Deep relaxation. Reported seeing colors during session.', notes: 'Very receptive to sound therapy.' }
+      ]
+    },
+    
+    // ===== RETURNING CLIENT - Building relationship =====
+    {
+      id: amandaId,
+      name: 'Amanda Foster',
+      email: 'amanda@example.com',
+      phone: '503-555-0107',
+      sessions: [
+        { date: addDays(today, -28), service: 'Discovery Call (30 min)', price: 0, status: 'completed' },
+        { date: addDays(today, -14), service: 'BlissFlow Ritual (2 hours)', price: 350, status: 'completed' }
+      ],
+      totalSessions: 2,
+      totalSpent: 350,
+      lastContact: addDays(today, -14),
+      tier: 'returning',
+      tags: ['returning', 'trauma-informed'],
+      notes: 'Healing from past relationship trauma. Very sensitive, needs slow approach. Making great progress.',
+      birthday: '1993-04-22',
+      createdAt: addDays(today, -28),
+      pranayamaWork: [
+        { id: uuidv4(), date: addDays(today, -14), technique: 'Nadi Shodhana', duration: 15, rounds: 9, observations: 'Helped calm nervous system after emotional release work.' }
+      ]
+    },
+    
+    // ===== NEW CLIENT - Just started =====
+    {
+      id: michaelId,
       name: 'Michael Chen',
       email: 'michael@example.com',
       phone: '503-555-0102',
-      serviceName: 'Sacred Pelvic Healing (90 min)',
-      serviceDuration: 90,
-      servicePrice: 275,
-      status: 'confirmed',
-      confirmedDate: addDays(today, 7),
-      confirmedTime: '10:00',
-      availability: 'Weekend mornings',
-      intentions: 'Healing from past trauma',
-      concerns: 'First time, feeling nervous',
-      healthNotes: 'Prefer to discuss in person',
-      sensitivities: 'None',
-      notes: 'New client referral from Sarah',
-      createdAt: addDays(today, -2),
-      updatedAt: now.toISOString()
+      sessions: [
+        { date: addDays(today, 7), service: 'Sacred Pelvic Healing (90 min)', price: 275, status: 'confirmed', intentions: 'Healing from past trauma', concerns: 'First time, feeling nervous' }
+      ],
+      totalSessions: 1,
+      totalSpent: 0,
+      lastContact: addDays(today, -2),
+      tier: 'new',
+      tags: ['new', 'referral'],
+      notes: 'Referred by Sarah. First time client, feeling nervous about trauma healing. Sent prep materials.',
+      birthday: '1992-03-22',
+      createdAt: addDays(today, -2)
     },
+    
+    // ===== NEW CLIENT - Lead/Discovery =====
     {
-      id: uuidv4(),
+      id: emmaId,
       name: 'Emma Rodriguez',
       email: 'emma@example.com',
       phone: '503-555-0103',
-      serviceName: 'Discovery Call (30 min)',
-      serviceDuration: 30,
-      servicePrice: 0,
-      status: 'pending',
-      confirmedDate: '',
-      confirmedTime: '',
-      availability: 'Flexible',
-      intentions: 'Curious about sacred bodywork',
-      concerns: 'Want to learn more before committing',
-      healthNotes: 'None',
-      sensitivities: 'None',
-      notes: '',
-      createdAt: addDays(today, -1),
-      updatedAt: now.toISOString()
+      sessions: [
+        { date: addDays(today, 2), service: 'Discovery Call (30 min)', price: 0, status: 'pending', intentions: 'Curious about sacred bodywork', concerns: 'Want to learn more before committing' }
+      ],
+      totalSessions: 0,
+      totalSpent: 0,
+      lastContact: addDays(today, -1),
+      tier: 'new',
+      tags: ['lead', 'discovery', 'website-inquiry'],
+      notes: 'Found us through Instagram. Curious about sacred bodywork. Seems ready but cautious.',
+      createdAt: addDays(today, -1)
     },
+    
+    // ===== SUSPENDED CLIENT - For demo =====
     {
-      id: uuidv4(),
-      name: 'David Park',
-      email: 'david@example.com',
-      phone: '503-555-0104',
-      serviceName: 'BlissFlow Ritual (2 hours)',
-      serviceDuration: 120,
-      servicePrice: 350,
-      status: 'completed',
-      confirmedDate: addDays(today, -7),
-      confirmedTime: '16:00',
-      availability: 'Evenings',
-      intentions: 'Deep relaxation and stress relief',
-      concerns: 'Work-related tension',
-      healthNotes: 'Occasional migraines',
-      sensitivities: 'Low light preferred',
-      notes: 'Great session, wants to book monthly',
-      sessionNotes: 'Focused on shoulder and neck tension. Very receptive. Recommended monthly sessions.',
-      createdAt: addDays(today, -14),
-      updatedAt: now.toISOString()
+      id: robertId,
+      name: 'Robert Blake',
+      email: 'robert.blake@example.com',
+      phone: '503-555-0108',
+      sessions: [
+        { date: addDays(today, -60), service: 'Discovery Call (30 min)', price: 0, status: 'completed' },
+        { date: addDays(today, -53), service: 'BlissFlow Ritual (2 hours)', price: 350, status: 'completed' }
+      ],
+      totalSessions: 2,
+      totalSpent: 350,
+      lastContact: addDays(today, -45),
+      tier: 'returning',
+      status: 'suspended',
+      suspendReason: 'Missed 2 appointments without notice. Will reactivate when they reach out.',
+      tags: ['returning', 'no-show'],
+      notes: 'Good energy in sessions but attendance issues. Suspended until they demonstrate commitment.',
+      createdAt: addDays(today, -60)
     }
   ];
 
-  // Sample clients
-  const demoClients = [
+  // ===== DEMO MESSAGES - Show unread notifications =====
+  const demoMessages = [
+    // Lisa (favored) - recent conversation
     {
       id: uuidv4(),
-      name: 'Sarah Mitchell',
-      email: 'sarah@example.com',
-      phone: '503-555-0101',
-      sessions: 5,
-      totalSpent: 1500,
-      lastContact: addDays(today, -5),
-      tags: ['regular', 'referred-others'],
-      notes: 'Wonderful client. Prefers afternoon sessions.'
+      conversationId: 'lisa@example.com',
+      from: 'client',
+      content: 'Hi Ravi! I wanted to thank you for yesterday\'s session. I felt such a shift afterward. Can we add some crystal work to my next appointment?',
+      createdAt: addDays(today, -1) + 'T14:30:00Z',
+      read: false
     },
     {
       id: uuidv4(),
-      name: 'David Park',
-      email: 'david@example.com',
-      phone: '503-555-0104',
-      sessions: 2,
-      totalSpent: 700,
-      lastContact: addDays(today, -7),
-      tags: ['new'],
-      notes: 'Interested in monthly membership'
+      conversationId: 'lisa@example.com',
+      from: 'admin',
+      content: 'So happy to hear that, Lisa! Yes, we can absolutely incorporate crystals. I\'ll prepare a special grid for your session.',
+      createdAt: addDays(today, -1) + 'T16:00:00Z',
+      read: true
+    },
+    {
+      id: uuidv4(),
+      conversationId: 'lisa@example.com',
+      from: 'client',
+      content: 'Perfect! Also, my friend Rachel is interested in booking. Can I give her a referral code?',
+      createdAt: now.toISOString(),
+      read: false
+    },
+    
+    // Michael (new) - pre-appointment questions
+    {
+      id: uuidv4(),
+      conversationId: 'michael@example.com',
+      from: 'client',
+      content: 'Hi, I\'m a bit nervous about my upcoming session. Is there anything I should do to prepare?',
+      createdAt: addDays(today, -1) + 'T10:00:00Z',
+      read: false
+    },
+    
+    // Amanda - follow-up
+    {
+      id: uuidv4(),
+      conversationId: 'amanda@example.com',
+      from: 'admin',
+      content: 'Hi Amanda, just checking in after your last session. How are you feeling?',
+      createdAt: addDays(today, -7) + 'T11:00:00Z',
+      read: true
+    },
+    {
+      id: uuidv4(),
+      conversationId: 'amanda@example.com',
+      from: 'client',
+      content: 'Thank you for asking! I\'ve been processing a lot but feeling lighter. Would love to book another session soon.',
+      createdAt: addDays(today, -5) + 'T15:00:00Z',
+      read: true
     }
   ];
 
-  // Sample inquiries
+  // ===== INQUIRIES - New potential clients =====
   const demoInquiries = [
     {
       id: uuidv4(),
       name: 'Jennifer Adams',
       email: 'jennifer@example.com',
       phone: '503-555-0201',
-      message: 'I found your website through a friend\'s recommendation. I\'ve been dealing with chronic stress and am curious about your healing approach. Would love to learn more.',
+      message: 'I found your website through a friend\'s recommendation. I\'ve been dealing with chronic stress and am curious about your healing approach. Would love to learn more about the BlissFlow Ritual.',
       status: 'new',
       createdAt: addDays(today, -1),
       source: 'referral'
     },
     {
       id: uuidv4(),
-      name: 'Robert Williams',
-      email: 'robert@example.com',
-      phone: '',
-      message: 'Interested in the discovery call. I\'ve been exploring different healing modalities and your practice resonates with me.',
+      name: 'Thomas Wright',
+      email: 'thomas@example.com',
+      phone: '503-555-0202',
+      message: 'Interested in the discovery call. I\'ve been exploring different healing modalities and your practice resonates with me. I\'m particularly interested in the trauma-informed approach.',
       status: 'new',
       createdAt: now.toISOString(),
       source: 'website'
+    },
+    {
+      id: uuidv4(),
+      name: 'Patricia Moore',
+      email: 'patricia@example.com',
+      phone: '',
+      message: 'I saw your post on Instagram about sacred pelvic healing. Can you tell me more about what to expect in a session?',
+      status: 'contacted',
+      createdAt: addDays(today, -3),
+      source: 'instagram',
+      notes: 'Sent detailed email with session info.'
     }
   ];
 
-  // Sample invitation codes
+  // ===== INVITATION CODES =====
   const demoCodes = [
     {
       id: uuidv4(),
@@ -5116,35 +5456,68 @@ app.post('/api/admin/demo/populate', authenticateAdmin, (req, res) => {
       expiresAt: addDays(today, 30),
       used: false,
       singleUse: true,
-      active: true
+      active: true,
+      note: 'Demo invitation code'
     },
     {
       id: uuidv4(),
       code: 'LOTUS-RAVI',
       prefix: 'LOTUS',
-      createdAt: addDays(today, -5),
+      createdAt: addDays(today, -30),
       expiresAt: null,
       used: false,
       singleUse: false,
       active: true,
-      note: 'For business cards'
+      note: 'Business card referral code'
+    },
+    {
+      id: uuidv4(),
+      code: 'HEAL-SARAH',
+      prefix: 'HEAL',
+      createdAt: addDays(today, -60),
+      expiresAt: null,
+      usedBy: 'michael@example.com',
+      usedAt: addDays(today, -2),
+      used: true,
+      singleUse: true,
+      active: false,
+      note: 'Sarah\'s referral for Michael'
     }
   ];
+
+  // Generate bookings from client sessions for perfect data consistency
+  const demoBookings = [];
+  demoClients.forEach(client => {
+    if (client.sessions && Array.isArray(client.sessions)) {
+      client.sessions.forEach((session, index) => {
+        demoBookings.push(makeBooking(client, session, index));
+      });
+    }
+  });
 
   // Save all demo data
   saveBookings(demoBookings);
   saveClients(demoClients);
+  saveMessages(demoMessages);
   saveInquiries(demoInquiries);
   saveInvitationCodes(demoCodes);
+
+  // Calculate totals for response
+  const completedRevenue = demoBookings
+    .filter(b => b.status === 'completed')
+    .reduce((sum, b) => sum + (b.servicePrice || 0), 0);
 
   res.json({ 
     success: true, 
     message: 'Demo data populated!',
     counts: {
       bookings: demoBookings.length,
+      completedBookings: demoBookings.filter(b => b.status === 'completed').length,
       clients: demoClients.length,
+      messages: demoMessages.length,
       inquiries: demoInquiries.length,
-      invitationCodes: demoCodes.length
+      invitationCodes: demoCodes.length,
+      totalRevenue: completedRevenue
     }
   });
 });
@@ -5510,7 +5883,31 @@ app.post('/api/admin/demo/reset', authenticateAdmin, (req, res) => {
   saveInquiries([]);
   saveInvitationCodes([]);
   
-  res.json({ success: true, message: 'All data cleared!' });
+  // Also clear all backups
+  const backupDirs = [
+    path.join(__dirname, 'data', 'backups', 'auto'),
+    path.join(__dirname, 'data', 'backups', 'manual')
+  ];
+  
+  let backupsCleared = 0;
+  backupDirs.forEach(dir => {
+    if (fs.existsSync(dir)) {
+      try {
+        const files = fs.readdirSync(dir);
+        files.forEach(file => {
+          if (file.endsWith('.enc')) {
+            fs.unlinkSync(path.join(dir, file));
+            backupsCleared++;
+          }
+        });
+      } catch (err) {
+        console.error(`Error clearing backups in ${dir}:`, err);
+      }
+    }
+  });
+  
+  console.log(`Demo reset: Cleared all data and ${backupsCleared} backup files`);
+  res.json({ success: true, message: `All data cleared! Also removed ${backupsCleared} backup files.` });
 });
 
 // Helper function to add days to a date string
@@ -5838,7 +6235,11 @@ app.post('/api/admin/clients/:id/bioenergetics', authenticateAdmin, (req, res) =
       pendulumSessions: [],
       kundaliniPractices: [],
       pranayamaTechniques: [],
-      bioenergetics: []
+      bioenergetics: [],
+      reikiSessions: [],
+      crystalSessions: [],
+      soundHealingSessions: [],
+      auraReadings: []
     };
   }
   
@@ -5880,6 +6281,197 @@ app.post('/api/admin/clients/:id/bioenergetics', authenticateAdmin, (req, res) =
   saveClients(clients);
   
   res.json({ success: true });
+});
+
+// ============ REIKI SESSION ENDPOINT ============
+app.post('/api/admin/clients/:id/reiki', authenticateAdmin, (req, res) => {
+  const { id } = req.params;
+  const { type, symbols, handPositions, sensations, byosen, clientExperience, notes } = req.body;
+  
+  const clients = loadClients();
+  const client = clients.find(c => c.id === id);
+  
+  if (!client) {
+    return res.status(404).json({ error: 'Client not found' });
+  }
+  
+  if (!client.spiritualTools) {
+    client.spiritualTools = {
+      astrology: null,
+      tarotReadings: [],
+      pendulumSessions: [],
+      kundaliniPractices: [],
+      pranayamaTechniques: [],
+      bioenergetics: [],
+      reikiSessions: [],
+      crystalSessions: [],
+      soundHealingSessions: [],
+      auraReadings: []
+    };
+  }
+  
+  if (!client.spiritualTools.reikiSessions) {
+    client.spiritualTools.reikiSessions = [];
+  }
+  
+  const session = {
+    id: uuidv4(),
+    date: new Date().toISOString(),
+    type,
+    symbols: symbols || [],
+    handPositions,
+    sensations,
+    byosen,
+    clientExperience,
+    notes
+  };
+  
+  client.spiritualTools.reikiSessions.push(session);
+  saveClients(clients);
+  
+  res.json({ success: true, session });
+});
+
+// ============ CRYSTAL HEALING ENDPOINT ============
+app.post('/api/admin/clients/:id/crystal', authenticateAdmin, (req, res) => {
+  const { id } = req.params;
+  const { type, stones, intention, experience, recommendations } = req.body;
+  
+  const clients = loadClients();
+  const client = clients.find(c => c.id === id);
+  
+  if (!client) {
+    return res.status(404).json({ error: 'Client not found' });
+  }
+  
+  if (!client.spiritualTools) {
+    client.spiritualTools = {
+      astrology: null,
+      tarotReadings: [],
+      pendulumSessions: [],
+      kundaliniPractices: [],
+      pranayamaTechniques: [],
+      bioenergetics: [],
+      reikiSessions: [],
+      crystalSessions: [],
+      soundHealingSessions: [],
+      auraReadings: []
+    };
+  }
+  
+  if (!client.spiritualTools.crystalSessions) {
+    client.spiritualTools.crystalSessions = [];
+  }
+  
+  const session = {
+    id: uuidv4(),
+    date: new Date().toISOString(),
+    type,
+    stones,
+    intention,
+    experience,
+    recommendations
+  };
+  
+  client.spiritualTools.crystalSessions.push(session);
+  saveClients(clients);
+  
+  res.json({ success: true, session });
+});
+
+// ============ SOUND HEALING ENDPOINT ============
+app.post('/api/admin/clients/:id/sound-healing', authenticateAdmin, (req, res) => {
+  const { id } = req.params;
+  const { type, instruments, focus, experience, notes } = req.body;
+  
+  const clients = loadClients();
+  const client = clients.find(c => c.id === id);
+  
+  if (!client) {
+    return res.status(404).json({ error: 'Client not found' });
+  }
+  
+  if (!client.spiritualTools) {
+    client.spiritualTools = {
+      astrology: null,
+      tarotReadings: [],
+      pendulumSessions: [],
+      kundaliniPractices: [],
+      pranayamaTechniques: [],
+      bioenergetics: [],
+      reikiSessions: [],
+      crystalSessions: [],
+      soundHealingSessions: [],
+      auraReadings: []
+    };
+  }
+  
+  if (!client.spiritualTools.soundHealingSessions) {
+    client.spiritualTools.soundHealingSessions = [];
+  }
+  
+  const session = {
+    id: uuidv4(),
+    date: new Date().toISOString(),
+    type,
+    instruments,
+    focus,
+    experience,
+    notes
+  };
+  
+  client.spiritualTools.soundHealingSessions.push(session);
+  saveClients(clients);
+  
+  res.json({ success: true, session });
+});
+
+// ============ AURA READING ENDPOINT ============
+app.post('/api/admin/clients/:id/aura', authenticateAdmin, (req, res) => {
+  const { id } = req.params;
+  const { primaryColor, secondaryColors, quality, concerns, interpretation, recommendations } = req.body;
+  
+  const clients = loadClients();
+  const client = clients.find(c => c.id === id);
+  
+  if (!client) {
+    return res.status(404).json({ error: 'Client not found' });
+  }
+  
+  if (!client.spiritualTools) {
+    client.spiritualTools = {
+      astrology: null,
+      tarotReadings: [],
+      pendulumSessions: [],
+      kundaliniPractices: [],
+      pranayamaTechniques: [],
+      bioenergetics: [],
+      reikiSessions: [],
+      crystalSessions: [],
+      soundHealingSessions: [],
+      auraReadings: []
+    };
+  }
+  
+  if (!client.spiritualTools.auraReadings) {
+    client.spiritualTools.auraReadings = [];
+  }
+  
+  const reading = {
+    id: uuidv4(),
+    date: new Date().toISOString(),
+    primaryColor,
+    secondaryColors,
+    quality,
+    concerns,
+    interpretation,
+    recommendations
+  };
+  
+  client.spiritualTools.auraReadings.push(reading);
+  saveClients(clients);
+  
+  res.json({ success: true, reading });
 });
 
 // Save astrology chart to client

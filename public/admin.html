@@ -2948,7 +2948,7 @@
       <h1>🪷 Admin Dashboard</h1>
       <form id="loginForm">
         <input type="text" id="loginUsername" placeholder="Username" required autocomplete="username">
-        <input type="password" id="loginPassword" placeholder="Password" required autocomplete="current-password">
+        <input type="password" id="loginPassword" placeholder="Password" required autocomplete="current-password" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('loginForm').dispatchEvent(new Event('submit'));}"> 
         <button type="submit">Sign In</button>
         <p class="login-error" id="loginError">Invalid credentials</p>
       </form>
@@ -3226,7 +3226,6 @@
         <div class="page-header">
           <h1 class="page-title">🎟️ Invitation Codes</h1>
           <div class="header-actions">
-            <button class="btn btn-secondary" onclick="printCodes()">🖨️ Print Cards</button>
             <button class="btn btn-primary" onclick="openGenerateCodesModal()">+ Generate Codes</button>
           </div>
         </div>
@@ -3277,17 +3276,6 @@
           </div>
         </div>
 
-        <!-- Print Preview -->
-        <div id="printPreview" class="print-preview">
-          <div class="card">
-            <div class="card-header">
-              <h3 class="card-title">🖨️ Print Preview - Business Card Codes</h3>
-            </div>
-            <div class="card-body printable-cards" id="printableCards">
-              <!-- Populated by JS -->
-            </div>
-          </div>
-        </div>
       </section>
 
       <!-- INQUIRIES PAGE -->
@@ -3686,6 +3674,54 @@
             </div>
             <div class="card-body">
               <p style="color: var(--soft-gray); margin-bottom: 16px; font-size: 14px;">Your saved email templates for marketing campaigns. Click any template to preview and send.</p>
+              
+              <!-- Built-in Templates -->
+              <h4 style="margin: 20px 0 12px 0; color: var(--burgundy);">📚 Built-in Templates</h4>
+              <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                <div class="template-card" onclick="useBuiltInTemplate('welcome')" style="cursor: pointer; border-left: 4px solid #4CAF50;">
+                  <h4>🌟 Welcome New Client</h4>
+                  <p style="color: var(--soft-gray); font-size: 13px; margin: 8px 0;">Warm welcome message for new clients after their first booking</p>
+                  <span style="font-size: 11px; background: #E8F5E9; color: #2E7D32; padding: 4px 8px; border-radius: 12px;">Onboarding</span>
+                </div>
+                <div class="template-card" onclick="useBuiltInTemplate('reminder')" style="cursor: pointer; border-left: 4px solid #2196F3;">
+                  <h4>⏰ Appointment Reminder</h4>
+                  <p style="color: var(--soft-gray); font-size: 13px; margin: 8px 0;">Gentle reminder 24-48 hours before scheduled session</p>
+                  <span style="font-size: 11px; background: #E3F2FD; color: #1565C0; padding: 4px 8px; border-radius: 12px;">Scheduling</span>
+                </div>
+                <div class="template-card" onclick="useBuiltInTemplate('followup')" style="cursor: pointer; border-left: 4px solid #9C27B0;">
+                  <h4>💜 Post-Session Follow-up</h4>
+                  <p style="color: var(--soft-gray); font-size: 13px; margin: 8px 0;">Check in after session with self-care recommendations</p>
+                  <span style="font-size: 11px; background: #F3E5F5; color: #7B1FA2; padding: 4px 8px; border-radius: 12px;">Aftercare</span>
+                </div>
+                <div class="template-card" onclick="useBuiltInTemplate('reengagement')" style="cursor: pointer; border-left: 4px solid #FF9800;">
+                  <h4>🌿 Re-engagement</h4>
+                  <p style="color: var(--soft-gray); font-size: 13px; margin: 8px 0;">Reconnect with clients who haven't visited in a while</p>
+                  <span style="font-size: 11px; background: #FFF3E0; color: #E65100; padding: 4px 8px; border-radius: 12px;">Win-back</span>
+                </div>
+                <div class="template-card" onclick="useBuiltInTemplate('birthday')" style="cursor: pointer; border-left: 4px solid #E91E63;">
+                  <h4>🎂 Birthday Wishes</h4>
+                  <p style="color: var(--soft-gray); font-size: 13px; margin: 8px 0;">Special birthday message with optional discount</p>
+                  <span style="font-size: 11px; background: #FCE4EC; color: #C2185B; padding: 4px 8px; border-radius: 12px;">Celebration</span>
+                </div>
+                <div class="template-card" onclick="useBuiltInTemplate('seasonal')" style="cursor: pointer; border-left: 4px solid #00BCD4;">
+                  <h4>🌸 Seasonal Newsletter</h4>
+                  <p style="color: var(--soft-gray); font-size: 13px; margin: 8px 0;">Seasonal updates, tips, and special offerings</p>
+                  <span style="font-size: 11px; background: #E0F7FA; color: #00838F; padding: 4px 8px; border-radius: 12px;">Newsletter</span>
+                </div>
+                <div class="template-card" onclick="useBuiltInTemplate('testimonial')" style="cursor: pointer; border-left: 4px solid #FFC107;">
+                  <h4>⭐ Request Testimonial</h4>
+                  <p style="color: var(--soft-gray); font-size: 13px; margin: 8px 0;">Kindly request feedback after positive sessions</p>
+                  <span style="font-size: 11px; background: #FFF8E1; color: #F57F17; padding: 4px 8px; border-radius: 12px;">Feedback</span>
+                </div>
+                <div class="template-card" onclick="useBuiltInTemplate('referral')" style="cursor: pointer; border-left: 4px solid #673AB7;">
+                  <h4>💝 Referral Thank You</h4>
+                  <p style="color: var(--soft-gray); font-size: 13px; margin: 8px 0;">Thank clients who refer friends and family</p>
+                  <span style="font-size: 11px; background: #EDE7F6; color: #512DA8; padding: 4px 8px; border-radius: 12px;">Appreciation</span>
+                </div>
+              </div>
+              
+              <!-- Custom Templates -->
+              <h4 style="margin: 24px 0 12px 0; color: var(--burgundy);">✏️ Your Custom Templates</h4>
               <div class="template-gallery" id="templateGallery">
                 <!-- Email templates will be loaded here -->
               </div>
@@ -3748,11 +3784,16 @@
           <p class="text-muted mt-8">Professional-Grade Spiritual Assessment & Healing Modalities</p>
         </div>
 
-        <div class="tabs">
+        <div class="tabs" style="flex-wrap: wrap;">
           <div class="tab active" data-tab="astrology">⭐ Astrology</div>
           <div class="tab" data-tab="numerology">🔢 Numerology</div>
           <div class="tab" data-tab="tarot">🃏 Tarot</div>
           <div class="tab" data-tab="pendulum">📿 Pendulum</div>
+          <div class="tab" data-tab="reiki">🙏 Reiki</div>
+          <div class="tab" data-tab="chakra-grid">🌈 Chakra Grid</div>
+          <div class="tab" data-tab="crystals">💎 Crystals</div>
+          <div class="tab" data-tab="sound-healing">🔔 Sound Healing</div>
+          <div class="tab" data-tab="aura">✨ Aura</div>
           <div class="tab" data-tab="kundalini">🧘 Kundalini</div>
           <div class="tab" data-tab="pranayama">🌬️ Pranayama</div>
           <div class="tab" data-tab="bioenergetics">⚡ Bioenergetics</div>
@@ -3949,68 +3990,6 @@
         <div class="tab-content" data-content="tarot">
           <div class="card">
             <div class="card-header">
-              <h3>⭐ Astrology & Numerology Calculator</h3>
-            </div>
-            <div class="card-body">
-              <div class="form-group">
-                <label class="form-label">Client Birthday</label>
-                <input type="date" id="astro-birthday" class="form-input" style="max-width: 300px;">
-              </div>
-              <div class="form-group">
-                <label class="form-label">Birth Time (Optional - for Rising Sign)</label>
-                <input type="time" id="astro-birthtime" class="form-input" style="max-width: 200px;">
-              </div>
-              <div class="form-group">
-                <label class="form-label">Birth Location (Optional - for Moon/Rising)</label>
-                <input type="text" id="astro-location" class="form-input" placeholder="City, State/Country" style="max-width: 400px;">
-              </div>
-              <button class="btn btn-primary" onclick="calculateAstrology()">🔮 Calculate Chart</button>
-              
-              <div id="astro-results" style="display: none; margin-top: 24px; padding: 20px; background: #f5f0eb; border-radius: 12px;">
-                <h4 style="margin-bottom: 16px; color: var(--burgundy);">Spiritual Profile</h4>
-                <div class="detail-grid">
-                  <div>
-                    <div class="detail-item">
-                      <div class="detail-label">☀️ Sun Sign (Core Identity)</div>
-                      <div class="detail-value" id="sun-sign"></div>
-                    </div>
-                    <div class="detail-item">
-                      <div class="detail-label">🌙 Moon Sign (Emotions)</div>
-                      <div class="detail-value" id="moon-sign">Need birth time & location</div>
-                    </div>
-                    <div class="detail-item">
-                      <div class="detail-label">⬆️ Rising Sign (Outer Self)</div>
-                      <div class="detail-value" id="rising-sign">Need birth time & location</div>
-                    </div>
-                  </div>
-                  <div>
-                    <div class="detail-item">
-                      <div class="detail-label">🔢 Life Path Number</div>
-                      <div class="detail-value" id="life-path"></div>
-                    </div>
-                    <div class="detail-item">
-                      <div class="detail-label">💫 Expression Number</div>
-                      <div class="detail-value" id="expression-num">Need full name</div>
-                    </div>
-                    <div class="detail-item">
-                      <div class="detail-label">❤️ Soul Urge Number</div>
-                      <div class="detail-value" id="soul-urge">Need full name</div>
-                    </div>
-                  </div>
-                </div>
-                <div style="margin-top: 20px; padding: 16px; background: white; border-radius: 8px;">
-                  <h5 style="margin-bottom: 12px;">✨ Spiritual Insights</h5>
-                  <div id="spiritual-insights" style="line-height: 1.8; color: var(--charcoal);"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Tarot Tab -->
-        <div class="tab-content" data-content="tarot">
-          <div class="card">
-            <div class="card-header">
               <h3>🃏 Tarot Reading Tracker</h3>
               <button class="btn btn-primary" onclick="showNewTarotReading()">+ New Reading</button>
             </div>
@@ -4075,12 +4054,13 @@
         <!-- Pranayama Tab -->
         <div class="tab-content" data-content="pranayama">
           <div class="card">
-            <div class="card-header">
+            <div class="card-header" style="background: linear-gradient(135deg, #00897B 0%, #26A69A 100%); color: white;">
               <h3>🌬️ Pranayama Breathing Techniques</h3>
+              <p style="margin: 8px 0 0; opacity: 0.9; font-size: 14px;">Click any technique to view detailed instructions</p>
             </div>
             <div class="card-body">
               <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
-                <div class="stat-card">
+                <div class="stat-card" style="cursor: pointer; transition: all 0.3s;" onclick="showPranayamaDetails('nadi-shodhana')">
                   <div class="stat-label">🌊 Nadi Shodhana</div>
                   <div style="font-size: 13px; margin-top: 8px; color: var(--soft-gray);">
                     <strong>Alternate Nostril Breathing</strong><br>
@@ -4088,7 +4068,7 @@
                     <em>Duration: 5-10 minutes</em>
                   </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" style="cursor: pointer; transition: all 0.3s;" onclick="showPranayamaDetails('kapalabhati')">
                   <div class="stat-label">🔥 Kapalabhati</div>
                   <div style="font-size: 13px; margin-top: 8px; color: var(--soft-gray);">
                     <strong>Skull Shining Breath</strong><br>
@@ -4096,7 +4076,7 @@
                     <em>Duration: 3-5 minutes</em>
                   </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" style="cursor: pointer; transition: all 0.3s;" onclick="showPranayamaDetails('ujjayi')">
                   <div class="stat-label">🌬️ Ujjayi</div>
                   <div style="font-size: 13px; margin-top: 8px; color: var(--soft-gray);">
                     <strong>Ocean Breath</strong><br>
@@ -4104,7 +4084,7 @@
                     <em>Duration: Throughout practice</em>
                   </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" style="cursor: pointer; transition: all 0.3s;" onclick="showPranayamaDetails('sitali')">
                   <div class="stat-label">🌸 Sitali</div>
                   <div style="font-size: 13px; margin-top: 8px; color: var(--soft-gray);">
                     <strong>Cooling Breath</strong><br>
@@ -4112,7 +4092,7 @@
                     <em>Duration: 5-10 minutes</em>
                   </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" style="cursor: pointer; transition: all 0.3s;" onclick="showPranayamaDetails('bhastrika')">
                   <div class="stat-label">⚡ Bhastrika</div>
                   <div style="font-size: 13px; margin-top: 8px; color: var(--soft-gray);">
                     <strong>Bellows Breath</strong><br>
@@ -4120,7 +4100,7 @@
                     <em>Duration: 3 rounds of 20-30 breaths</em>
                   </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" style="cursor: pointer; transition: all 0.3s;" onclick="showPranayamaDetails('sama-vritti')">
                   <div class="stat-label">🧘 Sama Vritti</div>
                   <div style="font-size: 13px; margin-top: 8px; color: var(--soft-gray);">
                     <strong>Equal Breathing</strong><br>
@@ -4128,6 +4108,32 @@
                     <em>Duration: 5-15 minutes</em>
                   </div>
                 </div>
+                <div class="stat-card" style="cursor: pointer; transition: all 0.3s;" onclick="showPranayamaDetails('breath-of-fire')">
+                  <div class="stat-label">🔥 Breath of Fire</div>
+                  <div style="font-size: 13px; margin-top: 8px; color: var(--soft-gray);">
+                    <strong>Agni Pran</strong><br>
+                    Kundalini awakening, energizes, detoxifies<br>
+                    <em>Duration: 1-3 minutes</em>
+                  </div>
+                </div>
+                <div class="stat-card" style="cursor: pointer; transition: all 0.3s;" onclick="showPranayamaDetails('lions-breath')">
+                  <div class="stat-label">🦁 Lion's Breath</div>
+                  <div style="font-size: 13px; margin-top: 8px; color: var(--soft-gray);">
+                    <strong>Simhasana</strong><br>
+                    Release tension, throat chakra, expression<br>
+                    <em>Duration: 3-5 rounds</em>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Detailed Instructions Panel -->
+              <div id="pranayama-details" style="display: none; margin-top: 24px; padding: 24px; background: linear-gradient(135deg, #E0F2F1 0%, #B2DFDB 100%); border-radius: 12px; border-left: 4px solid #00897B;">
+                <!-- Content loaded by JS -->
+              </div>
+              
+              <div style="background: #FFF8E1; padding: 16px; border-radius: 8px; margin-top: 20px;">
+                <p style="color: #F57F17; font-weight: 500; margin-bottom: 8px;">📝 Recommending Pranayama to Clients</p>
+                <p style="font-size: 14px; color: #666;">Go to <strong>Clients</strong> → Open client card → <strong>Spiritual Profile</strong> tab → Click "🌬️ Pranayama Rx"</p>
               </div>
             </div>
           </div>
@@ -4213,6 +4219,558 @@
               <div style="background: white; padding: 16px; border: 2px dashed #00897B; border-radius: 8px; text-align: center;">
                 <p style="color: var(--soft-gray); margin-bottom: 12px;">Bioenergetics sessions are tracked per client.</p>
                 <p style="font-size: 14px; color: #666;">Go to <strong>Clients</strong> → Open client card → <strong>Spiritual Profile</strong> tab → Click "Add Bioenergetics Session"</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- REIKI TAB - Ravi is Level II Attuned in Usui/Tibetan Reiki Ryoho -->
+        <div class="tab-content" data-content="reiki">
+          <div class="card">
+            <div class="card-header" style="background: linear-gradient(135deg, #9C27B0 0%, #BA68C8 100%); color: white;">
+              <h3>🙏 Reiki Energy Healing</h3>
+              <p style="margin: 8px 0 0; opacity: 0.9; font-size: 14px;">Usui/Tibetan Reiki Ryoho • Level II Practitioner Toolkit</p>
+            </div>
+            <div class="card-body">
+              <div style="background: #F3E5F5; padding: 20px; border-radius: 12px; margin-bottom: 24px;">
+                <h4 style="color: #6A1B9A; margin-bottom: 16px;">🌟 Reiki Principles (Gokai)</h4>
+                <div style="font-style: italic; line-height: 2; color: #4A148C;">
+                  <p>Just for today, I will not be angry 🙏</p>
+                  <p>Just for today, I will not worry 🙏</p>
+                  <p>Just for today, I will be grateful 🙏</p>
+                  <p>Just for today, I will do my work honestly 🙏</p>
+                  <p>Just for today, I will be kind to every living thing 🙏</p>
+                </div>
+              </div>
+
+              <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 24px;">
+                <div class="stat-card" style="border-left: 4px solid #9C27B0;">
+                  <div class="stat-label">Cho Ku Rei (力)</div>
+                  <div style="font-size: 40px; margin: 8px 0;">☯️</div>
+                  <div style="font-size: 13px; color: var(--soft-gray);">Power Symbol - Increases energy, focuses intention</div>
+                </div>
+                <div class="stat-card" style="border-left: 4px solid #7B1FA2;">
+                  <div class="stat-label">Sei He Ki (聖平氣)</div>
+                  <div style="font-size: 40px; margin: 8px 0;">🌊</div>
+                  <div style="font-size: 13px; color: var(--soft-gray);">Emotional/Mental - Clears emotional blocks</div>
+                </div>
+                <div class="stat-card" style="border-left: 4px solid #6A1B9A;">
+                  <div class="stat-label">Hon Sha Ze Sho Nen (本者是正念)</div>
+                  <div style="font-size: 40px; margin: 8px 0;">🌍</div>
+                  <div style="font-size: 13px; color: var(--soft-gray);">Distance Symbol - Sends Reiki across time/space</div>
+                </div>
+              </div>
+
+              <div style="background: white; padding: 20px; border: 2px solid #9C27B0; border-radius: 12px; margin-bottom: 20px;">
+                <h5 style="margin-bottom: 16px; color: #9C27B0;">🖐️ Standard Hand Positions</h5>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                  <div style="padding: 12px; background: #F9F9F9; border-radius: 8px;">
+                    <strong>Head Positions</strong>
+                    <ul style="font-size: 13px; color: #666; margin: 8px 0 0; padding-left: 20px;">
+                      <li>Crown of head</li>
+                      <li>Eyes/temples</li>
+                      <li>Ears</li>
+                      <li>Back of head</li>
+                    </ul>
+                  </div>
+                  <div style="padding: 12px; background: #F9F9F9; border-radius: 8px;">
+                    <strong>Front Body</strong>
+                    <ul style="font-size: 13px; color: #666; margin: 8px 0 0; padding-left: 20px;">
+                      <li>Throat</li>
+                      <li>Heart center</li>
+                      <li>Solar plexus</li>
+                      <li>Sacral/Navel</li>
+                      <li>Root/Pelvic</li>
+                    </ul>
+                  </div>
+                  <div style="padding: 12px; background: #F9F9F9; border-radius: 8px;">
+                    <strong>Back Body</strong>
+                    <ul style="font-size: 13px; color: #666; margin: 8px 0 0; padding-left: 20px;">
+                      <li>Upper back/shoulders</li>
+                      <li>Mid-back</li>
+                      <li>Lower back</li>
+                      <li>Sacrum</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div style="background: #FFF8E1; padding: 16px; border-radius: 8px; margin-bottom: 20px;">
+                <p style="color: #F57F17; font-weight: 500; margin-bottom: 8px;">📝 Recording Reiki Sessions</p>
+                <p style="font-size: 14px; color: #666;">Go to <strong>Clients</strong> → Open client card → <strong>Spiritual Profile</strong> tab → Click "🙏 Add Reiki Session"</p>
+              </div>
+              
+              <!-- Reiki Reference Guides -->
+              <div style="margin-top: 24px; padding: 20px; background: #F5F5F5; border-radius: 12px;">
+                <h4 style="margin-bottom: 16px; color: var(--burgundy);">📚 Reiki Reference Guide</h4>
+                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                  <button class="btn btn-outline" onclick="showReikiGuide('symbols')">Symbols Deep Dive</button>
+                  <button class="btn btn-outline" onclick="showReikiGuide('scanning')">Byosen (Scanning)</button>
+                  <button class="btn btn-outline" onclick="showReikiGuide('attunements')">Attunement Levels</button>
+                  <button class="btn btn-outline" onclick="showReikiGuide('distance')">Distance Healing</button>
+                </div>
+                <div id="reiki-guide-content" style="margin-top: 20px; display: none;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CHAKRA GRID TAB - Visual Assessment Tool -->
+        <div class="tab-content" data-content="chakra-grid">
+          <div class="card">
+            <div class="card-header" style="background: linear-gradient(135deg, #E91E63 0%, #9C27B0 50%, #3F51B5 100%); color: white;">
+              <h3>🌈 Interactive Chakra Assessment Grid</h3>
+              <p style="margin: 8px 0 0; opacity: 0.9; font-size: 14px;">Visual chakra assessment tool for tracking client energy over time</p>
+            </div>
+            <div class="card-body">
+              <div style="display: flex; flex-direction: column; align-items: center; padding: 20px;">
+                <!-- Chakra Body Visualization -->
+                <div id="chakra-visual" style="position: relative; width: 200px; height: 380px; background: linear-gradient(180deg, #f5f0eb 0%, #e8ddd3 100%); border-radius: 100px 100px 60px 60px; margin-bottom: 24px; overflow: visible;">
+                  <!-- Crown -->
+                  <div class="chakra-point" data-chakra="crown" onclick="toggleChakraStatus('crown')" style="position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 50px; height: 50px; background: #7B1FA2; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 20px #7B1FA288; transition: all 0.3s; z-index: 10;">
+                    <span style="color: white; font-size: 20px;">👑</span>
+                  </div>
+                  <!-- Third Eye -->
+                  <div class="chakra-point" data-chakra="thirdEye" onclick="toggleChakraStatus('thirdEye')" style="position: absolute; top: 65px; left: 50%; transform: translateX(-50%); width: 45px; height: 45px; background: #512DA8; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 20px #512DA888; transition: all 0.3s; z-index: 10;">
+                    <span style="color: white; font-size: 18px;">👁️</span>
+                  </div>
+                  <!-- Throat -->
+                  <div class="chakra-point" data-chakra="throat" onclick="toggleChakraStatus('throat')" style="position: absolute; top: 115px; left: 50%; transform: translateX(-50%); width: 45px; height: 45px; background: #1976D2; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 20px #1976D288; transition: all 0.3s; z-index: 10;">
+                    <span style="color: white; font-size: 18px;">🗣️</span>
+                  </div>
+                  <!-- Heart -->
+                  <div class="chakra-point" data-chakra="heart" onclick="toggleChakraStatus('heart')" style="position: absolute; top: 165px; left: 50%; transform: translateX(-50%); width: 50px; height: 50px; background: #388E3C; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 20px #388E3C88; transition: all 0.3s; z-index: 10;">
+                    <span style="color: white; font-size: 20px;">💚</span>
+                  </div>
+                  <!-- Solar Plexus -->
+                  <div class="chakra-point" data-chakra="solar" onclick="toggleChakraStatus('solar')" style="position: absolute; top: 220px; left: 50%; transform: translateX(-50%); width: 45px; height: 45px; background: #FBC02D; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 20px #FBC02D88; transition: all 0.3s; z-index: 10;">
+                    <span style="font-size: 18px;">☀️</span>
+                  </div>
+                  <!-- Sacral -->
+                  <div class="chakra-point" data-chakra="sacral" onclick="toggleChakraStatus('sacral')" style="position: absolute; top: 270px; left: 50%; transform: translateX(-50%); width: 45px; height: 45px; background: #F57C00; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 20px #F57C0088; transition: all 0.3s; z-index: 10;">
+                    <span style="color: white; font-size: 18px;">🌊</span>
+                  </div>
+                  <!-- Root -->
+                  <div class="chakra-point" data-chakra="root" onclick="toggleChakraStatus('root')" style="position: absolute; top: 320px; left: 50%; transform: translateX(-50%); width: 50px; height: 50px; background: #C62828; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 20px #C6282888; transition: all 0.3s; z-index: 10;">
+                    <span style="color: white; font-size: 20px;">🔴</span>
+                  </div>
+                </div>
+
+                <!-- Status Legend -->
+                <div style="display: flex; gap: 20px; margin-bottom: 24px; flex-wrap: wrap; justify-content: center;">
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <div style="width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(135deg, #4CAF50, #81C784); box-shadow: 0 0 10px #4CAF5088;"></div>
+                    <span style="font-size: 13px;">Open/Balanced</span>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <div style="width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(135deg, #FF9800, #FFB74D); box-shadow: 0 0 10px #FF980088;"></div>
+                    <span style="font-size: 13px;">Partially Blocked</span>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <div style="width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(135deg, #f44336, #e57373); box-shadow: 0 0 10px #f4433688;"></div>
+                    <span style="font-size: 13px;">Blocked</span>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <div style="width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(135deg, #9E9E9E, #BDBDBD);"></div>
+                    <span style="font-size: 13px;">Not Assessed</span>
+                  </div>
+                </div>
+
+                <p style="font-size: 13px; color: var(--soft-gray); text-align: center; margin-bottom: 20px;">
+                  Click each chakra to cycle through states: Not Assessed → Open → Partial → Blocked
+                </p>
+              </div>
+
+              <!-- Chakra Assessment Table -->
+              <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+                  <thead>
+                    <tr style="background: linear-gradient(135deg, #E91E63 0%, #9C27B0 50%, #3F51B5 100%); color: white;">
+                      <th style="padding: 12px; text-align: left;">Chakra</th>
+                      <th style="padding: 12px; text-align: center;">Status</th>
+                      <th style="padding: 12px; text-align: left;">Common Blocks</th>
+                      <th style="padding: 12px; text-align: left;">Healing Modalities</th>
+                    </tr>
+                  </thead>
+                  <tbody id="chakra-assessment-table">
+                    <tr style="background: #FFEBEE;">
+                      <td style="padding: 12px;"><span style="font-size: 20px;">🔴</span> Root (Muladhara)</td>
+                      <td style="padding: 12px; text-align: center;" id="chakra-status-root">—</td>
+                      <td style="padding: 12px; font-size: 13px;">Fear, survival anxiety, financial worry, disconnection from body</td>
+                      <td style="padding: 12px; font-size: 13px;">Grounding, red crystals, LAM mantra, root vegetables, Sat Kriya</td>
+                    </tr>
+                    <tr style="background: #FFF3E0;">
+                      <td style="padding: 12px;"><span style="font-size: 20px;">🟠</span> Sacral (Svadhisthana)</td>
+                      <td style="padding: 12px; text-align: center;" id="chakra-status-sacral">—</td>
+                      <td style="padding: 12px; font-size: 13px;">Guilt, shame, sexual trauma, creative blocks, emotional numbness</td>
+                      <td style="padding: 12px; font-size: 13px;">Hip openers, orange crystals, VAM mantra, pelvic work, water element</td>
+                    </tr>
+                    <tr style="background: #FFFDE7;">
+                      <td style="padding: 12px;"><span style="font-size: 20px;">🟡</span> Solar Plexus (Manipura)</td>
+                      <td style="padding: 12px; text-align: center;" id="chakra-status-solar">—</td>
+                      <td style="padding: 12px; font-size: 13px;">Low self-esteem, powerlessness, control issues, digestive problems</td>
+                      <td style="padding: 12px; font-size: 13px;">Core work, yellow crystals, RAM mantra, Breath of Fire, solar energy</td>
+                    </tr>
+                    <tr style="background: #E8F5E9;">
+                      <td style="padding: 12px;"><span style="font-size: 20px;">🟢</span> Heart (Anahata)</td>
+                      <td style="padding: 12px; text-align: center;" id="chakra-status-heart">—</td>
+                      <td style="padding: 12px; font-size: 13px;">Grief, heartbreak, fear of intimacy, inability to give/receive love</td>
+                      <td style="padding: 12px; font-size: 13px;">Heart openers, green/pink crystals, YAM mantra, compassion meditation</td>
+                    </tr>
+                    <tr style="background: #E3F2FD;">
+                      <td style="padding: 12px;"><span style="font-size: 20px;">🔵</span> Throat (Vishuddha)</td>
+                      <td style="padding: 12px; text-align: center;" id="chakra-status-throat">—</td>
+                      <td style="padding: 12px; font-size: 13px;">Fear of speaking truth, inability to express, feeling unheard</td>
+                      <td style="padding: 12px; font-size: 13px;">Chanting, blue crystals, HAM mantra, Lion's Breath, singing</td>
+                    </tr>
+                    <tr style="background: #EDE7F6;">
+                      <td style="padding: 12px;"><span style="font-size: 20px;">🟣</span> Third Eye (Ajna)</td>
+                      <td style="padding: 12px; text-align: center;" id="chakra-status-thirdEye">—</td>
+                      <td style="padding: 12px; font-size: 13px;">Lack of intuition, poor imagination, difficulty seeing bigger picture</td>
+                      <td style="padding: 12px; font-size: 13px;">Meditation, indigo crystals, OM mantra, Trataka, dream work</td>
+                    </tr>
+                    <tr style="background: #F3E5F5;">
+                      <td style="padding: 12px;"><span style="font-size: 20px;">👑</span> Crown (Sahasrara)</td>
+                      <td style="padding: 12px; text-align: center;" id="chakra-status-crown">—</td>
+                      <td style="padding: 12px; font-size: 13px;">Spiritual disconnection, existential crisis, lack of purpose</td>
+                      <td style="padding: 12px; font-size: 13px;">Silent meditation, violet/white crystals, connection to divine, Savasana</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              
+              <div style="margin-top: 20px; text-align: center;">
+                <button class="btn btn-primary" onclick="resetChakraGrid()">🔄 Reset Grid</button>
+                <p style="font-size: 12px; color: var(--soft-gray); margin-top: 8px;">To save a chakra assessment to a client, use the Bioenergetics or Pendulum session tools from their profile.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CRYSTAL HEALING TAB -->
+        <div class="tab-content" data-content="crystals">
+          <div class="card">
+            <div class="card-header" style="background: linear-gradient(135deg, #00BCD4 0%, #4DD0E1 50%, #E1BEE7 100%); color: white;">
+              <h3>💎 Crystal Healing Reference & Session Tracker</h3>
+              <p style="margin: 8px 0 0; opacity: 0.9; font-size: 14px;">Complete crystal correspondences for chakras, zodiac signs, and healing intentions</p>
+            </div>
+            <div class="card-body">
+              <!-- Crystal by Chakra -->
+              <h4 style="margin-bottom: 16px; color: var(--burgundy);">🌈 Crystals by Chakra</h4>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 32px;">
+                <div style="padding: 16px; background: linear-gradient(135deg, #FFEBEE 0%, #FFCDD2 100%); border-radius: 12px; border-left: 4px solid #C62828;">
+                  <h5 style="color: #C62828; margin-bottom: 8px;">🔴 Root Chakra</h5>
+                  <p style="font-size: 13px; line-height: 1.8;">
+                    <strong>Red Jasper</strong> - Grounding, stability<br>
+                    <strong>Black Tourmaline</strong> - Protection, grounding<br>
+                    <strong>Hematite</strong> - Courage, strength<br>
+                    <strong>Smoky Quartz</strong> - Transmutes negativity<br>
+                    <strong>Garnet</strong> - Vitality, passion
+                  </p>
+                </div>
+                <div style="padding: 16px; background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%); border-radius: 12px; border-left: 4px solid #F57C00;">
+                  <h5 style="color: #E65100; margin-bottom: 8px;">🟠 Sacral Chakra</h5>
+                  <p style="font-size: 13px; line-height: 1.8;">
+                    <strong>Carnelian</strong> - Creativity, sexuality<br>
+                    <strong>Orange Calcite</strong> - Joy, emotional healing<br>
+                    <strong>Moonstone</strong> - Feminine energy, intuition<br>
+                    <strong>Sunstone</strong> - Vitality, pleasure<br>
+                    <strong>Tiger's Eye</strong> - Confidence, courage
+                  </p>
+                </div>
+                <div style="padding: 16px; background: linear-gradient(135deg, #FFFDE7 0%, #FFF9C4 100%); border-radius: 12px; border-left: 4px solid #FBC02D;">
+                  <h5 style="color: #F9A825; margin-bottom: 8px;">🟡 Solar Plexus</h5>
+                  <p style="font-size: 13px; line-height: 1.8;">
+                    <strong>Citrine</strong> - Manifestation, willpower<br>
+                    <strong>Yellow Jasper</strong> - Protection, confidence<br>
+                    <strong>Pyrite</strong> - Abundance, action<br>
+                    <strong>Golden Tiger's Eye</strong> - Personal power<br>
+                    <strong>Amber</strong> - Ancient wisdom, healing
+                  </p>
+                </div>
+                <div style="padding: 16px; background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%); border-radius: 12px; border-left: 4px solid #388E3C;">
+                  <h5 style="color: #2E7D32; margin-bottom: 8px;">🟢 Heart Chakra</h5>
+                  <p style="font-size: 13px; line-height: 1.8;">
+                    <strong>Rose Quartz</strong> - Unconditional love<br>
+                    <strong>Green Aventurine</strong> - Luck, healing<br>
+                    <strong>Malachite</strong> - Transformation, protection<br>
+                    <strong>Rhodonite</strong> - Emotional balance<br>
+                    <strong>Jade</strong> - Harmony, prosperity
+                  </p>
+                </div>
+                <div style="padding: 16px; background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%); border-radius: 12px; border-left: 4px solid #1976D2;">
+                  <h5 style="color: #1565C0; margin-bottom: 8px;">🔵 Throat Chakra</h5>
+                  <p style="font-size: 13px; line-height: 1.8;">
+                    <strong>Blue Lace Agate</strong> - Communication<br>
+                    <strong>Aquamarine</strong> - Courage, clarity<br>
+                    <strong>Lapis Lazuli</strong> - Truth, wisdom<br>
+                    <strong>Sodalite</strong> - Logic, intuition<br>
+                    <strong>Turquoise</strong> - Protection, healing
+                  </p>
+                </div>
+                <div style="padding: 16px; background: linear-gradient(135deg, #EDE7F6 0%, #D1C4E9 100%); border-radius: 12px; border-left: 4px solid #512DA8;">
+                  <h5 style="color: #4527A0; margin-bottom: 8px;">🟣 Third Eye Chakra</h5>
+                  <p style="font-size: 13px; line-height: 1.8;">
+                    <strong>Amethyst</strong> - Intuition, spiritual growth<br>
+                    <strong>Labradorite</strong> - Transformation, magic<br>
+                    <strong>Fluorite</strong> - Clarity, focus<br>
+                    <strong>Lepidolite</strong> - Calm, transitions<br>
+                    <strong>Azurite</strong> - Psychic abilities
+                  </p>
+                </div>
+                <div style="padding: 16px; background: linear-gradient(135deg, #F3E5F5 0%, #E1BEE7 100%); border-radius: 12px; border-left: 4px solid #7B1FA2;">
+                  <h5 style="color: #6A1B9A; margin-bottom: 8px;">👑 Crown Chakra</h5>
+                  <p style="font-size: 13px; line-height: 1.8;">
+                    <strong>Clear Quartz</strong> - Master healer, amplifies<br>
+                    <strong>Selenite</strong> - Cleansing, divine connection<br>
+                    <strong>Howlite</strong> - Calm, patience<br>
+                    <strong>Moonstone</strong> - Divine feminine<br>
+                    <strong>Lepidolite</strong> - Spiritual connection
+                  </p>
+                </div>
+              </div>
+
+              <!-- Crystal by Zodiac -->
+              <h4 style="margin-bottom: 16px; color: var(--burgundy);">⭐ Crystals by Zodiac Sign</h4>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 24px;">
+                <div style="padding: 12px; background: #FFF; border: 2px solid #e0d6cc; border-radius: 8px;">
+                  <strong>♈ Aries</strong><br><span style="font-size: 13px; color: #666;">Carnelian, Bloodstone, Diamond</span>
+                </div>
+                <div style="padding: 12px; background: #FFF; border: 2px solid #e0d6cc; border-radius: 8px;">
+                  <strong>♉ Taurus</strong><br><span style="font-size: 13px; color: #666;">Rose Quartz, Emerald, Lapis Lazuli</span>
+                </div>
+                <div style="padding: 12px; background: #FFF; border: 2px solid #e0d6cc; border-radius: 8px;">
+                  <strong>♊ Gemini</strong><br><span style="font-size: 13px; color: #666;">Agate, Citrine, Tiger's Eye</span>
+                </div>
+                <div style="padding: 12px; background: #FFF; border: 2px solid #e0d6cc; border-radius: 8px;">
+                  <strong>♋ Cancer</strong><br><span style="font-size: 13px; color: #666;">Moonstone, Pearl, Ruby</span>
+                </div>
+                <div style="padding: 12px; background: #FFF; border: 2px solid #e0d6cc; border-radius: 8px;">
+                  <strong>♌ Leo</strong><br><span style="font-size: 13px; color: #666;">Sunstone, Peridot, Citrine</span>
+                </div>
+                <div style="padding: 12px; background: #FFF; border: 2px solid #e0d6cc; border-radius: 8px;">
+                  <strong>♍ Virgo</strong><br><span style="font-size: 13px; color: #666;">Amazonite, Moss Agate, Peridot</span>
+                </div>
+                <div style="padding: 12px; background: #FFF; border: 2px solid #e0d6cc; border-radius: 8px;">
+                  <strong>♎ Libra</strong><br><span style="font-size: 13px; color: #666;">Lepidolite, Opal, Lapis Lazuli</span>
+                </div>
+                <div style="padding: 12px; background: #FFF; border: 2px solid #e0d6cc; border-radius: 8px;">
+                  <strong>♏ Scorpio</strong><br><span style="font-size: 13px; color: #666;">Obsidian, Malachite, Topaz</span>
+                </div>
+                <div style="padding: 12px; background: #FFF; border: 2px solid #e0d6cc; border-radius: 8px;">
+                  <strong>♐ Sagittarius</strong><br><span style="font-size: 13px; color: #666;">Turquoise, Sodalite, Amethyst</span>
+                </div>
+                <div style="padding: 12px; background: #FFF; border: 2px solid #e0d6cc; border-radius: 8px;">
+                  <strong>♑ Capricorn</strong><br><span style="font-size: 13px; color: #666;">Garnet, Black Tourmaline, Onyx</span>
+                </div>
+                <div style="padding: 12px; background: #FFF; border: 2px solid #e0d6cc; border-radius: 8px;">
+                  <strong>♒ Aquarius</strong><br><span style="font-size: 13px; color: #666;">Aquamarine, Amethyst, Garnet</span>
+                </div>
+                <div style="padding: 12px; background: #FFF; border: 2px solid #e0d6cc; border-radius: 8px;">
+                  <strong>♓ Pisces</strong><br><span style="font-size: 13px; color: #666;">Amethyst, Aquamarine, Fluorite</span>
+                </div>
+              </div>
+
+              <div style="background: #FFF8E1; padding: 16px; border-radius: 8px;">
+                <p style="color: #F57F17; font-weight: 500; margin-bottom: 8px;">📝 Recording Crystal Sessions</p>
+                <p style="font-size: 14px; color: #666;">Go to <strong>Clients</strong> → Open client card → <strong>Spiritual Profile</strong> tab → Click "💎 Add Crystal Session"</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SOUND HEALING TAB -->
+        <div class="tab-content" data-content="sound-healing">
+          <div class="card">
+            <div class="card-header" style="background: linear-gradient(135deg, #00695C 0%, #26A69A 100%); color: white;">
+              <h3>🔔 Sound Healing & Frequency Therapy</h3>
+              <p style="margin: 8px 0 0; opacity: 0.9; font-size: 14px;">Solfeggio frequencies, singing bowls, and sound therapy tools</p>
+            </div>
+            <div class="card-body">
+              <!-- Solfeggio Frequencies -->
+              <h4 style="margin-bottom: 16px; color: var(--burgundy);">🎵 Solfeggio Frequencies</h4>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 32px;">
+                <div style="padding: 16px; background: linear-gradient(135deg, #FFEBEE 0%, #FFCDD2 100%); border-radius: 12px;">
+                  <h5 style="color: #C62828; margin-bottom: 8px;">396 Hz - Liberation</h5>
+                  <p style="font-size: 13px; line-height: 1.6;">Releases guilt and fear. Root chakra. Transforms grief into joy. Grounds and liberates.</p>
+                </div>
+                <div style="padding: 16px; background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%); border-radius: 12px;">
+                  <h5 style="color: #E65100; margin-bottom: 8px;">417 Hz - Change</h5>
+                  <p style="font-size: 13px; line-height: 1.6;">Facilitates change and undoes negative situations. Sacral chakra. Clears traumatic experiences.</p>
+                </div>
+                <div style="padding: 16px; background: linear-gradient(135deg, #FFFDE7 0%, #FFF9C4 100%); border-radius: 12px;">
+                  <h5 style="color: #F9A825; margin-bottom: 8px;">528 Hz - Miracles</h5>
+                  <p style="font-size: 13px; line-height: 1.6;">"Love frequency" - DNA repair, transformation. Solar plexus. Creates miracles and clarity.</p>
+                </div>
+                <div style="padding: 16px; background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%); border-radius: 12px;">
+                  <h5 style="color: #2E7D32; margin-bottom: 8px;">639 Hz - Connection</h5>
+                  <p style="font-size: 13px; line-height: 1.6;">Harmonizes relationships. Heart chakra. Enhances communication, understanding, tolerance.</p>
+                </div>
+                <div style="padding: 16px; background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%); border-radius: 12px;">
+                  <h5 style="color: #1565C0; margin-bottom: 8px;">741 Hz - Intuition</h5>
+                  <p style="font-size: 13px; line-height: 1.6;">Awakens intuition and self-expression. Throat chakra. Cleanses toxins and electromagnetic radiation.</p>
+                </div>
+                <div style="padding: 16px; background: linear-gradient(135deg, #EDE7F6 0%, #D1C4E9 100%); border-radius: 12px;">
+                  <h5 style="color: #4527A0; margin-bottom: 8px;">852 Hz - Awakening</h5>
+                  <p style="font-size: 13px; line-height: 1.6;">Returns to spiritual order. Third eye chakra. Awakens intuition and inner strength.</p>
+                </div>
+                <div style="padding: 16px; background: linear-gradient(135deg, #F3E5F5 0%, #E1BEE7 100%); border-radius: 12px;">
+                  <h5 style="color: #6A1B9A; margin-bottom: 8px;">963 Hz - Divine Connection</h5>
+                  <p style="font-size: 13px; line-height: 1.6;">"God frequency" - Activates pineal gland. Crown chakra. Pure light, oneness with divine.</p>
+                </div>
+              </div>
+
+              <!-- Singing Bowls -->
+              <h4 style="margin-bottom: 16px; color: var(--burgundy);">🔔 Singing Bowl Notes by Chakra</h4>
+              <div style="overflow-x: auto; margin-bottom: 24px;">
+                <table style="width: 100%; border-collapse: collapse;">
+                  <thead>
+                    <tr style="background: linear-gradient(135deg, #00695C 0%, #26A69A 100%); color: white;">
+                      <th style="padding: 12px; text-align: left;">Chakra</th>
+                      <th style="padding: 12px; text-align: center;">Note</th>
+                      <th style="padding: 12px; text-align: center;">Hz Range</th>
+                      <th style="padding: 12px; text-align: left;">Effect</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr style="background: #FFEBEE;"><td style="padding: 12px;">🔴 Root</td><td style="padding: 12px; text-align: center; font-weight: bold;">C</td><td style="padding: 12px; text-align: center;">256-512 Hz</td><td style="padding: 12px;">Grounding, security, physical body</td></tr>
+                    <tr style="background: #FFF3E0;"><td style="padding: 12px;">🟠 Sacral</td><td style="padding: 12px; text-align: center; font-weight: bold;">D</td><td style="padding: 12px; text-align: center;">288-576 Hz</td><td style="padding: 12px;">Creativity, pleasure, emotions</td></tr>
+                    <tr style="background: #FFFDE7;"><td style="padding: 12px;">🟡 Solar Plexus</td><td style="padding: 12px; text-align: center; font-weight: bold;">E</td><td style="padding: 12px; text-align: center;">320-640 Hz</td><td style="padding: 12px;">Personal power, confidence</td></tr>
+                    <tr style="background: #E8F5E9;"><td style="padding: 12px;">🟢 Heart</td><td style="padding: 12px; text-align: center; font-weight: bold;">F</td><td style="padding: 12px; text-align: center;">341-682 Hz</td><td style="padding: 12px;">Love, compassion, healing</td></tr>
+                    <tr style="background: #E3F2FD;"><td style="padding: 12px;">🔵 Throat</td><td style="padding: 12px; text-align: center; font-weight: bold;">G</td><td style="padding: 12px; text-align: center;">384-768 Hz</td><td style="padding: 12px;">Communication, expression</td></tr>
+                    <tr style="background: #EDE7F6;"><td style="padding: 12px;">🟣 Third Eye</td><td style="padding: 12px; text-align: center; font-weight: bold;">A</td><td style="padding: 12px; text-align: center;">426-852 Hz</td><td style="padding: 12px;">Intuition, clarity</td></tr>
+                    <tr style="background: #F3E5F5;"><td style="padding: 12px;">👑 Crown</td><td style="padding: 12px; text-align: center; font-weight: bold;">B</td><td style="padding: 12px; text-align: center;">480-960 Hz</td><td style="padding: 12px;">Divine connection, enlightenment</td></tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Other Sound Tools -->
+              <h4 style="margin-bottom: 16px; color: var(--burgundy);">🎶 Other Sound Healing Tools</h4>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 24px;">
+                <div style="padding: 16px; background: #FFF; border: 2px solid #e0d6cc; border-radius: 8px; text-align: center;">
+                  <div style="font-size: 32px; margin-bottom: 8px;">🔱</div>
+                  <strong>Tuning Forks</strong>
+                  <p style="font-size: 12px; color: #666; margin-top: 4px;">Precision frequencies for specific healing</p>
+                </div>
+                <div style="padding: 16px; background: #FFF; border: 2px solid #e0d6cc; border-radius: 8px; text-align: center;">
+                  <div style="font-size: 32px; margin-bottom: 8px;">🔔</div>
+                  <strong>Tingsha Bells</strong>
+                  <p style="font-size: 12px; color: #666; margin-top: 4px;">Clear space, signal transitions</p>
+                </div>
+                <div style="padding: 16px; background: #FFF; border: 2px solid #e0d6cc; border-radius: 8px; text-align: center;">
+                  <div style="font-size: 32px; margin-bottom: 8px;">🪘</div>
+                  <strong>Drums</strong>
+                  <p style="font-size: 12px; color: #666; margin-top: 4px;">Shamanic journeying, grounding</p>
+                </div>
+                <div style="padding: 16px; background: #FFF; border: 2px solid #e0d6cc; border-radius: 8px; text-align: center;">
+                  <div style="font-size: 32px; margin-bottom: 8px;">🎸</div>
+                  <strong>Gong</strong>
+                  <p style="font-size: 12px; color: #666; margin-top: 4px;">Deep healing, sound bath immersion</p>
+                </div>
+              </div>
+
+              <div style="background: #FFF8E1; padding: 16px; border-radius: 8px;">
+                <p style="color: #F57F17; font-weight: 500; margin-bottom: 8px;">📝 Recording Sound Healing Sessions</p>
+                <p style="font-size: 14px; color: #666;">Go to <strong>Clients</strong> → Open client card → <strong>Spiritual Profile</strong> tab → Click "🔔 Add Sound Healing Session"</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AURA READING TAB -->
+        <div class="tab-content" data-content="aura">
+          <div class="card">
+            <div class="card-header" style="background: linear-gradient(135deg, #FF6F00 0%, #FFB300 25%, #4CAF50 50%, #2196F3 75%, #9C27B0 100%); color: white;">
+              <h3>✨ Aura Reading & Color Interpretation</h3>
+              <p style="margin: 8px 0 0; opacity: 0.9; font-size: 14px;">Interpret aura colors and track changes over time</p>
+            </div>
+            <div class="card-body">
+              <!-- Aura Color Guide -->
+              <h4 style="margin-bottom: 16px; color: var(--burgundy);">🌈 Aura Color Meanings</h4>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 32px;">
+                <div style="padding: 16px; background: linear-gradient(135deg, #FFEBEE 0%, #FFCDD2 100%); border-radius: 12px; border-left: 4px solid #C62828;">
+                  <h5 style="color: #C62828; margin-bottom: 8px;">🔴 Red Aura</h5>
+                  <p style="font-size: 13px; line-height: 1.6;">
+                    <strong>Bright Red:</strong> Passion, energy, competitive, sexual energy<br>
+                    <strong>Dark Red:</strong> Grounded, realistic, hardworking, survival mode<br>
+                    <strong>Muddy Red:</strong> Anger, anxiety, fear, unresolved emotions
+                  </p>
+                </div>
+                <div style="padding: 16px; background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%); border-radius: 12px; border-left: 4px solid #F57C00;">
+                  <h5 style="color: #E65100; margin-bottom: 8px;">🟠 Orange Aura</h5>
+                  <p style="font-size: 13px; line-height: 1.6;">
+                    <strong>Bright Orange:</strong> Creative, adventurous, confident<br>
+                    <strong>Orange-Yellow:</strong> Scientific, detail-oriented, perfectionist<br>
+                    <strong>Muddy Orange:</strong> Addiction, emotional imbalance
+                  </p>
+                </div>
+                <div style="padding: 16px; background: linear-gradient(135deg, #FFFDE7 0%, #FFF9C4 100%); border-radius: 12px; border-left: 4px solid #FBC02D;">
+                  <h5 style="color: #F9A825; margin-bottom: 8px;">🟡 Yellow Aura</h5>
+                  <p style="font-size: 13px; line-height: 1.6;">
+                    <strong>Bright Yellow:</strong> Playful, optimistic, awakening spirituality<br>
+                    <strong>Gold:</strong> Spiritual teacher, divine protection<br>
+                    <strong>Muddy Yellow:</strong> Student fatigue, overstimulation
+                  </p>
+                </div>
+                <div style="padding: 16px; background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%); border-radius: 12px; border-left: 4px solid #388E3C;">
+                  <h5 style="color: #2E7D32; margin-bottom: 8px;">🟢 Green Aura</h5>
+                  <p style="font-size: 13px; line-height: 1.6;">
+                    <strong>Bright Green:</strong> Healer, nature lover, social<br>
+                    <strong>Emerald:</strong> Natural healer, loving heart<br>
+                    <strong>Muddy Green:</strong> Jealousy, insecurity, victim mentality
+                  </p>
+                </div>
+                <div style="padding: 16px; background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%); border-radius: 12px; border-left: 4px solid #1976D2;">
+                  <h5 style="color: #1565C0; margin-bottom: 8px;">🔵 Blue Aura</h5>
+                  <p style="font-size: 13px; line-height: 1.6;">
+                    <strong>Bright Blue:</strong> Intuitive, expressive, peaceful<br>
+                    <strong>Royal Blue:</strong> Clairvoyant, highly spiritual<br>
+                    <strong>Muddy Blue:</strong> Fear of expression, fear of truth
+                  </p>
+                </div>
+                <div style="padding: 16px; background: linear-gradient(135deg, #EDE7F6 0%, #D1C4E9 100%); border-radius: 12px; border-left: 4px solid #512DA8;">
+                  <h5 style="color: #4527A0; margin-bottom: 8px;">🟣 Purple/Violet Aura</h5>
+                  <p style="font-size: 13px; line-height: 1.6;">
+                    <strong>Violet:</strong> Visionary, artistic, magical, sensitive<br>
+                    <strong>Indigo:</strong> Intuitive, sensitive, deep feeling<br>
+                    <strong>Lavender:</strong> Imagination, daydreaming, etheric
+                  </p>
+                </div>
+                <div style="padding: 16px; background: linear-gradient(135deg, #FCE4EC 0%, #F8BBD9 100%); border-radius: 12px; border-left: 4px solid #E91E63;">
+                  <h5 style="color: #C2185B; margin-bottom: 8px;">💗 Pink Aura</h5>
+                  <p style="font-size: 13px; line-height: 1.6;">
+                    <strong>Bright Pink:</strong> Loving, sensitive, compassionate<br>
+                    <strong>Magenta:</strong> Heart-centered, unconventional<br>
+                    <strong>Muddy Pink:</strong> Immature, dishonest
+                  </p>
+                </div>
+                <div style="padding: 16px; background: linear-gradient(135deg, #FAFAFA 0%, #F5F5F5 100%); border-radius: 12px; border-left: 4px solid #9E9E9E;">
+                  <h5 style="color: #424242; margin-bottom: 8px;">⚪ White/Silver/Gold Aura</h5>
+                  <p style="font-size: 13px; line-height: 1.6;">
+                    <strong>White:</strong> Pure, transcendent, angelic, new soul<br>
+                    <strong>Silver:</strong> Abundance, awakening, spiritual gifts<br>
+                    <strong>Gold:</strong> Divine protection, enlightened, teacher
+                  </p>
+                </div>
+              </div>
+
+              <!-- Aura Layers -->
+              <div style="background: #F5F5F5; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                <h4 style="margin-bottom: 16px; color: var(--burgundy);">📚 The 7 Aura Layers</h4>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                  <div style="padding: 12px; background: white; border-radius: 8px;"><strong>1. Etheric</strong><br><span style="font-size: 12px; color: #666;">Physical body blueprint, health</span></div>
+                  <div style="padding: 12px; background: white; border-radius: 8px;"><strong>2. Emotional</strong><br><span style="font-size: 12px; color: #666;">Feelings, emotions, desires</span></div>
+                  <div style="padding: 12px; background: white; border-radius: 8px;"><strong>3. Mental</strong><br><span style="font-size: 12px; color: #666;">Thoughts, beliefs, mental patterns</span></div>
+                  <div style="padding: 12px; background: white; border-radius: 8px;"><strong>4. Astral</strong><br><span style="font-size: 12px; color: #666;">Bridge to spiritual, love relationships</span></div>
+                  <div style="padding: 12px; background: white; border-radius: 8px;"><strong>5. Etheric Template</strong><br><span style="font-size: 12px; color: #666;">Blueprint for etheric body</span></div>
+                  <div style="padding: 12px; background: white; border-radius: 8px;"><strong>6. Celestial</strong><br><span style="font-size: 12px; color: #666;">Spiritual emotions, divine love</span></div>
+                  <div style="padding: 12px; background: white; border-radius: 8px;"><strong>7. Ketheric</strong><br><span style="font-size: 12px; color: #666;">Divine connection, highest knowing</span></div>
+                </div>
+              </div>
+
+              <div style="background: #FFF8E1; padding: 16px; border-radius: 8px;">
+                <p style="color: #F57F17; font-weight: 500; margin-bottom: 8px;">📝 Recording Aura Readings</p>
+                <p style="font-size: 14px; color: #666;">Go to <strong>Clients</strong> → Open client card → <strong>Spiritual Profile</strong> tab → Click "✨ Add Aura Reading"</p>
               </div>
             </div>
           </div>
@@ -5424,6 +5982,216 @@
     </div>
   </div>
 
+  <!-- REIKI SESSION MODAL -->
+  <div class="modal-overlay" id="reikiModal">
+    <div class="modal" style="max-width: 650px;">
+      <div class="modal-header" style="background: linear-gradient(135deg, #9C27B0 0%, #BA68C8 100%); color: white;">
+        <h2 class="modal-title">🙏 Record Reiki Session</h2>
+        <button class="modal-close" onclick="closeModal('reikiModal')" style="color: white;">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="reikiClientId">
+        <div class="form-group">
+          <label class="form-label">Session Type</label>
+          <select class="form-input" id="reikiType">
+            <option value="full-body">Full Body Session</option>
+            <option value="chakra-focused">Chakra-Focused Session</option>
+            <option value="distance">Distance Healing</option>
+            <option value="self-healing">Self-Healing (guided)</option>
+            <option value="specific-issue">Specific Issue Treatment</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Symbols Used</label>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px;">
+            <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; padding: 8px; background: #F3E5F5; border-radius: 6px;">
+              <input type="checkbox" class="reiki-symbol" value="cho-ku-rei"> Cho Ku Rei ☯️
+            </label>
+            <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; padding: 8px; background: #F3E5F5; border-radius: 6px;">
+              <input type="checkbox" class="reiki-symbol" value="sei-he-ki"> Sei He Ki 🌊
+            </label>
+            <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; padding: 8px; background: #F3E5F5; border-radius: 6px;">
+              <input type="checkbox" class="reiki-symbol" value="hon-sha-ze-sho-nen"> Hon Sha Ze Sho Nen 🌍
+            </label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Hand Positions Used</label>
+          <textarea class="form-textarea" id="reikiHandPositions" rows="2" placeholder="e.g., Head, throat, heart, solar plexus..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Energy Sensations Observed</label>
+          <textarea class="form-textarea" id="reikiSensations" rows="3" placeholder="Heat, tingling, pulsing, cold, resistance, flow..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Byosen (Scanning) Results</label>
+          <textarea class="form-textarea" id="reikiByosen" rows="2" placeholder="Areas of heat, density, or energy blockage detected..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Client Experiences/Feedback</label>
+          <textarea class="form-textarea" id="reikiClientExperience" rows="3" placeholder="What the client reported feeling, visions, emotional releases..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Practitioner Notes</label>
+          <textarea class="form-textarea" id="reikiNotes" rows="2" placeholder="Additional observations, recommendations, follow-up..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('reikiModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="saveReikiSession()">💾 Save Session</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CRYSTAL HEALING SESSION MODAL -->
+  <div class="modal-overlay" id="crystalModal">
+    <div class="modal" style="max-width: 600px;">
+      <div class="modal-header" style="background: linear-gradient(135deg, #00BCD4 0%, #4DD0E1 100%); color: white;">
+        <h2 class="modal-title">💎 Record Crystal Healing Session</h2>
+        <button class="modal-close" onclick="closeModal('crystalModal')" style="color: white;">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="crystalClientId">
+        <div class="form-group">
+          <label class="form-label">Session Type</label>
+          <select class="form-input" id="crystalType">
+            <option value="layout">Crystal Layout/Grid</option>
+            <option value="chakra-placement">Chakra Crystal Placement</option>
+            <option value="meditation">Crystal Meditation</option>
+            <option value="recommendation">Crystal Recommendation</option>
+            <option value="clearing">Crystal Clearing/Charging</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Crystals Used</label>
+          <textarea class="form-textarea" id="crystalStones" rows="3" placeholder="List crystals used and their placements...
+e.g., Rose Quartz on heart, Amethyst on third eye, Black Tourmaline at feet"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Intention/Purpose</label>
+          <textarea class="form-textarea" id="crystalIntention" rows="2" placeholder="Healing intention for this session..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Client Experience</label>
+          <textarea class="form-textarea" id="crystalExperience" rows="3" placeholder="What the client felt, colors seen, emotions released..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Crystals Recommended for Home Use</label>
+          <textarea class="form-textarea" id="crystalRecommendations" rows="2" placeholder="Crystals for client to work with at home..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('crystalModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="saveCrystalSession()">💾 Save Session</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SOUND HEALING SESSION MODAL -->
+  <div class="modal-overlay" id="soundHealingModal">
+    <div class="modal" style="max-width: 600px;">
+      <div class="modal-header" style="background: linear-gradient(135deg, #00695C 0%, #26A69A 100%); color: white;">
+        <h2 class="modal-title">🔔 Record Sound Healing Session</h2>
+        <button class="modal-close" onclick="closeModal('soundHealingModal')" style="color: white;">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="soundHealingClientId">
+        <div class="form-group">
+          <label class="form-label">Session Type</label>
+          <select class="form-input" id="soundHealingType">
+            <option value="singing-bowls">Singing Bowl Session</option>
+            <option value="tuning-forks">Tuning Fork Therapy</option>
+            <option value="sound-bath">Sound Bath</option>
+            <option value="frequency">Solfeggio Frequency</option>
+            <option value="chanting">Mantra/Chanting</option>
+            <option value="combination">Combination Session</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Instruments/Frequencies Used</label>
+          <textarea class="form-textarea" id="soundInstruments" rows="3" placeholder="e.g., C note bowl (Root), F note bowl (Heart), 528 Hz tuning fork..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Chakras/Areas Focused</label>
+          <textarea class="form-textarea" id="soundFocus" rows="2" placeholder="Which chakras or body areas were the focus..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Client Experience</label>
+          <textarea class="form-textarea" id="soundExperience" rows="3" placeholder="Client's experience: relaxation, visions, emotional release, physical sensations..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Session Notes</label>
+          <textarea class="form-textarea" id="soundNotes" rows="2" placeholder="Practitioner observations, recommendations..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('soundHealingModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="saveSoundHealingSession()">💾 Save Session</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AURA READING MODAL -->
+  <div class="modal-overlay" id="auraModal">
+    <div class="modal" style="max-width: 600px;">
+      <div class="modal-header" style="background: linear-gradient(135deg, #FF6F00 0%, #FFB300 25%, #4CAF50 50%, #2196F3 75%, #9C27B0 100%); color: white;">
+        <h2 class="modal-title">✨ Record Aura Reading</h2>
+        <button class="modal-close" onclick="closeModal('auraModal')" style="color: white;">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="auraClientId">
+        <div class="form-group">
+          <label class="form-label">Primary Aura Color</label>
+          <select class="form-input" id="auraPrimaryColor">
+            <option value="">-- Select Primary Color --</option>
+            <option value="red">🔴 Red</option>
+            <option value="orange">🟠 Orange</option>
+            <option value="yellow">🟡 Yellow</option>
+            <option value="green">🟢 Green</option>
+            <option value="blue">🔵 Blue</option>
+            <option value="indigo">🟣 Indigo</option>
+            <option value="violet">💜 Violet</option>
+            <option value="pink">💗 Pink</option>
+            <option value="white">⚪ White</option>
+            <option value="gold">🌟 Gold</option>
+            <option value="silver">🪙 Silver</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Secondary Colors (if present)</label>
+          <input type="text" class="form-input" id="auraSecondaryColors" placeholder="e.g., Green around heart, Blue at throat">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Aura Quality</label>
+          <select class="form-input" id="auraQuality">
+            <option value="bright">Bright & Clear</option>
+            <option value="muddy">Muddy/Clouded</option>
+            <option value="expanding">Expanding</option>
+            <option value="contracted">Contracted</option>
+            <option value="holes">Has Holes/Gaps</option>
+            <option value="mixed">Mixed Quality</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Areas of Concern</label>
+          <textarea class="form-textarea" id="auraConcerns" rows="2" placeholder="Any dark spots, holes, or areas of concern in the auric field..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Interpretation & Insights</label>
+          <textarea class="form-textarea" id="auraInterpretation" rows="4" placeholder="What the aura colors and patterns indicate about the client's current state..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Recommendations</label>
+          <textarea class="form-textarea" id="auraRecommendations" rows="2" placeholder="Suggested practices to strengthen or heal the aura..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('auraModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="saveAuraReading()">💾 Save Reading</button>
+      </div>
+    </div>
+  </div>
+
   <!-- GENERATE CODES MODAL -->
   <div class="modal-overlay" id="generateCodesModal">
     <div class="modal" style="max-width: 480px;">
@@ -6209,6 +6977,9 @@
         </div>
       `;
 
+      // Render revenue chart
+      renderRevenueChart(stats.monthlyRevenue || []);
+
       // Generate smart insights
       await generateInsights(stats, recentBookings);
 
@@ -6224,6 +6995,70 @@
           </td>
         </tr>
       `).join('') || '<tr><td colspan="5" class="empty-state">No bookings yet</td></tr>';
+    }
+
+    function renderRevenueChart(monthlyRevenue) {
+      const container = document.getElementById('revenueChart');
+      if (!container) return;
+      
+      if (!monthlyRevenue || monthlyRevenue.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 40px; color: var(--soft-gray);">
+            <div style="font-size: 48px; margin-bottom: 12px;">📊</div>
+            <p>No revenue data yet</p>
+            <p style="font-size: 13px;">Complete some bookings to see your revenue chart</p>
+          </div>
+        `;
+        return;
+      }
+      
+      const maxRevenue = Math.max(...monthlyRevenue.map(m => m.revenue), 1);
+      const totalRevenue = monthlyRevenue.reduce((sum, m) => sum + m.revenue, 0);
+      
+      container.innerHTML = `
+        <div style="margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <span style="font-size: 13px; color: var(--soft-gray);">Last 6 Months</span>
+          </div>
+          <div style="text-align: right;">
+            <span style="font-size: 13px; color: var(--soft-gray);">Total: </span>
+            <span style="font-size: 18px; font-weight: 600; color: var(--burgundy);">${formatCurrency(totalRevenue)}</span>
+          </div>
+        </div>
+        <div style="display: flex; align-items: flex-end; gap: 12px; height: 180px; padding-bottom: 24px; border-bottom: 2px solid #f0ebe4;">
+          ${monthlyRevenue.map(m => {
+            const heightPercent = maxRevenue > 0 ? (m.revenue / maxRevenue) * 100 : 0;
+            const minHeight = m.revenue > 0 ? Math.max(heightPercent, 8) : 4;
+            return `
+              <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                <div style="font-size: 11px; font-weight: 600; color: ${m.revenue > 0 ? 'var(--burgundy)' : 'var(--soft-gray)'};">
+                  ${m.revenue > 0 ? formatCurrency(m.revenue) : '-'}
+                </div>
+                <div style="width: 100%; background: ${m.revenue > 0 ? 'linear-gradient(135deg, var(--burgundy), #a84854)' : '#e0d6cc'}; 
+                            height: ${minHeight}%; border-radius: 6px 6px 0 0; min-height: 6px;
+                            transition: all 0.3s; cursor: pointer;"
+                     title="${m.month}: ${formatCurrency(m.revenue)}">
+                </div>
+                <div style="font-size: 12px; color: var(--soft-gray); font-weight: 500;">${m.month}</div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+        <div style="margin-top: 16px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; text-align: center;">
+          <div style="padding: 12px; background: #f8f5f0; border-radius: 8px;">
+            <div style="font-size: 11px; color: var(--soft-gray); text-transform: uppercase;">Avg/Month</div>
+            <div style="font-size: 16px; font-weight: 600; color: var(--charcoal);">${formatCurrency(totalRevenue / 6)}</div>
+          </div>
+          <div style="padding: 12px; background: #f8f5f0; border-radius: 8px;">
+            <div style="font-size: 11px; color: var(--soft-gray); text-transform: uppercase;">Best Month</div>
+            <div style="font-size: 16px; font-weight: 600; color: var(--success);">${formatCurrency(maxRevenue)}</div>
+          </div>
+          <div style="padding: 12px; background: #f8f5f0; border-radius: 8px;">
+            <div style="font-size: 11px; color: var(--soft-gray); text-transform: uppercase;">This Month</div>
+            <div style="font-size: 16px; font-weight: 600; color: var(--burgundy);">${formatCurrency(monthlyRevenue[monthlyRevenue.length - 1]?.revenue || 0)}</div>
+          </div>
+        </div>
+      `;
     }
 
     // ===========================================
@@ -7226,16 +8061,72 @@ Example:
       const birthday = client.birthday;
       let content = '';
 
+      // Always show tools section, regardless of birthday
+      const toolsSection = `
+        <div style="padding: 16px; background: #fff8e6; border-radius: 8px; margin-top: 24px;">
+          <h4 style="margin-bottom: 16px;">🔮 Spiritual Healing Tools & Sessions</h4>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 16px;">
+            <button class="btn btn-primary" onclick="openTarotModal('${client.id}')" style="background: linear-gradient(135deg, #6a1b9a, #8e24aa); font-size: 13px;">
+              🔮 Tarot Reading
+            </button>
+            <button class="btn btn-primary" onclick="openPendulumModal('${client.id}')" style="background: linear-gradient(135deg, #1976d2, #2196f3); font-size: 13px;">
+              ⚖️ Pendulum Session
+            </button>
+            <button class="btn btn-primary" onclick="openReikiModal('${client.id}')" style="background: linear-gradient(135deg, #9C27B0, #BA68C8); font-size: 13px;">
+              🙏 Reiki Session
+            </button>
+            <button class="btn btn-primary" onclick="openCrystalModal('${client.id}')" style="background: linear-gradient(135deg, #E91E63, #F06292); font-size: 13px;">
+              💎 Crystal Healing
+            </button>
+            <button class="btn btn-primary" onclick="openSoundHealingModal('${client.id}')" style="background: linear-gradient(135deg, #3F51B5, #5C6BC0); font-size: 13px;">
+              🔔 Sound Healing
+            </button>
+            <button class="btn btn-primary" onclick="openAuraModal('${client.id}')" style="background: linear-gradient(135deg, #673AB7, #9575CD); font-size: 13px;">
+              ✨ Aura Reading
+            </button>
+            <button class="btn btn-primary" onclick="openBioenergeticsModal('${client.id}')" style="background: linear-gradient(135deg, #00695c, #00897b); font-size: 13px;">
+              ⚡ Bioenergetics
+            </button>
+            <button class="btn btn-primary" onclick="openKundaliniModal('${client.id}')" style="background: linear-gradient(135deg, #d84315, #ff5722); font-size: 13px;">
+              🧘 Kundalini Rx
+            </button>
+            <button class="btn btn-primary" onclick="openPranayamaModal('${client.id}')" style="background: linear-gradient(135deg, #00897b, #26a69a); font-size: 13px;">
+              🌬️ Pranayama Rx
+            </button>
+          </div>
+          
+          <div id="spiritual-tools-history-${client.id}">
+            <!-- Spiritual tools history will be rendered here -->
+          </div>
+        </div>
+
+        <div style="margin-top: 16px; padding: 16px; background: #f5f5f5; border-radius: 8px;">
+          <h4 style="margin-bottom: 12px;">📝 Session Notes & Spiritual Observations</h4>
+          <textarea id="spiritual-notes-${client.id}" class="form-input" rows="4" placeholder="Record spiritual insights, energy observations, chakra assessments, pendulum findings, tarot insights...">${client.spiritualNotes || ''}</textarea>
+          <button class="btn btn-sm btn-primary" style="margin-top: 8px;" onclick="saveSpiritualNotes('${client.id}')">💾 Save Spiritual Notes</button>
+        </div>
+      `;
+
       if (!birthday) {
         content = `
-          <div style="text-align: center; padding: 40px 20px;">
-            <div style="font-size: 64px; margin-bottom: 16px;">🔮</div>
-            <h3 style="color: var(--burgundy); margin-bottom: 12px;">No Birthday on File</h3>
-            <p style="color: var(--soft-gray); margin-bottom: 20px;">Add a birthday to unlock astrology and numerology insights</p>
-            <div class="form-group" style="max-width: 300px; margin: 0 auto;">
-              <input type="date" id="client-birthday-input" class="form-input">
-              <button class="btn btn-primary" style="margin-top: 12px;" onclick="saveClientBirthday('${client.id}')">💾 Save Birthday</button>
+          <div style="padding: 20px;">
+            <div style="text-align: center; padding: 30px 20px; background: linear-gradient(135deg, #7B1FA2 0%, #512DA8 100%); color: white; border-radius: 12px; margin-bottom: 24px;">
+              <div style="font-size: 48px; margin-bottom: 12px;">🔮</div>
+              <h3 style="margin: 0; font-size: 24px;">Spiritual Profile</h3>
+              <p style="margin: 8px 0 0 0; opacity: 0.9;">${client.name}</p>
             </div>
+            
+            <div style="background: #f9f5ff; padding: 20px; border-radius: 12px; margin-bottom: 20px; text-align: center; border: 2px dashed #9C27B0;">
+              <div style="font-size: 36px; margin-bottom: 12px;">🎂</div>
+              <h4 style="color: #7B1FA2; margin-bottom: 8px;">Add Birthday for Astrology & Numerology</h4>
+              <p style="color: var(--soft-gray); margin-bottom: 16px; font-size: 14px;">Unlock sun sign, life path number, and personalized insights</p>
+              <div class="form-group" style="max-width: 300px; margin: 0 auto;">
+                <input type="date" id="client-birthday-input" class="form-input">
+                <button class="btn btn-primary" style="margin-top: 12px; background: #7B1FA2;" onclick="saveClientBirthday('${client.id}')">💾 Save Birthday</button>
+              </div>
+            </div>
+
+            ${toolsSection}
           </div>
         `;
       } else {
@@ -7299,36 +8190,7 @@ Example:
               </div>
             </div>
 
-            <div style="margin-top: 24px; padding: 16px; background: #fff8e6; border-radius: 8px;">
-              <h4 style="margin-bottom: 16px;">🔮 Spiritual Healing Tools & Sessions</h4>
-              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px;">
-                <button class="btn btn-primary" onclick="openTarotModal('${client.id}')" style="background: linear-gradient(135deg, #6a1b9a, #8e24aa);">
-                  🔮 Add Tarot Reading
-                </button>
-                <button class="btn btn-primary" onclick="openPendulumModal('${client.id}')" style="background: linear-gradient(135deg, #1976d2, #2196f3);">
-                  ⚖️ Add Pendulum Session
-                </button>
-                <button class="btn btn-primary" onclick="openBioenergeticsModal('${client.id}')" style="background: linear-gradient(135deg, #00695c, #00897b);">
-                  ⚡ Add Bioenergetics Session
-                </button>
-                <button class="btn btn-primary" onclick="openKundaliniModal('${client.id}')" style="background: linear-gradient(135deg, #d84315, #ff5722);">
-                  🧘 Recommend Kundalini
-                </button>
-                <button class="btn btn-primary" onclick="openPranayamaModal('${client.id}')" style="background: linear-gradient(135deg, #00897b, #26a69a);">
-                  🌬️ Recommend Pranayama
-                </button>
-              </div>
-              
-              <div id="spiritual-tools-history-${client.id}">
-                <!-- Spiritual tools history will be rendered here -->
-              </div>
-            </div>
-
-            <div style="margin-top: 16px; padding: 16px; background: #f5f5f5; border-radius: 8px;">
-              <h4 style="margin-bottom: 12px;">📝 Session Notes & Spiritual Observations</h4>
-              <textarea id="spiritual-notes-${client.id}" class="form-input" rows="4" placeholder="Record spiritual insights, energy observations, chakra assessments, pendulum findings, tarot insights...">${client.spiritualNotes || ''}</textarea>
-              <button class="btn btn-sm btn-primary" style="margin-top: 8px;" onclick="saveSpiritualNotes('${client.id}')">💾 Save Spiritual Notes</button>
-            </div>
+            ${toolsSection}
           </div>
         `;
       }
@@ -7501,6 +8363,110 @@ Example:
             </div>
           `;
         }
+      }
+      
+      // Reiki Sessions
+      if (tools.reikiSessions && tools.reikiSessions.length > 0) {
+        historyHTML += `
+          <div style="margin-top: 16px;">
+            <h5 style="color: #9C27B0; margin-bottom: 12px;">🙏 Reiki Sessions (${tools.reikiSessions.length})</h5>
+            ${tools.reikiSessions.map(session => `
+              <div style="background: white; padding: 12px; border-radius: 8px; margin-bottom: 8px; border-left: 3px solid #9C27B0;">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                  <strong>${session.type.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</strong>
+                  <span style="font-size: 12px; color: var(--soft-gray);">${new Date(session.date).toLocaleDateString()}</span>
+                </div>
+                ${session.symbols && session.symbols.length > 0 ? `
+                  <div style="font-size: 13px; margin-bottom: 6px;">
+                    <strong>Symbols Used:</strong> ${session.symbols.join(', ')}
+                  </div>
+                ` : ''}
+                ${session.handPositions ? `<div style="font-size: 13px; margin-bottom: 4px;"><strong>Hand Positions:</strong> ${session.handPositions}</div>` : ''}
+                ${session.sensations ? `<div style="font-size: 13px; margin-bottom: 4px;"><strong>Sensations:</strong> ${session.sensations}</div>` : ''}
+                ${session.byosen ? `<div style="font-size: 13px; margin-bottom: 4px;"><strong>Byosen:</strong> ${session.byosen}</div>` : ''}
+                ${session.clientExperience ? `<div style="font-size: 14px; color: #555; margin-top: 6px;">${session.clientExperience}</div>` : ''}
+                ${session.notes ? `<div style="font-size: 13px; margin-top: 6px; font-style: italic; color: var(--soft-gray);">${session.notes}</div>` : ''}
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+      
+      // Crystal Healing Sessions
+      if (tools.crystalSessions && tools.crystalSessions.length > 0) {
+        historyHTML += `
+          <div style="margin-top: 16px;">
+            <h5 style="color: #E91E63; margin-bottom: 12px;">💎 Crystal Healing Sessions (${tools.crystalSessions.length})</h5>
+            ${tools.crystalSessions.map(session => `
+              <div style="background: white; padding: 12px; border-radius: 8px; margin-bottom: 8px; border-left: 3px solid #E91E63;">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                  <strong>${session.type.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</strong>
+                  <span style="font-size: 12px; color: var(--soft-gray);">${new Date(session.date).toLocaleDateString()}</span>
+                </div>
+                <div style="font-size: 13px; margin-bottom: 6px;"><strong>Crystals:</strong> ${session.stones}</div>
+                ${session.intention ? `<div style="font-size: 13px; margin-bottom: 4px;"><strong>Intention:</strong> ${session.intention}</div>` : ''}
+                ${session.experience ? `<div style="font-size: 14px; color: #555; margin-top: 6px;">${session.experience}</div>` : ''}
+                ${session.recommendations ? `
+                  <div style="font-size: 13px; margin-top: 8px; padding: 8px; background: #FCE4EC; border-radius: 4px; border-left: 3px solid #E91E63;">
+                    <strong>Take Home:</strong> ${session.recommendations}
+                  </div>
+                ` : ''}
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+      
+      // Sound Healing Sessions
+      if (tools.soundHealingSessions && tools.soundHealingSessions.length > 0) {
+        historyHTML += `
+          <div style="margin-top: 16px;">
+            <h5 style="color: #3F51B5; margin-bottom: 12px;">🔔 Sound Healing Sessions (${tools.soundHealingSessions.length})</h5>
+            ${tools.soundHealingSessions.map(session => `
+              <div style="background: white; padding: 12px; border-radius: 8px; margin-bottom: 8px; border-left: 3px solid #3F51B5;">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                  <strong>${session.type.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</strong>
+                  <span style="font-size: 12px; color: var(--soft-gray);">${new Date(session.date).toLocaleDateString()}</span>
+                </div>
+                <div style="font-size: 13px; margin-bottom: 6px;"><strong>Instruments:</strong> ${session.instruments}</div>
+                ${session.focus ? `<div style="font-size: 13px; margin-bottom: 4px;"><strong>Focus:</strong> ${session.focus}</div>` : ''}
+                ${session.experience ? `<div style="font-size: 14px; color: #555; margin-top: 6px;">${session.experience}</div>` : ''}
+                ${session.notes ? `<div style="font-size: 13px; margin-top: 6px; font-style: italic; color: var(--soft-gray);">${session.notes}</div>` : ''}
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+      
+      // Aura Readings
+      if (tools.auraReadings && tools.auraReadings.length > 0) {
+        const auraColors = {
+          red: '🔴 Red', orange: '🟠 Orange', yellow: '🟡 Yellow', green: '🟢 Green',
+          blue: '🔵 Blue', indigo: '🟣 Indigo', violet: '💜 Violet', white: '⚪ White',
+          gold: '✨ Gold', pink: '💗 Pink', turquoise: '💎 Turquoise'
+        };
+        historyHTML += `
+          <div style="margin-top: 16px;">
+            <h5 style="color: #673AB7; margin-bottom: 12px;">✨ Aura Readings (${tools.auraReadings.length})</h5>
+            ${tools.auraReadings.map(reading => `
+              <div style="background: white; padding: 12px; border-radius: 8px; margin-bottom: 8px; border-left: 3px solid #673AB7;">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                  <strong>${auraColors[reading.primaryColor] || reading.primaryColor}</strong>
+                  <span style="font-size: 12px; color: var(--soft-gray);">${new Date(reading.date).toLocaleDateString()}</span>
+                </div>
+                ${reading.secondaryColors ? `<div style="font-size: 13px; margin-bottom: 4px;"><strong>Secondary Colors:</strong> ${reading.secondaryColors}</div>` : ''}
+                <div style="font-size: 13px; margin-bottom: 4px;"><strong>Quality:</strong> ${reading.quality.replace(/\b\w/g, l => l.toUpperCase())}</div>
+                ${reading.concerns ? `<div style="font-size: 13px; margin-bottom: 4px;"><strong>Areas of Concern:</strong> ${reading.concerns}</div>` : ''}
+                <div style="font-size: 14px; color: #555; margin-top: 6px;">${reading.interpretation}</div>
+                ${reading.recommendations ? `
+                  <div style="font-size: 13px; margin-top: 8px; padding: 8px; background: #EDE7F6; border-radius: 4px; border-left: 3px solid #673AB7;">
+                    <strong>Recommendations:</strong> ${reading.recommendations}
+                  </div>
+                ` : ''}
+              </div>
+            `).join('')}
+          </div>
+        `;
       }
       
       if (historyHTML) {
@@ -8171,54 +9137,9 @@ Example:
       }
     }
 
-    function printCodes() {
-      const available = invitationCodes.filter(c => c.active && !c.usedBy);
-      if (available.length === 0) {
-        showToast('No available codes to print', 'error');
-        return;
-      }
-
-      document.getElementById('printPreview').style.display = 'block';
-      document.getElementById('printableCards').innerHTML = available.map(c => `
-        <div class="business-card">
-          <div style="text-align: center;">
-            <div style="font-size: 48px; margin-bottom: 12px;">🪷</div>
-            <div style="font-family: Georgia, serif; color: #722F37; font-size: 22px; font-weight: 600; margin-bottom: 6px;">Ravi</div>
-            <div style="font-size: 14px; color: #483434; margin-bottom: 24px; font-style: italic;">Intuitive Healer & Sensual Bodyworker</div>
-            
-            <div style="border-top: 2px solid #D4AF37; border-bottom: 2px solid #D4AF37; padding: 16px 0; margin: 20px 0;">
-              <div style="font-size: 11px; color: #666; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1.5px;">Your Private Invitation Code</div>
-              <div style="background: linear-gradient(135deg, #722F37 0%, #5a2429 100%); color: white; padding: 14px 24px; border-radius: 8px; font-size: 24px; letter-spacing: 4px; font-weight: 700; font-family: 'Courier New', monospace; box-shadow: 0 4px 8px rgba(114, 47, 55, 0.3);">
-                ${c.code}
-              </div>
-            </div>
-            
-            <div style="margin-top: 20px; font-size: 13px; color: #666;">
-              <div style="margin-bottom: 8px;">
-                <strong style="color: #722F37;">Book Your Session:</strong><br>
-                <span style="font-size: 12px;">localhost:3000</span>
-              </div>
-              ${c.label ? `<div style="font-size: 10px; color: #999; margin-top: 12px; font-style: italic;">${c.label}</div>` : ''}
-              ${c.expiresAt ? `<div style="font-size: 10px; color: #999; margin-top: 8px;">Valid until: ${new Date(c.expiresAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>` : ''}
-            </div>
-          </div>
-        </div>
-      `).join('');
-
-      // Scroll to preview
-      document.getElementById('printPreview').scrollIntoView({ behavior: 'smooth' });
-      
-      // Open print dialog after a short delay
-      setTimeout(() => {
-        if (confirm('Open print dialog? (You can also right-click to print later)')) {
-          window.print();
-        }
-      }, 500);
-    }
-
     // ===========================================
     // INQUIRIES
-    // ===========================================
+    // =========================================== 
     async function loadInquiries() {
       showLoading(true);
       inquiries = await api('/api/admin/inquiries') || [];
@@ -10665,6 +11586,311 @@ Example:
       showToast('Energy session tracker - Coming soon! Will log chakra assessments and bioenergetic findings.', 'info');
     }
 
+    // ============ REIKI SESSION FUNCTIONS ============
+    function openReikiModal(clientId) {
+      document.getElementById('reikiClientId').value = clientId;
+      document.getElementById('reikiType').value = 'full-body';
+      document.getElementById('reikiHandPositions').value = '';
+      document.getElementById('reikiSensations').value = '';
+      document.getElementById('reikiByosen').value = '';
+      document.getElementById('reikiClientExperience').value = '';
+      document.getElementById('reikiNotes').value = '';
+      document.querySelectorAll('.reiki-symbol').forEach(cb => cb.checked = false);
+      openModal('reikiModal');
+    }
+
+    async function saveReikiSession() {
+      const clientId = document.getElementById('reikiClientId').value;
+      const type = document.getElementById('reikiType').value;
+      const handPositions = document.getElementById('reikiHandPositions').value.trim();
+      const sensations = document.getElementById('reikiSensations').value.trim();
+      const byosen = document.getElementById('reikiByosen').value.trim();
+      const clientExperience = document.getElementById('reikiClientExperience').value.trim();
+      const notes = document.getElementById('reikiNotes').value.trim();
+      
+      const symbols = [];
+      document.querySelectorAll('.reiki-symbol:checked').forEach(cb => symbols.push(cb.value));
+      
+      if (!type) {
+        showToast('Please select a session type', 'error');
+        return;
+      }
+      
+      showLoading(true);
+      const result = await api(`/api/admin/clients/${clientId}/reiki`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type, symbols, handPositions, sensations, byosen, clientExperience, notes })
+      });
+      showLoading(false);
+      
+      if (result?.success) {
+        showToast('🙏 Reiki session saved!', 'success');
+        closeModal('reikiModal');
+        if (currentClientId === clientId) {
+          await loadClientDetails(clientId);
+        }
+      }
+    }
+
+    // ============ CRYSTAL HEALING FUNCTIONS ============
+    function openCrystalModal(clientId) {
+      document.getElementById('crystalClientId').value = clientId;
+      document.getElementById('crystalType').value = 'layout';
+      document.getElementById('crystalStones').value = '';
+      document.getElementById('crystalIntention').value = '';
+      document.getElementById('crystalExperience').value = '';
+      document.getElementById('crystalRecommendations').value = '';
+      openModal('crystalModal');
+    }
+
+    async function saveCrystalSession() {
+      const clientId = document.getElementById('crystalClientId').value;
+      const type = document.getElementById('crystalType').value;
+      const stones = document.getElementById('crystalStones').value.trim();
+      const intention = document.getElementById('crystalIntention').value.trim();
+      const experience = document.getElementById('crystalExperience').value.trim();
+      const recommendations = document.getElementById('crystalRecommendations').value.trim();
+      
+      if (!type || !stones) {
+        showToast('Please select session type and list crystals used', 'error');
+        return;
+      }
+      
+      showLoading(true);
+      const result = await api(`/api/admin/clients/${clientId}/crystal`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type, stones, intention, experience, recommendations })
+      });
+      showLoading(false);
+      
+      if (result?.success) {
+        showToast('💎 Crystal healing session saved!', 'success');
+        closeModal('crystalModal');
+        if (currentClientId === clientId) {
+          await loadClientDetails(clientId);
+        }
+      }
+    }
+
+    // ============ SOUND HEALING FUNCTIONS ============
+    function openSoundHealingModal(clientId) {
+      document.getElementById('soundHealingClientId').value = clientId;
+      document.getElementById('soundHealingType').value = 'singing-bowls';
+      document.getElementById('soundInstruments').value = '';
+      document.getElementById('soundFocus').value = '';
+      document.getElementById('soundExperience').value = '';
+      document.getElementById('soundNotes').value = '';
+      openModal('soundHealingModal');
+    }
+
+    async function saveSoundHealingSession() {
+      const clientId = document.getElementById('soundHealingClientId').value;
+      const type = document.getElementById('soundHealingType').value;
+      const instruments = document.getElementById('soundInstruments').value.trim();
+      const focus = document.getElementById('soundFocus').value.trim();
+      const experience = document.getElementById('soundExperience').value.trim();
+      const notes = document.getElementById('soundNotes').value.trim();
+      
+      if (!type || !instruments) {
+        showToast('Please select session type and list instruments used', 'error');
+        return;
+      }
+      
+      showLoading(true);
+      const result = await api(`/api/admin/clients/${clientId}/sound-healing`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type, instruments, focus, experience, notes })
+      });
+      showLoading(false);
+      
+      if (result?.success) {
+        showToast('🔔 Sound healing session saved!', 'success');
+        closeModal('soundHealingModal');
+        if (currentClientId === clientId) {
+          await loadClientDetails(clientId);
+        }
+      }
+    }
+
+    // ============ AURA READING FUNCTIONS ============
+    function openAuraModal(clientId) {
+      document.getElementById('auraClientId').value = clientId;
+      document.getElementById('auraPrimaryColor').value = '';
+      document.getElementById('auraSecondaryColors').value = '';
+      document.getElementById('auraQuality').value = 'bright';
+      document.getElementById('auraConcerns').value = '';
+      document.getElementById('auraInterpretation').value = '';
+      document.getElementById('auraRecommendations').value = '';
+      openModal('auraModal');
+    }
+
+    async function saveAuraReading() {
+      const clientId = document.getElementById('auraClientId').value;
+      const primaryColor = document.getElementById('auraPrimaryColor').value;
+      const secondaryColors = document.getElementById('auraSecondaryColors').value.trim();
+      const quality = document.getElementById('auraQuality').value;
+      const concerns = document.getElementById('auraConcerns').value.trim();
+      const interpretation = document.getElementById('auraInterpretation').value.trim();
+      const recommendations = document.getElementById('auraRecommendations').value.trim();
+      
+      if (!primaryColor || !interpretation) {
+        showToast('Please select primary color and add interpretation', 'error');
+        return;
+      }
+      
+      showLoading(true);
+      const result = await api(`/api/admin/clients/${clientId}/aura`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ primaryColor, secondaryColors, quality, concerns, interpretation, recommendations })
+      });
+      showLoading(false);
+      
+      if (result?.success) {
+        showToast('✨ Aura reading saved!', 'success');
+        closeModal('auraModal');
+        if (currentClientId === clientId) {
+          await loadClientDetails(clientId);
+        }
+      }
+    }
+
+    // ============ CHAKRA GRID FUNCTIONS ============
+    const chakraStates = {
+      crown: 'default',
+      thirdEye: 'default',
+      throat: 'default',
+      heart: 'default',
+      solar: 'default',
+      sacral: 'default',
+      root: 'default'
+    };
+
+    const stateColors = {
+      default: null,
+      open: '#4CAF50',
+      partial: '#FF9800',
+      blocked: '#f44336'
+    };
+
+    const stateLabels = {
+      default: '—',
+      open: '✅ Open',
+      partial: '⚠️ Partial',
+      blocked: '❌ Blocked'
+    };
+
+    function toggleChakraStatus(chakra) {
+      const states = ['default', 'open', 'partial', 'blocked'];
+      const currentIndex = states.indexOf(chakraStates[chakra]);
+      const nextIndex = (currentIndex + 1) % states.length;
+      chakraStates[chakra] = states[nextIndex];
+      
+      // Update visual
+      const point = document.querySelector(`.chakra-point[data-chakra="${chakra}"]`);
+      if (point && stateColors[chakraStates[chakra]]) {
+        point.style.background = stateColors[chakraStates[chakra]];
+        point.style.boxShadow = `0 0 20px ${stateColors[chakraStates[chakra]]}88`;
+      } else if (point) {
+        // Reset to default color
+        const defaultColors = {
+          crown: '#7B1FA2', thirdEye: '#512DA8', throat: '#1976D2',
+          heart: '#388E3C', solar: '#FBC02D', sacral: '#F57C00', root: '#C62828'
+        };
+        point.style.background = defaultColors[chakra];
+        point.style.boxShadow = `0 0 20px ${defaultColors[chakra]}88`;
+      }
+      
+      // Update table
+      const statusCell = document.getElementById(`chakra-status-${chakra}`);
+      if (statusCell) {
+        statusCell.textContent = stateLabels[chakraStates[chakra]];
+      }
+    }
+
+    function resetChakraGrid() {
+      Object.keys(chakraStates).forEach(chakra => {
+        chakraStates[chakra] = 'default';
+        const point = document.querySelector(`.chakra-point[data-chakra="${chakra}"]`);
+        if (point) {
+          const defaultColors = {
+            crown: '#7B1FA2', thirdEye: '#512DA8', throat: '#1976D2',
+            heart: '#388E3C', solar: '#FBC02D', sacral: '#F57C00', root: '#C62828'
+          };
+          point.style.background = defaultColors[chakra];
+          point.style.boxShadow = `0 0 20px ${defaultColors[chakra]}88`;
+        }
+        const statusCell = document.getElementById(`chakra-status-${chakra}`);
+        if (statusCell) statusCell.textContent = '—';
+      });
+      showToast('Chakra grid reset', 'info');
+    }
+
+    // ============ REIKI GUIDE FUNCTION ============
+    function showReikiGuide(topic) {
+      const guides = {
+        'symbols': `
+          <div style="padding: 20px; background: white; border-radius: 8px; line-height: 1.8;">
+            <h5 style="color: #9C27B0; margin-bottom: 12px;">🔮 Reiki Symbols Deep Dive</h5>
+            <p><strong>Cho Ku Rei (Power Symbol):</strong> Draw clockwise to increase power, counterclockwise to decrease. Use at start and end of sessions, to seal in energy, or focus on specific areas. Activates other symbols when drawn first.</p>
+            <p><strong>Sei He Ki (Mental/Emotional):</strong> Works on subconscious mind, emotional healing, clearing negative patterns, addiction support, memory enhancement, and protection. Draw over head or heart.</p>
+            <p><strong>Hon Sha Ze Sho Nen (Distance):</strong> "No past, no present, no future" - sends Reiki across time and space. Use for distance healing, healing past trauma, or sending energy to future events.</p>
+          </div>
+        `,
+        'scanning': `
+          <div style="padding: 20px; background: white; border-radius: 8px; line-height: 1.8;">
+            <h5 style="color: #9C27B0; margin-bottom: 12px;">🖐️ Byosen (Scanning) Technique</h5>
+            <p><strong>What is Byosen?</strong> The energetic "toxin" or imbalance that Reiki practitioners can sense. It manifests as sensations in the practitioner's hands.</p>
+            <p><strong>Common Sensations:</strong></p>
+            <ul style="margin-left: 20px;">
+              <li>Heat - inflammation, active healing needed</li>
+              <li>Cold - energy depletion, stagnation</li>
+              <li>Tingling - energy movement, awakening</li>
+              <li>Pulsing - energy trying to move through blockage</li>
+              <li>Pressure - density, emotional holding</li>
+              <li>Pain (practitioner's hands) - significant blockage</li>
+            </ul>
+            <p><strong>Technique:</strong> Hold hands 2-4 inches above the body. Move slowly. Trust your sensations. Spend extra time where you feel resistance.</p>
+          </div>
+        `,
+        'attunements': `
+          <div style="padding: 20px; background: white; border-radius: 8px; line-height: 1.8;">
+            <h5 style="color: #9C27B0; margin-bottom: 12px;">📿 Reiki Attunement Levels</h5>
+            <p><strong>Level I (Shoden):</strong> The opening. Learn hand positions, basic techniques, history, and principles. Begin self-healing practice. Can treat others hands-on.</p>
+            <p><strong>Level II (Okuden):</strong> The deepening. Learn symbols (Cho Ku Rei, Sei He Ki, Hon Sha Ze Sho Nen). Can perform distance healing. Mental/emotional healing techniques.</p>
+            <p><strong>Level III (Shinpiden/Master):</strong> The mastery. Learn Master symbol (Dai Ko Myo). Can attune others. Advanced techniques. Teaching certification.</p>
+            <p><strong>Ravi's Level:</strong> Level II - Usui/Tibetan Reiki Ryoho lineage. Can use all three Level II symbols and perform distance healing.</p>
+          </div>
+        `,
+        'distance': `
+          <div style="padding: 20px; background: white; border-radius: 8px; line-height: 1.8;">
+            <h5 style="color: #9C27B0; margin-bottom: 12px;">🌍 Distance Healing Protocol</h5>
+            <ol style="margin-left: 20px;">
+              <li>Set intention and get permission (energetically or explicitly)</li>
+              <li>Ground and center yourself</li>
+              <li>Draw Cho Ku Rei to activate</li>
+              <li>Draw Hon Sha Ze Sho Nen while stating recipient's name</li>
+              <li>Visualize recipient or use a proxy (photo, pillow, etc.)</li>
+              <li>Send Reiki as if they were present</li>
+              <li>Use Sei He Ki for emotional/mental healing</li>
+              <li>Close with Cho Ku Rei to seal</li>
+              <li>Disconnect and ground yourself</li>
+            </ol>
+            <p><strong>Tips:</strong> Works across any distance. Can send to past events for healing. Can send to future situations. Always with highest good in mind.</p>
+          </div>
+        `
+      };
+
+      const container = document.getElementById('reiki-guide-content');
+      if (guides[topic]) {
+        container.innerHTML = guides[topic];
+        container.style.display = 'block';
+      }
+    }
+
     // ============ BLOG & VLOGS ============
     
     let blogPosts = [];
@@ -11656,6 +12882,430 @@ Example:
       
       showToast(`Using template: ${template.name}`, 'info');
       // Template will be used when creating campaign
+    }
+
+    // Built-in email templates
+    const builtInTemplates = {
+      welcome: {
+        name: 'Welcome New Client',
+        subject: '🌟 Welcome to Your Healing Journey, {{clientName}}',
+        body: `Dear {{clientName}},
+
+Welcome to my sacred healing practice! I am so honored that you've chosen to begin this journey with me.
+
+Your first session is scheduled for {{date}} at {{time}}. I wanted to share a few things to help you prepare:
+
+🌸 **Before Your Session:**
+- Wear comfortable, loose-fitting clothing
+- Avoid heavy meals 2 hours before
+- Come with an open heart and mind
+- Bring any questions or intentions you'd like to explore
+
+🪷 **What to Expect:**
+Your {{serviceName}} session will be a deeply nurturing experience. We'll begin by discussing your intentions, followed by the healing work itself. Each session is uniquely tailored to what your body and spirit need.
+
+📍 **Location:** {{location}}
+
+If you have any questions before we meet, please don't hesitate to reach out.
+
+With warmth and light,
+{{practitionerName}}
+
+P.S. Please arrive 5-10 minutes early so we can begin on time.`
+      },
+      reminder: {
+        name: 'Appointment Reminder',
+        subject: '⏰ Reminder: Your Session Tomorrow, {{clientName}}',
+        body: `Dear {{clientName}},
+
+This is a gentle reminder that your {{serviceName}} session is scheduled for tomorrow:
+
+📅 **Date:** {{date}}
+🕐 **Time:** {{time}}
+📍 **Location:** {{location}}
+⏱️ **Duration:** {{duration}}
+
+**Quick Reminders:**
+• Please arrive 5-10 minutes early
+• Wear comfortable clothing
+• Stay hydrated before your session
+• Come with an open heart
+
+If you need to reschedule, please let me know as soon as possible.
+
+Looking forward to seeing you!
+
+With light,
+{{practitionerName}}`
+      },
+      followup: {
+        name: 'Post-Session Follow-up',
+        subject: '💜 How Are You Feeling After Your Session?',
+        body: `Dear {{clientName}},
+
+I hope this message finds you well. It was such a honor to share sacred space with you during your recent {{serviceName}} session.
+
+The work we did together may continue to unfold over the coming days. Here are some suggestions for supporting your integration:
+
+🌙 **Self-Care Recommendations:**
+• Drink plenty of water to support your body's natural healing
+• Rest when you feel called to - your body is processing
+• Journal any insights, dreams, or sensations that arise
+• Be gentle with yourself - this is a time of transformation
+
+🌿 **Grounding Practices:**
+• Spend time in nature if possible
+• Take salt baths to clear residual energy
+• Practice deep breathing when emotions surface
+• Connect with the earth - walk barefoot if you can
+
+If you experience any intense emotions or have questions about what's arising, please don't hesitate to reach out. This is all part of the healing journey.
+
+When you're ready for your next session, I'm here.
+
+With love and light,
+{{practitionerName}}`
+      },
+      reengagement: {
+        name: 'Re-engagement',
+        subject: '🌿 I\'ve Been Thinking of You, {{clientName}}',
+        body: `Dear {{clientName}},
+
+I hope this message finds you in good spirits. It's been a while since your last visit, and I wanted to reach out.
+
+Your healing journey doesn't have a timeline. Whether life got busy, you needed integration time, or you simply took a pause - that's perfectly okay. 
+
+I want you to know that my practice is always here when you feel called to continue your work.
+
+✨ **What's New:**
+I've been expanding my offerings and deepening my practice. Some new modalities and approaches may resonate with where you are now.
+
+If you'd like to reconnect, I'd love to offer you a check-in session to see where you are on your path and what might serve you best.
+
+No pressure, just an open invitation.
+
+With warmth,
+{{practitionerName}}
+
+P.S. If there's anything specific you're working through, I'm always happy to discuss how I might support you.`
+      },
+      birthday: {
+        name: 'Birthday Wishes',
+        subject: '🎂 Happy Birthday, {{clientName}}! A Gift for You',
+        body: `Dear {{clientName}},
+
+🎉 Happy Birthday! 🎉
+
+May this new year of your life bring you:
+🌟 Abundant joy and laughter
+💖 Deep, meaningful connections
+✨ Continued growth and healing
+🌈 All the magic your heart desires
+
+As a small birthday gift, I'd like to offer you **15% off** your next session. Simply mention this email when you book.
+
+This is also a beautiful time for reflection and intention-setting. If you'd like to honor your birthday with a special session focused on the year ahead, I'd be honored to hold that space for you.
+
+Wishing you the most wonderful birthday!
+
+With love and light,
+{{practitionerName}}`
+      },
+      seasonal: {
+        name: 'Seasonal Newsletter',
+        subject: '🌸 Seasonal Reflections & Sacred Offerings',
+        body: `Dear {{clientName}},
+
+As we transition into this new season, I wanted to share some reflections and updates from my practice.
+
+🌿 **Seasonal Energy:**
+This is a powerful time for [spring renewal/summer vitality/autumn release/winter introspection]. Our bodies and spirits naturally want to align with these cycles.
+
+✨ **What I'm Offering:**
+• [Service 1] - Perfect for this season's energy
+• [Service 2] - Supporting your journey
+• New: [Any new offerings]
+
+🪷 **Self-Care Tips for This Season:**
+1. [Seasonal tip 1]
+2. [Seasonal tip 2]
+3. [Seasonal tip 3]
+
+📚 **What I'm Learning:**
+I've been diving deep into [topic], and it's enriching my practice in beautiful ways. I'm excited to bring these insights into our work together.
+
+If you feel called to schedule a session or have any questions, I'm here.
+
+With seasonal blessings,
+{{practitionerName}}`
+      },
+      testimonial: {
+        name: 'Request Testimonial',
+        subject: '⭐ Would You Share Your Experience?',
+        body: `Dear {{clientName}},
+
+I hope you're continuing to feel the benefits of our recent work together.
+
+If your experience has been meaningful to you, I would be so grateful if you'd consider sharing a testimonial. Your words help others who may be seeking similar healing to find their way to this work.
+
+✍️ **A few prompts if helpful:**
+• What brought you to seek healing work?
+• How did you feel during/after your session(s)?
+• What shifts or changes have you noticed?
+• Would you recommend this to others?
+
+You can reply to this email with your thoughts, or visit: [testimonial link]
+
+Of course, there's no pressure at all. Your privacy and comfort are my priority.
+
+Thank you for being part of this healing community.
+
+With gratitude,
+{{practitionerName}}`
+      },
+      referral: {
+        name: 'Referral Thank You',
+        subject: '💝 Thank You for Your Beautiful Referral',
+        body: `Dear {{clientName}},
+
+I wanted to reach out with a heartfelt thank you. [Referral name] mentioned that you recommended my practice to them, and I am deeply touched.
+
+Referrals like yours are the highest compliment I can receive. It means so much that you trust me enough to share this work with someone you care about.
+
+As a token of my appreciation, I'd like to offer you **20% off** your next session. This is my small way of saying thank you for helping grow this healing community.
+
+[Referral name] and I have begun working together, and I'm honored to be part of their journey - thanks to you.
+
+With deep gratitude,
+{{practitionerName}}
+
+P.S. If there's ever anyone else you feel might benefit from this work, I'm always grateful for introductions. But please know - your continued trust in our work together is gift enough.`
+      }
+    };
+
+    function useBuiltInTemplate(templateType) {
+      const template = builtInTemplates[templateType];
+      if (!template) {
+        showToast('Template not found', 'error');
+        return;
+      }
+
+      // Open the preview modal with this template
+      const sampleData = {
+        clientName: 'Sarah',
+        serviceName: 'Sacred Energy Healing Session',
+        date: new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
+        time: '2:00 PM',
+        practitionerName: 'Ravi',
+        location: 'Sacred Healing Space',
+        duration: '90 minutes'
+      };
+
+      let previewSubject = template.subject;
+      let previewBody = template.body;
+      
+      Object.keys(sampleData).forEach(key => {
+        const regex = new RegExp(`{{${key}}}`, 'g');
+        previewSubject = previewSubject.replace(regex, sampleData[key]);
+        previewBody = previewBody.replace(regex, sampleData[key]);
+      });
+
+      // Convert line breaks to HTML
+      const formattedBody = previewBody
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\n/g, '<br>');
+
+      document.getElementById('emailPreviewSubject').textContent = previewSubject;
+      document.getElementById('emailPreviewBody').innerHTML = formattedBody;
+      document.getElementById('emailPreviewTemplateId').value = '';
+      document.getElementById('emailPreviewTemplateName').textContent = template.name;
+      
+      // Store template data for saving
+      document.getElementById('emailPreviewModal').dataset.builtInType = templateType;
+      
+      // Update modal buttons for built-in template
+      const footer = document.querySelector('#emailPreviewModal .modal-footer');
+      footer.innerHTML = `
+        <button class="btn btn-outline" onclick="closeModal('emailPreviewModal')">Close</button>
+        <button class="btn btn-secondary" onclick="saveBuiltInAsCustom('${templateType}')">💾 Save as Custom Template</button>
+        <button class="btn btn-primary" onclick="sendFromBuiltInTemplate('${templateType}')">📤 Send to Clients</button>
+      `;
+      
+      openModal('emailPreviewModal');
+    }
+
+    function saveBuiltInAsCustom(templateType) {
+      const template = builtInTemplates[templateType];
+      if (!template) return;
+      
+      // Pre-fill the template editor
+      showTemplateEditor();
+      setTimeout(() => {
+        document.getElementById('templateName').value = template.name + ' (Custom)';
+        document.getElementById('templateSubject').value = template.subject;
+        document.getElementById('templateBody').value = template.body;
+        closeModal('emailPreviewModal');
+      }, 100);
+    }
+
+    async function sendFromBuiltInTemplate(templateType) {
+      const template = builtInTemplates[templateType];
+      if (!template) return;
+
+      // Open client selector modal
+      showModal(`
+        <div style="max-width: 600px; width: 100%;">
+          <h3 style="color: var(--burgundy); margin-bottom: 20px;">📤 Send "${template.name}"</h3>
+          
+          <div class="form-group">
+            <label class="form-label">Select Recipients</label>
+            <select id="builtInRecipientType" class="form-input" onchange="updateBuiltInRecipientList()">
+              <option value="all">All Active Clients</option>
+              <option value="recent">Recent Clients (Last 30 Days)</option>
+              <option value="inactive">Inactive Clients (No visit in 60+ days)</option>
+              <option value="select">Select Specific Clients...</option>
+            </select>
+          </div>
+          
+          <div id="builtInClientSelector" style="display: none; max-height: 300px; overflow-y: auto; border: 1px solid #e0d6cc; border-radius: 8px; padding: 12px; margin-bottom: 16px;">
+            <!-- Client checkboxes will be populated here -->
+          </div>
+          
+          <div id="builtInRecipientCount" style="background: #E8F5E9; padding: 12px; border-radius: 8px; margin-bottom: 16px;">
+            <strong>Recipients:</strong> <span id="builtInCountDisplay">Calculating...</span>
+          </div>
+          
+          <div style="display: flex; gap: 12px; justify-content: flex-end;">
+            <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+            <button class="btn btn-primary" onclick="confirmSendBuiltIn('${templateType}')">📧 Send Emails</button>
+          </div>
+        </div>
+      `);
+      
+      updateBuiltInRecipientList();
+    }
+
+    function updateBuiltInRecipientList() {
+      const type = document.getElementById('builtInRecipientType').value;
+      const selector = document.getElementById('builtInClientSelector');
+      const countDisplay = document.getElementById('builtInCountDisplay');
+      
+      let filteredClients = clients.filter(c => c.status !== 'banned' && c.status !== 'suspended');
+      
+      if (type === 'recent') {
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        filteredClients = filteredClients.filter(c => c.lastContact && new Date(c.lastContact) > thirtyDaysAgo);
+      } else if (type === 'inactive') {
+        const sixtyDaysAgo = new Date();
+        sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
+        filteredClients = filteredClients.filter(c => !c.lastContact || new Date(c.lastContact) < sixtyDaysAgo);
+      }
+      
+      if (type === 'select') {
+        selector.style.display = 'block';
+        selector.innerHTML = clients.filter(c => c.status !== 'banned' && c.status !== 'suspended').map(c => `
+          <label style="display: flex; align-items: center; gap: 8px; padding: 8px; border-bottom: 1px solid #f0f0f0; cursor: pointer;">
+            <input type="checkbox" class="built-in-client-cb" value="${c.id}" data-email="${c.email}">
+            <span>${c.name}</span>
+            <span style="color: var(--soft-gray); font-size: 12px;">${c.email}</span>
+          </label>
+        `).join('');
+        countDisplay.textContent = 'Select clients above';
+        
+        // Add change listener
+        selector.querySelectorAll('.built-in-client-cb').forEach(cb => {
+          cb.addEventListener('change', () => {
+            const selected = selector.querySelectorAll('.built-in-client-cb:checked').length;
+            countDisplay.textContent = `${selected} client(s) selected`;
+          });
+        });
+      } else {
+        selector.style.display = 'none';
+        countDisplay.textContent = `${filteredClients.length} client(s)`;
+      }
+    }
+
+    async function confirmSendBuiltIn(templateType) {
+      const template = builtInTemplates[templateType];
+      const type = document.getElementById('builtInRecipientType').value;
+      
+      let recipients = [];
+      
+      if (type === 'select') {
+        document.querySelectorAll('.built-in-client-cb:checked').forEach(cb => {
+          const client = clients.find(c => c.id === cb.value);
+          if (client) recipients.push(client);
+        });
+      } else {
+        recipients = clients.filter(c => c.status !== 'banned' && c.status !== 'suspended');
+        
+        if (type === 'recent') {
+          const thirtyDaysAgo = new Date();
+          thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+          recipients = recipients.filter(c => c.lastContact && new Date(c.lastContact) > thirtyDaysAgo);
+        } else if (type === 'inactive') {
+          const sixtyDaysAgo = new Date();
+          sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
+          recipients = recipients.filter(c => !c.lastContact || new Date(c.lastContact) < sixtyDaysAgo);
+        }
+      }
+      
+      if (recipients.length === 0) {
+        showToast('No recipients selected', 'error');
+        return;
+      }
+      
+      if (!confirm(`Send "${template.name}" to ${recipients.length} client(s)?`)) return;
+      
+      closeModal();
+      showLoading(true);
+      
+      let sent = 0;
+      let failed = 0;
+      
+      for (const client of recipients) {
+        // Replace variables for this client
+        let subject = template.subject;
+        let body = template.body;
+        
+        const data = {
+          clientName: client.name.split(' ')[0],
+          serviceName: 'Healing Session',
+          date: 'TBD',
+          time: 'TBD',
+          practitionerName: 'Ravi',
+          location: 'Sacred Healing Space',
+          duration: '90 minutes'
+        };
+        
+        Object.keys(data).forEach(key => {
+          const regex = new RegExp(`{{${key}}}`, 'g');
+          subject = subject.replace(regex, data[key]);
+          body = body.replace(regex, data[key]);
+        });
+        
+        const result = await api('/api/admin/send-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            to: client.email,
+            subject: subject,
+            body: body.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+          })
+        });
+        
+        if (result?.success) sent++;
+        else failed++;
+      }
+      
+      showLoading(false);
+      
+      if (failed === 0) {
+        showToast(`✅ Successfully sent to ${sent} client(s)!`, 'success');
+      } else {
+        showToast(`Sent: ${sent}, Failed: ${failed}`, 'warning');
+      }
     }
 
     function showTemplateEditor() {
@@ -13290,16 +14940,227 @@ With love,
       }
     }
 
+    // ===========================================
+    // PRANAYAMA BREATHING TECHNIQUES
+    // ===========================================
+    
+    const pranayamaData = {
+      'nadi-shodhana': {
+        title: '🌊 Nadi Shodhana (Alternate Nostril Breathing)',
+        subtitle: 'Balances left & right hemispheres of the brain',
+        benefits: ['Calms the nervous system', 'Reduces anxiety and stress', 'Improves concentration', 'Balances the nadis (energy channels)', 'Prepares for meditation'],
+        duration: '5-10 minutes',
+        bestFor: 'Anxiety, stress relief, pre-meditation, mental clarity',
+        contraindications: 'Cold/congestion (modify or skip)',
+        instructions: [
+          'Sit comfortably with spine straight, left hand resting on knee',
+          'Use right hand: thumb for right nostril, ring finger for left',
+          'Close right nostril with thumb, inhale through left (4 counts)',
+          'Close both nostrils, hold briefly (4 counts)',
+          'Release right nostril, exhale through right (4 counts)',
+          'Inhale through right nostril (4 counts)',
+          'Close both, hold briefly (4 counts)',
+          'Release left, exhale through left (4 counts)',
+          'This completes one round. Continue for 5-10 rounds'
+        ],
+        visualization: 'Imagine golden light flowing through each nostril, cleansing the energy channels'
+      },
+      'kapalabhati': {
+        title: '🔥 Kapalabhati (Skull Shining Breath)',
+        subtitle: 'Energizing purification breath',
+        benefits: ['Clears the mind ("skull shining")', 'Energizes the body', 'Detoxifies lungs', 'Strengthens abdominal muscles', 'Awakens dormant energy'],
+        duration: '3-5 minutes (work up gradually)',
+        bestFor: 'Low energy, mental fog, morning practice, digestive issues',
+        contraindications: 'High blood pressure, heart conditions, pregnancy, menstruation, recent abdominal surgery',
+        instructions: [
+          'Sit with spine straight, hands on knees',
+          'Take a deep breath in',
+          'Exhale forcefully through the nose by contracting the abdomen',
+          'Inhalation happens naturally and passively',
+          'Focus only on the forceful exhales',
+          'Start with 30 breaths per round, rest between rounds',
+          'Work up to 3 rounds of 60-100 breaths'
+        ],
+        visualization: 'With each exhale, imagine toxins and negativity being expelled as dark smoke'
+      },
+      'ujjayi': {
+        title: '🌬️ Ujjayi (Victorious/Ocean Breath)',
+        subtitle: 'The breath of the warrior',
+        benefits: ['Calms the mind while energizing', 'Builds internal heat', 'Improves concentration', 'Regulates blood pressure', 'Enhances yoga practice'],
+        duration: 'Throughout yoga practice or 5-10 minutes alone',
+        bestFor: 'Yoga practice, focus, building heat, calming anxiety',
+        contraindications: 'Low blood pressure (practice gently)',
+        instructions: [
+          'Sit or practice during yoga poses',
+          'Slightly constrict the back of your throat',
+          'Breathe in slowly through the nose, creating an ocean-like sound',
+          'Exhale through the nose with the same constriction',
+          'The sound should be audible but soft, like distant ocean waves',
+          'Keep the breath slow, smooth, and even',
+          'Maintain throughout your practice'
+        ],
+        visualization: 'Imagine waves rolling in and out on a peaceful beach'
+      },
+      'sitali': {
+        title: '🌸 Sitali (Cooling Breath)',
+        subtitle: 'Nature\'s air conditioner',
+        benefits: ['Cools the body', 'Calms anger and frustration', 'Reduces pitta (heat/fire)', 'Aids digestion', 'Promotes calm'],
+        duration: '5-10 minutes',
+        bestFor: 'Hot weather, anger management, pitta imbalance, cooling after exercise',
+        contraindications: 'Cold weather, respiratory infections, low blood pressure',
+        instructions: [
+          'Sit comfortably with spine straight',
+          'Curl your tongue into a tube (or purse lips if unable)',
+          'Inhale slowly through the curled tongue',
+          'Feel the cool air on your tongue',
+          'Close mouth, exhale slowly through the nose',
+          'Continue for 5-10 minutes',
+          'Alternative: Sitkari breath - clench teeth, inhale through teeth'
+        ],
+        visualization: 'Imagine cool moonlight entering your body, soothing all heat and inflammation'
+      },
+      'bhastrika': {
+        title: '⚡ Bhastrika (Bellows Breath)',
+        subtitle: 'Powerhouse energizing breath',
+        benefits: ['Dramatically increases energy', 'Clears blockages in nadis', 'Strengthens lungs', 'Awakens kundalini', 'Improves digestion'],
+        duration: '3 rounds of 20-30 breaths',
+        bestFor: 'Low energy, depression, sluggish metabolism, spiritual awakening',
+        contraindications: 'High blood pressure, heart disease, hernia, pregnancy, recent surgery, anxiety',
+        instructions: [
+          'Sit in a comfortable position with spine erect',
+          'Take a deep breath and exhale completely',
+          'Inhale forcefully through the nose, expanding the chest',
+          'Exhale forcefully through the nose, contracting the abdomen',
+          'Both inhale and exhale are active and forceful',
+          'Start slowly: 1 breath per second',
+          'Do 20-30 breaths, then hold breath for 30-60 seconds',
+          'Exhale slowly. Rest. Repeat 3 rounds'
+        ],
+        visualization: 'Imagine bellows stoking a fire in your solar plexus, awakening your inner power'
+      },
+      'sama-vritti': {
+        title: '🧘 Sama Vritti (Equal Breathing)',
+        subtitle: 'Box breathing for perfect balance',
+        benefits: ['Creates mental balance', 'Reduces stress', 'Improves focus', 'Prepares for meditation', 'Regulates nervous system'],
+        duration: '5-15 minutes',
+        bestFor: 'Anxiety, insomnia, pre-meditation, stress relief, beginners',
+        contraindications: 'None - suitable for everyone',
+        instructions: [
+          'Sit comfortably or lie down',
+          'Breathe naturally for a few breaths',
+          'Start with 4-count pattern:',
+          '• Inhale for 4 counts',
+          '• Hold for 4 counts',
+          '• Exhale for 4 counts',
+          '• Hold empty for 4 counts',
+          'This is one round. Continue for 5-15 minutes',
+          'Advanced: Increase to 5, 6, or 8 counts per phase'
+        ],
+        visualization: 'Visualize drawing a square with each breath: up (inhale), across (hold), down (exhale), across (hold)'
+      },
+      'breath-of-fire': {
+        title: '🔥 Breath of Fire (Agni Pran)',
+        subtitle: 'Kundalini awakening breath',
+        benefits: ['Rapidly energizes', 'Detoxifies blood', 'Strengthens core', 'Awakens kundalini energy', 'Expands lung capacity'],
+        duration: '1-3 minutes',
+        bestFor: 'Morning practice, kundalini yoga, energy boost, cleansing',
+        contraindications: 'Pregnancy, menstruation, high blood pressure, vertigo, respiratory issues',
+        instructions: [
+          'Sit with spine straight, hands on knees',
+          'Begin with a deep breath in and out',
+          'Start rapid, rhythmic breathing through the nose',
+          'Pull navel in with each exhale (automatic inhale)',
+          'Breath is rapid: 2-3 breaths per second',
+          'Keep chest relatively still, movement is in belly',
+          'Start with 30 seconds, work up to 3 minutes',
+          'End with deep inhale, hold, exhale'
+        ],
+        visualization: 'See a fire building at your navel center, energy rising up your spine'
+      },
+      'lions-breath': {
+        title: '🦁 Lion\'s Breath (Simhasana)',
+        subtitle: 'Release tension with a roar',
+        benefits: ['Releases throat tension', 'Opens throat chakra', 'Relieves frustration', 'Improves facial circulation', 'Boosts confidence'],
+        duration: '3-5 rounds',
+        bestFor: 'Throat chakra work, releasing anger, breaking shyness, facial tension',
+        contraindications: 'Recent facial/jaw surgery',
+        instructions: [
+          'Kneel or sit comfortably',
+          'Place hands on knees, spread fingers wide',
+          'Take a deep breath in through the nose',
+          'Open mouth wide, stick tongue out toward chin',
+          'Exhale forcefully with a "HAAA" sound',
+          'At the same time, widen eyes and gaze upward',
+          'Feel the release of tension',
+          'Repeat 3-5 times'
+        ],
+        visualization: 'Imagine yourself as a powerful lion, releasing all that no longer serves you'
+      }
+    };
+
+    function showPranayamaDetails(technique) {
+      const data = pranayamaData[technique];
+      if (!data) return;
+      
+      const detailsDiv = document.getElementById('pranayama-details');
+      
+      detailsDiv.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+          <div>
+            <h3 style="color: #00695C; margin: 0;">${data.title}</h3>
+            <p style="color: #26A69A; font-style: italic; margin: 4px 0 0;">${data.subtitle}</p>
+          </div>
+          <button onclick="document.getElementById('pranayama-details').style.display='none'" 
+                  style="background: none; border: none; font-size: 24px; cursor: pointer; color: #666;">×</button>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+          <div>
+            <h4 style="color: #00897B; margin: 0 0 8px;">✨ Benefits</h4>
+            <ul style="margin: 0; padding-left: 20px; color: #333;">
+              ${data.benefits.map(b => `<li style="margin-bottom: 4px;">${b}</li>`).join('')}
+            </ul>
+            
+            <h4 style="color: #00897B; margin: 16px 0 8px;">⏱️ Duration</h4>
+            <p style="margin: 0; color: #333;">${data.duration}</p>
+            
+            <h4 style="color: #00897B; margin: 16px 0 8px;">🎯 Best For</h4>
+            <p style="margin: 0; color: #333;">${data.bestFor}</p>
+            
+            <h4 style="color: #E65100; margin: 16px 0 8px;">⚠️ Contraindications</h4>
+            <p style="margin: 0; color: #BF360C;">${data.contraindications}</p>
+          </div>
+          
+          <div>
+            <h4 style="color: #00897B; margin: 0 0 8px;">📋 Step-by-Step Instructions</h4>
+            <ol style="margin: 0; padding-left: 20px; color: #333;">
+              ${data.instructions.map(i => `<li style="margin-bottom: 6px;">${i}</li>`).join('')}
+            </ol>
+            
+            <h4 style="color: #00897B; margin: 16px 0 8px;">🔮 Visualization</h4>
+            <p style="margin: 0; color: #333; font-style: italic; background: white; padding: 12px; border-radius: 8px;">${data.visualization}</p>
+          </div>
+        </div>
+        
+        <div style="margin-top: 20px; padding: 12px; background: #00897B; color: white; border-radius: 8px; text-align: center;">
+          <strong>💡 Tip:</strong> Practice on an empty stomach, preferably in the morning. Always end with a few natural breaths.
+        </div>
+      `;
+      
+      detailsDiv.style.display = 'block';
+      detailsDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
     async function resetDemoData() {
-      if (!confirm('⚠️ This will DELETE ALL DATA (bookings, clients, inquiries, invitation codes). This cannot be undone. Are you absolutely sure?')) return;
-      if (!confirm('Last chance! Click OK to permanently delete everything.')) return;
+      if (!confirm('⚠️ This will DELETE ALL DATA including backups (bookings, clients, inquiries, invitation codes, all backup files). This cannot be undone. Are you absolutely sure?')) return;
+      if (!confirm('Last chance! Click OK to permanently delete everything including all backups.')) return;
       
       showLoading(true);
       const result = await api('/api/admin/demo/reset', { method: 'POST' });
       showLoading(false);
       
       if (result?.success) {
-        showToast('All data cleared!', 'success');
+        showToast(result.message || 'All data and backups cleared!', 'success');
         refreshDashboard();
       }
     }
@@ -13737,10 +15598,16 @@ Ravi 🪷`
     // ===========================================
     function openModal(id) {
       document.getElementById(id).classList.add('active');
+      document.body.style.overflow = 'hidden'; // Prevent background scroll
     }
 
     function closeModal(id) {
       document.getElementById(id).classList.remove('active');
+      // Only restore scroll if no other modals are active
+      const anyModalActive = document.querySelector('.modal-overlay.active');
+      if (!anyModalActive) {
+        document.body.style.overflow = '';
+      }
     }
 
     // Dynamic modal for HTML content
@@ -13777,6 +15644,7 @@ Ravi 🪷`
       // Set content and show
       document.getElementById(`${modalId}Content`).innerHTML = htmlContent;
       modal.classList.add('active');
+      document.body.style.overflow = 'hidden'; // Prevent background scroll
       
       return modalId;
     }
@@ -13784,6 +15652,11 @@ Ravi 🪷`
     function hideModal(modalId = 'dynamicModal') {
       const modal = document.getElementById(modalId);
       if (modal) modal.classList.remove('active');
+      // Only restore scroll if no other modals are active
+      const anyModalActive = document.querySelector('.modal-overlay.active');
+      if (!anyModalActive) {
+        document.body.style.overflow = '';
+      }
     }
 
     function showLoading(show) {
