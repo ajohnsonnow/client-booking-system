@@ -60,10 +60,12 @@
 
 ## 🎯 Next Steps (In Order)
 
-### Step 1: Push to GitHub
+### Step 1: Push to GitHub ✅ DONE
 ```bash
-git push origin ravi-sacred-healing
+git push origin ravi-sacred-healing  # Already pushed!
 ```
+
+**Status**: All commits pushed to GitHub successfully
 
 ### Step 2: Deploy on Render.com
 1. Go to https://render.com
@@ -76,19 +78,30 @@ git push origin ravi-sacred-healing
    - **Environment Variables**: See DEPLOYMENT.md
 
 ### Step 3: Set Environment Variables
-Copy from your `.env` file:
-```
+**IMPORTANT**: In Render dashboard, click "Environment" and add these:
+
+```env
 NODE_ENV=production
-ADMIN_PASSWORD=<your-password>
-JWT_SECRET=<random-64-chars>
-EMAIL_PROVIDER=gmail
-EMAIL_USER=<your-email>
-EMAIL_APP_PASSWORD=<app-password>
-SMS_PROVIDER=twilio (optional)
-TWILIO_ACCOUNT_SID=<sid> (optional)
-TWILIO_AUTH_TOKEN=<token> (optional)
-TWILIO_PHONE_NUMBER=<number> (optional)
+PORT=3000
+ADMIN_USERNAME=ravi
+ADMIN_PASSWORD=admin2024
+JWT_SECRET=change-this-to-a-very-long-random-string-at-least-64-characters-long
+ENCRYPTION_KEY=change-this-to-32-chars-min
+SITE_PASSWORD=sacred2024
+
+# Email (optional - if you want notifications)
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USER=RavishingRavi77@gmail.com
+EMAIL_PASS=<get-gmail-app-password>
+EMAIL_TO=RavishingRavi77@gmail.com
 ```
+
+**🔒 Security Checklist:**
+- [ ] Change `JWT_SECRET` to random 64+ chars
+- [ ] Change `ENCRYPTION_KEY` to random 32+ chars
+- [ ] Get Gmail App Password: https://myaccount.google.com/apppasswords
+- [ ] Never commit secrets to GitHub
 
 ### Step 4: Verify Deployment
 - [ ] Visit Render URL (e.g., `https://ravi-sacred-healing-cms.onrender.com`)
@@ -110,12 +123,12 @@ TWILIO_PHONE_NUMBER=<number> (optional)
 
 | Metric | Value |
 |--------|-------|
-| Total Commits | 44 |
+| Total Commits | 47 |
 | Lines of Code | 25,202 |
-| Development Hours | 68 hours |
-| Market Value | $10,200 |
+| Development Hours | 12 hours (3 work days) |
+| Market Value | $5,040 at $420/hr |
 | Annual Cost | $15 (domain only) |
-| ROI | 680x |
+| ROI | 336x |
 | API Endpoints | 90+ |
 | Security | AES-256-GCM + JWT |
 | Uptime | 750 hrs/month (free tier) |
