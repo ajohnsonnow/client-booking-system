@@ -5479,6 +5479,211 @@
     <div class="spinner"></div>
   </div>
 
+  <!-- TAROT READING MODAL -->
+  <div class="modal-overlay" id="tarotModal">
+    <div class="modal" style="max-width: 600px;">
+      <div class="modal-header" style="background: linear-gradient(135deg, #6a1b9a 0%, #8e24aa 100%); color: white;">
+        <h2 class="modal-title">🔮 Record Tarot Reading</h2>
+        <button class="modal-close" onclick="closeModal('tarotModal')" style="color: white;">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="tarotClientId">
+        <div class="form-group">
+          <label class="form-label">Spread Type</label>
+          <select class="form-input" id="tarotSpread">
+            <option value="3-card">3-Card (Past, Present, Future)</option>
+            <option value="celtic-cross">Celtic Cross</option>
+            <option value="single-card">Single Card</option>
+            <option value="relationship">Relationship Spread</option>
+            <option value="career">Career Spread</option>
+            <option value="chakra">7-Chakra Spread</option>
+            <option value="custom">Custom Spread</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Cards Drawn</label>
+          <textarea class="form-textarea" id="tarotCards" rows="3" placeholder="e.g., The Fool (reversed), The Lovers, Ten of Cups"></textarea>
+          <p style="font-size: 12px; color: var(--soft-gray); margin-top: 4px;">List the cards in order drawn</p>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Interpretation & Insights</label>
+          <textarea class="form-textarea" id="tarotInterpretation" rows="5" placeholder="Reading interpretation, guidance given, key themes..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Session Notes</label>
+          <textarea class="form-textarea" id="tarotNotes" rows="3" placeholder="Client questions, reactions, follow-up recommendations..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('tarotModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="saveTarotReading()">💾 Save Reading</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PENDULUM SESSION MODAL -->
+  <div class="modal-overlay" id="pendulumModal">
+    <div class="modal" style="max-width: 600px;">
+      <div class="modal-header" style="background: linear-gradient(135deg, #1976d2 0%, #2196f3 100%); color: white;">
+        <h2 class="modal-title">⚖️ Record Pendulum Session</h2>
+        <button class="modal-close" onclick="closeModal('pendulumModal')" style="color: white;">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="pendulumClientId">
+        <div class="form-group">
+          <label class="form-label">Session Type</label>
+          <select class="form-input" id="pendulumType">
+            <option value="chakra-assessment">Chakra Assessment</option>
+            <option value="energy-clearing">Energy Clearing</option>
+            <option value="yes-no">Yes/No Questions</option>
+            <option value="food-testing">Food/Supplement Testing</option>
+            <option value="meridian-balance">Meridian Balancing</option>
+            <option value="other">Other Dowsing Work</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Chakra Results (if applicable)</label>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-top: 8px;">
+            <label style="display: flex; align-items: center; gap: 6px; font-size: 13px;">
+              <input type="checkbox" id="chakra-root"> Root 🔴
+            </label>
+            <label style="display: flex; align-items: center; gap: 6px; font-size: 13px;">
+              <input type="checkbox" id="chakra-sacral"> Sacral 🟠
+            </label>
+            <label style="display: flex; align-items: center; gap: 6px; font-size: 13px;">
+              <input type="checkbox" id="chakra-solar"> Solar 🟡
+            </label>
+            <label style="display: flex; align-items: center; gap: 6px; font-size: 13px;">
+              <input type="checkbox" id="chakra-heart"> Heart 🟢
+            </label>
+            <label style="display: flex; align-items: center; gap: 6px; font-size: 13px;">
+              <input type="checkbox" id="chakra-throat"> Throat 🔵
+            </label>
+            <label style="display: flex; align-items: center; gap: 6px; font-size: 13px;">
+              <input type="checkbox" id="chakra-third-eye"> Third Eye 🟣
+            </label>
+            <label style="display: flex; align-items: center; gap: 6px; font-size: 13px;">
+              <input type="checkbox" id="chakra-crown"> Crown ⚪
+            </label>
+          </div>
+          <p style="font-size: 12px; color: var(--soft-gray); margin-top: 8px;">Check blocked/imbalanced chakras</p>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Session Results</label>
+          <textarea class="form-textarea" id="pendulumResults" rows="4" placeholder="Findings, responses, energy patterns observed..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Notes & Recommendations</label>
+          <textarea class="form-textarea" id="pendulumNotes" rows="3" placeholder="Follow-up work needed, homework assigned..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('pendulumModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="savePendulumSession()">💾 Save Session</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- KUNDALINI PRACTICE MODAL -->
+  <div class="modal-overlay" id="kundaliniModal">
+    <div class="modal" style="max-width: 560px;">
+      <div class="modal-header" style="background: linear-gradient(135deg, #d84315 0%, #ff5722 100%); color: white;">
+        <h2 class="modal-title">🧘 Recommend Kundalini Practice</h2>
+        <button class="modal-close" onclick="closeModal('kundaliniModal')" style="color: white;">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="kundaliniClientId">
+        <div class="form-group">
+          <label class="form-label">Practice Name</label>
+          <select class="form-input" id="kundaliniName" onchange="updateKundaliniDescription()">
+            <option value="">-- Select Practice --</option>
+            <option value="Sat Kriya">Sat Kriya (Root Chakra)</option>
+            <option value="Breath of Fire">Breath of Fire (Cleansing)</option>
+            <option value="Archer Pose">Archer Pose (Heart Opening)</option>
+            <option value="Frog Pose">Frog Pose (Grounding)</option>
+            <option value="Camel Pose">Camel Pose (Heart Chakra)</option>
+            <option value="Ego Eradicator">Ego Eradicator (Solar Plexus)</option>
+            <option value="Spinal Flex">Spinal Flex (Energy Flow)</option>
+            <option value="Kirtan Kriya">Kirtan Kriya (Meditation)</option>
+            <option value="custom">Custom Practice</option>
+          </select>
+        </div>
+        <div id="kundaliniDescriptionDiv" style="display: none; background: #f5f5f5; padding: 12px; border-radius: 8px; margin: 12px 0; font-size: 13px;"></div>
+        <div class="form-group">
+          <label class="form-label">Duration</label>
+          <input type="text" class="form-input" id="kundaliniDuration" placeholder="e.g., 3 minutes, 11 minutes">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Frequency</label>
+          <select class="form-input" id="kundaliniFrequency">
+            <option value="daily">Daily</option>
+            <option value="3x-week">3× per week</option>
+            <option value="weekly">Weekly</option>
+            <option value="as-needed">As needed</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Notes & Guidance</label>
+          <textarea class="form-textarea" id="kundaliniNotes" rows="3" placeholder="Special instructions, modifications, expected benefits..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('kundaliniModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="saveKundaliniPractice()">💾 Add to Client</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRANAYAMA TECHNIQUE MODAL -->
+  <div class="modal-overlay" id="pranayamaModal">
+    <div class="modal" style="max-width: 560px;">
+      <div class="modal-header" style="background: linear-gradient(135deg, #00897b 0%, #26a69a 100%); color: white;">
+        <h2 class="modal-title">🌬️ Recommend Pranayama Technique</h2>
+        <button class="modal-close" onclick="closeModal('pranayamaModal')" style="color: white;">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="pranayamaClientId">
+        <div class="form-group">
+          <label class="form-label">Technique Name</label>
+          <select class="form-input" id="pranayamaName" onchange="updatePranayamaDescription()">
+            <option value="">-- Select Technique --</option>
+            <option value="Long Deep Breathing">Long Deep Breathing (Foundation)</option>
+            <option value="Alternate Nostril">Alternate Nostril (Balance)</option>
+            <option value="Sitali Breath">Sitali Breath (Cooling)</option>
+            <option value="Lion's Breath">Lion's Breath (Release)</option>
+            <option value="Ocean Breath">Ocean Breath (Calming)</option>
+            <option value="Breath of Ten">Breath of Ten (Power)</option>
+            <option value="Segmented Breathing">Segmented Breathing (Energy)</option>
+            <option value="Whistle Breath">Whistle Breath (Clearing)</option>
+            <option value="custom">Custom Technique</option>
+          </select>
+        </div>
+        <div id="pranayamaDescriptionDiv" style="display: none; background: #f5f5f5; padding: 12px; border-radius: 8px; margin: 12px 0; font-size: 13px;"></div>
+        <div class="form-group">
+          <label class="form-label">Duration</label>
+          <input type="text" class="form-input" id="pranayamaDuration" placeholder="e.g., 5 minutes, 3-11 minutes">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Frequency</label>
+          <select class="form-input" id="pranayamaFrequency">
+            <option value="daily">Daily</option>
+            <option value="2x-daily">2× daily</option>
+            <option value="3x-week">3× per week</option>
+            <option value="as-needed">As needed</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Notes & Guidance</label>
+          <textarea class="form-textarea" id="pranayamaNotes" rows="3" placeholder="When to practice, contraindications, expected effects..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('pranayamaModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="savePranayamaTechnique()">💾 Add to Client</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // ===========================================
     // STATE & CONFIG
@@ -6798,6 +7003,28 @@ Example:
             </div>
 
             <div style="margin-top: 24px; padding: 16px; background: #fff8e6; border-radius: 8px;">
+              <h4 style="margin-bottom: 16px;">🔮 Spiritual Healing Tools & Sessions</h4>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px;">
+                <button class="btn btn-primary" onclick="openTarotModal('${client.id}')" style="background: linear-gradient(135deg, #6a1b9a, #8e24aa);">
+                  🔮 Add Tarot Reading
+                </button>
+                <button class="btn btn-primary" onclick="openPendulumModal('${client.id}')" style="background: linear-gradient(135deg, #1976d2, #2196f3);">
+                  ⚖️ Add Pendulum Session
+                </button>
+                <button class="btn btn-primary" onclick="openKundaliniModal('${client.id}')" style="background: linear-gradient(135deg, #d84315, #ff5722);">
+                  🧘 Recommend Kundalini
+                </button>
+                <button class="btn btn-primary" onclick="openPranayamaModal('${client.id}')" style="background: linear-gradient(135deg, #00897b, #26a69a);">
+                  🌬️ Recommend Pranayama
+                </button>
+              </div>
+              
+              <div id="spiritual-tools-history-${client.id}">
+                <!-- Spiritual tools history will be rendered here -->
+              </div>
+            </div>
+
+            <div style="margin-top: 16px; padding: 16px; background: #f5f5f5; border-radius: 8px;">
               <h4 style="margin-bottom: 12px;">📝 Session Notes & Spiritual Observations</h4>
               <textarea id="spiritual-notes-${client.id}" class="form-input" rows="4" placeholder="Record spiritual insights, energy observations, chakra assessments, pendulum findings, tarot insights...">${client.spiritualNotes || ''}</textarea>
               <button class="btn btn-sm btn-primary" style="margin-top: 8px;" onclick="saveSpiritualNotes('${client.id}')">💾 Save Spiritual Notes</button>
@@ -6807,6 +7034,125 @@ Example:
       }
 
       document.getElementById('clientTabSpiritual').innerHTML = content;
+      
+      // Render spiritual tools history if available
+      if (client.spiritualTools) {
+        renderSpiritualToolsHistory(client);
+      }
+    }
+
+    function renderSpiritualToolsHistory(client) {
+      const container = document.getElementById(`spiritual-tools-history-${client.id}`);
+      if (!container) return;
+      
+      const tools = client.spiritualTools;
+      let historyHTML = '';
+      
+      // Tarot Readings
+      if (tools.tarotReadings && tools.tarotReadings.length > 0) {
+        historyHTML += `
+          <div style="margin-top: 16px;">
+            <h5 style="color: #6a1b9a; margin-bottom: 12px;">🔮 Tarot Readings (${tools.tarotReadings.length})</h5>
+            ${tools.tarotReadings.map(reading => `
+              <div style="background: white; padding: 12px; border-radius: 8px; margin-bottom: 8px; border-left: 3px solid #6a1b9a;">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                  <strong>${reading.spread} Spread</strong>
+                  <span style="font-size: 12px; color: var(--soft-gray);">${new Date(reading.date).toLocaleDateString()}</span>
+                </div>
+                <div style="font-size: 14px; margin-bottom: 6px;"><strong>Cards:</strong> ${reading.cards}</div>
+                <div style="font-size: 14px; color: #555;">${reading.interpretation}</div>
+                ${reading.notes ? `<div style="font-size: 13px; margin-top: 6px; font-style: italic; color: var(--soft-gray);">${reading.notes}</div>` : ''}
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+      
+      // Pendulum Sessions
+      if (tools.pendulumSessions && tools.pendulumSessions.length > 0) {
+        historyHTML += `
+          <div style="margin-top: 16px;">
+            <h5 style="color: #1976d2; margin-bottom: 12px;">⚖️ Pendulum Sessions (${tools.pendulumSessions.length})</h5>
+            ${tools.pendulumSessions.map(session => `
+              <div style="background: white; padding: 12px; border-radius: 8px; margin-bottom: 8px; border-left: 3px solid #1976d2;">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                  <strong>${session.type.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}</strong>
+                  <span style="font-size: 12px; color: var(--soft-gray);">${new Date(session.date).toLocaleDateString()}</span>
+                </div>
+                ${session.chakras && session.chakras.length > 0 ? `
+                  <div style="font-size: 13px; margin-bottom: 6px;">
+                    <strong>Blocked Chakras:</strong> ${session.chakras.map(c => c.replace('-', ' ')).join(', ')}
+                  </div>
+                ` : ''}
+                <div style="font-size: 14px; color: #555;">${session.results}</div>
+                ${session.notes ? `<div style="font-size: 13px; margin-top: 6px; font-style: italic; color: var(--soft-gray);">${session.notes}</div>` : ''}
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+      
+      // Kundalini Practices
+      if (tools.kundaliniPractices && tools.kundaliniPractices.length > 0) {
+        const activePractices = tools.kundaliniPractices.filter(p => p.active !== false);
+        if (activePractices.length > 0) {
+          historyHTML += `
+            <div style="margin-top: 16px;">
+              <h5 style="color: #d84315; margin-bottom: 12px;">🧘 Recommended Kundalini Practices (${activePractices.length})</h5>
+              ${activePractices.map(practice => `
+                <div style="background: white; padding: 12px; border-radius: 8px; margin-bottom: 8px; border-left: 3px solid #d84315;">
+                  <div style="display: flex; justify-content: space-between; align-items: start;">
+                    <div style="flex: 1;">
+                      <strong>${practice.name}</strong>
+                      <div style="font-size: 13px; color: #666; margin-top: 4px;">
+                        ${practice.duration} • ${practice.frequency}
+                      </div>
+                      ${practice.notes ? `<div style="font-size: 13px; margin-top: 6px; color: #555;">${practice.notes}</div>` : ''}
+                    </div>
+                    <span style="font-size: 12px; color: var(--soft-gray); white-space: nowrap; margin-left: 12px;">
+                      ${new Date(practice.date).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          `;
+        }
+      }
+      
+      // Pranayama Techniques
+      if (tools.pranayamaTechniques && tools.pranayamaTechniques.length > 0) {
+        const activeTechniques = tools.pranayamaTechniques.filter(t => t.active !== false);
+        if (activeTechniques.length > 0) {
+          historyHTML += `
+            <div style="margin-top: 16px;">
+              <h5 style="color: #00897b; margin-bottom: 12px;">🌬️ Recommended Pranayama Techniques (${activeTechniques.length})</h5>
+              ${activeTechniques.map(technique => `
+                <div style="background: white; padding: 12px; border-radius: 8px; margin-bottom: 8px; border-left: 3px solid #00897b;">
+                  <div style="display: flex; justify-content: space-between; align-items: start;">
+                    <div style="flex: 1;">
+                      <strong>${technique.name}</strong>
+                      <div style="font-size: 13px; color: #666; margin-top: 4px;">
+                        ${technique.duration} • ${technique.frequency}
+                      </div>
+                      ${technique.notes ? `<div style="font-size: 13px; margin-top: 6px; color: #555;">${technique.notes}</div>` : ''}
+                    </div>
+                    <span style="font-size: 12px; color: var(--soft-gray); white-space: nowrap; margin-left: 12px;">
+                      ${new Date(technique.date).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          `;
+        }
+      }
+      
+      if (historyHTML) {
+        container.innerHTML = historyHTML;
+      } else {
+        container.innerHTML = `<p style="text-align: center; color: var(--soft-gray); padding: 20px;">No spiritual tools recorded yet. Click the buttons above to add readings, sessions, or recommendations.</p>`;
+      }
     }
 
     async function saveClientBirthday(clientId) {
@@ -9524,6 +9870,9 @@ Example:
 
     function calculateAstrology() {
       const birthday = document.getElementById('astro-birthday').value;
+      const birthtime = document.getElementById('astro-birthtime').value;
+      const location = document.getElementById('astro-location').value;
+      
       if (!birthday) {
         showToast('Please enter a birthday', 'error');
         return;
@@ -9540,6 +9889,25 @@ Example:
       // Calculate Life Path Number
       const lifePath = calculateLifePath(birthday);
       document.getElementById('life-path').innerHTML = `<strong style="font-size: 24px; color: var(--burgundy);">${lifePath}</strong>`;
+      
+      // Handle Moon & Rising signs with birth time and location
+      const moonSignEl = document.getElementById('moon-sign');
+      const risingSignEl = document.getElementById('rising-sign');
+      
+      if (birthtime && location) {
+        // If we have birth time and location, show a note that this requires astronomical calculation
+        moonSignEl.innerHTML = `<em style="color: var(--soft-gray);">📍 ${location} at ${birthtime}<br><small>Professional chart needed for accuracy</small></em>`;
+        risingSignEl.innerHTML = `<em style="color: var(--soft-gray);">📍 ${location} at ${birthtime}<br><small>Professional chart needed for accuracy</small></em>`;
+      } else if (birthtime) {
+        moonSignEl.textContent = `Need location (have time: ${birthtime})`;
+        risingSignEl.textContent = `Need location (have time: ${birthtime})`;
+      } else if (location) {
+        moonSignEl.textContent = `Need birth time (have location: ${location})`;
+        risingSignEl.textContent = `Need birth time (have location: ${location})`;
+      } else {
+        moonSignEl.textContent = 'Need birth time & location';
+        risingSignEl.textContent = 'Need birth time & location';
+      }
       
       // Show results
       document.getElementById('astro-results').style.display = 'block';
@@ -9572,12 +9940,220 @@ Example:
 
     // Tarot Functions
     function showNewTarotReading() {
-      showToast('Tarot reading feature - Coming soon! Will track spreads and interpretations.', 'info');
+      showToast('Open a client card and use the "Add Tarot Reading" button from their Spiritual Profile tab.', 'info');
+    }
+
+    function openTarotModal(clientId) {
+      document.getElementById('tarotClientId').value = clientId;
+      document.getElementById('tarotSpread').value = '3-card';
+      document.getElementById('tarotCards').value = '';
+      document.getElementById('tarotInterpretation').value = '';
+      document.getElementById('tarotNotes').value = '';
+      openModal('tarotModal');
+    }
+
+    async function saveTarotReading() {
+      const clientId = document.getElementById('tarotClientId').value;
+      const spread = document.getElementById('tarotSpread').value;
+      const cards = document.getElementById('tarotCards').value.trim();
+      const interpretation = document.getElementById('tarotInterpretation').value.trim();
+      const notes = document.getElementById('tarotNotes').value.trim();
+      
+      if (!cards || !interpretation) {
+        showToast('Please enter cards drawn and interpretation', 'error');
+        return;
+      }
+      
+      showLoading(true);
+      const result = await api(`/api/admin/clients/${clientId}/tarot`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ spread, cards, interpretation, notes })
+      });
+      showLoading(false);
+      
+      if (result?.success) {
+        showToast('🔮 Tarot reading saved!', 'success');
+        closeModal('tarotModal');
+        if (currentClientId === clientId) {
+          await loadClientDetails(clientId); // Refresh client view
+        }
+      }
     }
 
     // Pendulum Functions
     function showNewPendulumSession() {
-      showToast('Pendulum session tracker - Coming soon! Will log dowsing results and chakra assessments.', 'info');
+      showToast('Open a client card and use the "Add Pendulum Session" button from their Spiritual Profile tab.', 'info');
+    }
+
+    function openPendulumModal(clientId) {
+      document.getElementById('pendulumClientId').value = clientId;
+      document.getElementById('pendulumType').value = 'chakra-assessment';
+      document.getElementById('pendulumResults').value = '';
+      document.getElementById('pendulumNotes').value = '';
+      // Uncheck all chakras
+      ['root', 'sacral', 'solar', 'heart', 'throat', 'third-eye', 'crown'].forEach(chakra => {
+        document.getElementById(`chakra-${chakra}`).checked = false;
+      });
+      openModal('pendulumModal');
+    }
+
+    async function savePendulumSession() {
+      const clientId = document.getElementById('pendulumClientId').value;
+      const type = document.getElementById('pendulumType').value;
+      const results = document.getElementById('pendulumResults').value.trim();
+      const notes = document.getElementById('pendulumNotes').value.trim();
+      
+      // Get selected chakras
+      const chakras = ['root', 'sacral', 'solar', 'heart', 'throat', 'third-eye', 'crown']
+        .filter(chakra => document.getElementById(`chakra-${chakra}`).checked);
+      
+      if (!results) {
+        showToast('Please enter session results', 'error');
+        return;
+      }
+      
+      showLoading(true);
+      const result = await api(`/api/admin/clients/${clientId}/pendulum`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type, chakras, results, notes })
+      });
+      showLoading(false);
+      
+      if (result?.success) {
+        showToast('⚖️ Pendulum session saved!', 'success');
+        closeModal('pendulumModal');
+        if (currentClientId === clientId) {
+          await loadClientDetails(clientId);
+        }
+      }
+    }
+
+    // Kundalini Practice Functions
+    function openKundaliniModal(clientId) {
+      document.getElementById('kundaliniClientId').value = clientId;
+      document.getElementById('kundaliniName').value = '';
+      document.getElementById('kundaliniDuration').value = '';
+      document.getElementById('kundaliniFrequency').value = 'daily';
+      document.getElementById('kundaliniNotes').value = '';
+      document.getElementById('kundaliniDescriptionDiv').style.display = 'none';
+      openModal('kundaliniModal');
+    }
+
+    function updateKundaliniDescription() {
+      const name = document.getElementById('kundaliniName').value;
+      const descDiv = document.getElementById('kundaliniDescriptionDiv');
+      
+      const descriptions = {
+        'Sat Kriya': 'Powerful root chakra activation. Sit on heels, arms overhead, chant "Sat Nam" while pumping navel.',
+        'Breath of Fire': 'Rapid rhythmic breathing. Cleanses blood, energizes body, releases toxins.',
+        'Archer Pose': 'Warrior stance with bow-pulled arms. Opens heart, builds courage and willpower.',
+        'Frog Pose': 'Squat position, alternate standing/squatting. Grounds energy, strengthens lower body.',
+        'Camel Pose': 'Kneeling backbend. Opens heart chakra, releases emotional blockages.',
+        'Ego Eradicator': 'Arms in V, thumbs touching Venus mound. Clears negativity, opens heart.',
+        'Spinal Flex': 'Seated spinal movements. Awakens kundalini, increases energy flow.',
+        'Kirtan Kriya': 'Sa Ta Na Ma meditation. Enhances intuition, balances brain hemispheres.'
+      };
+      
+      if (descriptions[name]) {
+        descDiv.innerHTML = `<strong>${name}:</strong> ${descriptions[name]}`;
+        descDiv.style.display = 'block';
+      } else {
+        descDiv.style.display = 'none';
+      }
+    }
+
+    async function saveKundaliniPractice() {
+      const clientId = document.getElementById('kundaliniClientId').value;
+      const name = document.getElementById('kundaliniName').value.trim();
+      const duration = document.getElementById('kundaliniDuration').value.trim();
+      const frequency = document.getElementById('kundaliniFrequency').value;
+      const notes = document.getElementById('kundaliniNotes').value.trim();
+      
+      if (!name || !duration) {
+        showToast('Please enter practice name and duration', 'error');
+        return;
+      }
+      
+      showLoading(true);
+      const result = await api(`/api/admin/clients/${clientId}/kundalini`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, duration, frequency, notes })
+      });
+      showLoading(false);
+      
+      if (result?.success) {
+        showToast('🧘 Kundalini practice added!', 'success');
+        closeModal('kundaliniModal');
+        if (currentClientId === clientId) {
+          await loadClientDetails(clientId);
+        }
+      }
+    }
+
+    // Pranayama Functions
+    function openPranayamaModal(clientId) {
+      document.getElementById('pranayamaClientId').value = clientId;
+      document.getElementById('pranayamaName').value = '';
+      document.getElementById('pranayamaDuration').value = '';
+      document.getElementById('pranayamaFrequency').value = 'daily';
+      document.getElementById('pranayamaNotes').value = '';
+      document.getElementById('pranayamaDescriptionDiv').style.display = 'none';
+      openModal('pranayamaModal');
+    }
+
+    function updatePranayamaDescription() {
+      const name = document.getElementById('pranayamaName').value;
+      const descDiv = document.getElementById('pranayamaDescriptionDiv');
+      
+      const descriptions = {
+        'Long Deep Breathing': 'Foundation practice. Slow, deep belly breathing. Calms nervous system.',
+        'Alternate Nostril': 'Left-right breathing. Balances brain hemispheres, calms mind.',
+        'Sitali Breath': 'Tongue curl, inhale through mouth. Cools body, reduces pitta.',
+        'Lion\'s Breath': 'Forceful exhale with tongue out. Releases tension, clears throat chakra.',
+        'Ocean Breath': 'Ujjayi breathing. Creates ocean sound. Calms, focuses mind.',
+        'Breath of Ten': '10-second inhale, hold, exhale. Builds lung capacity, mental power.',
+        'Segmented Breathing': 'Rhythmic segmented breaths. Energizes, changes brainwave patterns.',
+        'Whistle Breath': 'Pursed lips like whistling. Clears lungs, energizes.'
+      };
+      
+      if (descriptions[name]) {
+        descDiv.innerHTML = `<strong>${name}:</strong> ${descriptions[name]}`;
+        descDiv.style.display = 'block';
+      } else {
+        descDiv.style.display = 'none';
+      }
+    }
+
+    async function savePranayamaTechnique() {
+      const clientId = document.getElementById('pranayamaClientId').value;
+      const name = document.getElementById('pranayamaName').value.trim();
+      const duration = document.getElementById('pranayamaDuration').value.trim();
+      const frequency = document.getElementById('pranayamaFrequency').value;
+      const notes = document.getElementById('pranayamaNotes').value.trim();
+      
+      if (!name || !duration) {
+        showToast('Please enter technique name and duration', 'error');
+        return;
+      }
+      
+      showLoading(true);
+      const result = await api(`/api/admin/clients/${clientId}/pranayama`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, duration, frequency, notes })
+      });
+      showLoading(false);
+      
+      if (result?.success) {
+        showToast('🌬️ Pranayama technique added!', 'success');
+        closeModal('pranayamaModal');
+        if (currentClientId === clientId) {
+          await loadClientDetails(clientId);
+        }
+      }
     }
 
     // Kundalini Practices

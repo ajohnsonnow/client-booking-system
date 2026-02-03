@@ -726,7 +726,14 @@ function findOrCreateClient(booking) {
       tags: [],
       tier: 'new',           // new, returning, regular, vip, favored
       tierManual: false,     // true if Ravi manually set the tier
-      tierNotes: ''          // Notes about why tier was set
+      tierNotes: '',         // Notes about why tier was set
+      spiritualTools: {      // Spiritual healing tools tracking
+        astrology: null,     // Birth chart info
+        tarotReadings: [],   // Array of tarot session records
+        pendulumSessions: [], // Array of pendulum work records
+        kundaliniPractices: [], // Recommended kundalini practices
+        pranayamaTechniques: []  // Recommended breathing techniques
+      }
     };
     clients.push(client);
   } else {
@@ -5652,6 +5659,240 @@ setInterval(() => {
     console.log(`⏰ Sent ${count} automatic reminder(s)`);
   }
 }, 30 * 60 * 1000);
+
+// ===========================================
+// SPIRITUAL TOOLS API
+// ===========================================
+
+// Add tarot reading to client
+app.post('/api/admin/clients/:id/tarot', authenticateAdmin, (req, res) => {
+  const { id } = req.params;
+  const { spread, cards, interpretation, notes } = req.body;
+  
+  const clients = loadClients();
+  const client = clients.find(c => c.id === id);
+  
+  if (!client) {
+    return res.status(404).json({ error: 'Client not found' });
+  }
+  
+  if (!client.spiritualTools) {
+    client.spiritualTools = {
+      astrology: null,
+      tarotReadings: [],
+      pendulumSessions: [],
+      kundaliniPractices: [],
+      pranayamaTechniques: []
+    };
+  }
+  
+  const reading = {
+    id: uuidv4(),
+    date: new Date().toISOString(),
+    spread,
+    cards,
+    interpretation,
+    notes
+  };
+  
+  client.spiritualTools.tarotReadings.push(reading);
+  saveClients(clients);
+  
+  res.json({ success: true, reading });
+});
+
+// Add pendulum session to client
+app.post('/api/admin/clients/:id/pendulum', authenticateAdmin, (req, res) => {
+  const { id } = req.params;
+  const { type, chakras, results, notes } = req.body;
+  
+  const clients = loadClients();
+  const client = clients.find(c => c.id === id);
+  
+  if (!client) {
+    return res.status(404).json({ error: 'Client not found' });
+  }
+  
+  if (!client.spiritualTools) {
+    client.spiritualTools = {
+      astrology: null,
+      tarotReadings: [],
+      pendulumSessions: [],
+      kundaliniPractices: [],
+      pranayamaTechniques: []
+    };
+  }
+  
+  const session = {
+    id: uuidv4(),
+    date: new Date().toISOString(),
+    type,
+    chakras,
+    results,
+    notes
+  };
+  
+  client.spiritualTools.pendulumSessions.push(session);
+  saveClients(clients);
+  
+  res.json({ success: true, session });
+});
+
+// Add kundalini practice to client
+app.post('/api/admin/clients/:id/kundalini', authenticateAdmin, (req, res) => {
+  const { id } = req.params;
+  const { name, duration, frequency, notes } = req.body;
+  
+  const clients = loadClients();
+  const client = clients.find(c => c.id === id);
+  
+  if (!client) {
+    return res.status(404).json({ error: 'Client not found' });
+  }
+  
+  if (!client.spiritualTools) {
+    client.spiritualTools = {
+      astrology: null,
+      tarotReadings: [],
+      pendulumSessions: [],
+      kundaliniPractices: [],
+      pranayamaTechniques: []
+    };
+  }
+  
+  const practice = {
+    id: uuidv4(),
+    date: new Date().toISOString(),
+    name,
+    duration,
+    frequency,
+    notes,
+    active: true
+  };
+  
+  client.spiritualTools.kundaliniPractices.push(practice);
+  saveClients(clients);
+  
+  res.json({ success: true, practice });
+});
+
+// Add pranayama technique to client
+app.post('/api/admin/clients/:id/pranayama', authenticateAdmin, (req, res) => {
+  const { id } = req.params;
+  const { name, duration, frequency, notes } = req.body;
+  
+  const clients = loadClients();
+  const client = clients.find(c => c.id === id);
+  
+  if (!client) {
+    return res.status(404).json({ error: 'Client not found' });
+  }
+  
+  if (!client.spiritualTools) {
+    client.spiritualTools = {
+      astrology: null,
+      tarotReadings: [],
+      pendulumSessions: [],
+      kundaliniPractices: [],
+      pranayamaTechniques: []
+    };
+  }
+  
+  const technique = {
+    id: uuidv4(),
+    date: new Date().toISOString(),
+    name,
+    duration,
+    frequency,
+    notes,
+    active: true
+  };
+  
+  client.spiritualTools.pranayamaTechniques.push(technique);
+  saveClients(clients);
+  
+  res.json({ success: true, technique });
+});
+
+// Save astrology chart to client
+app.post('/api/admin/clients/:id/astrology', authenticateAdmin, (req, res) => {
+  const { id } = req.params;
+  const { birthday, birthtime, location, sunSign, lifePath, moonSign, risingSign } = req.body;
+  
+  const clients = loadClients();
+  const client = clients.find(c => c.id === id);
+  
+  if (!client) {
+    return res.status(404).json({ error: 'Client not found' });
+  }
+  
+  if (!client.spiritualTools) {
+    client.spiritualTools = {
+      astrology: null,
+      tarotReadings: [],
+      pendulumSessions: [],
+      kundaliniPractices: [],
+      pranayamaTechniques: []
+    };
+  }
+  
+  client.spiritualTools.astrology = {
+    birthday,
+    birthtime,
+    location,
+    sunSign,
+    lifePath,
+    moonSign,
+    risingSign,
+    calculatedAt: new Date().toISOString()
+  };
+  
+  saveClients(clients);
+  
+  res.json({ success: true, astrology: client.spiritualTools.astrology });
+});
+
+// Remove/deactivate spiritual tool item
+app.delete('/api/admin/clients/:id/spiritual-tool/:toolType/:itemId', authenticateAdmin, (req, res) => {
+  const { id, toolType, itemId } = req.params;
+  
+  const clients = loadClients();
+  const client = clients.find(c => c.id === id);
+  
+  if (!client || !client.spiritualTools) {
+    return res.status(404).json({ error: 'Client or spiritual tools not found' });
+  }
+  
+  const toolMap = {
+    'tarot': 'tarotReadings',
+    'pendulum': 'pendulumSessions',
+    'kundalini': 'kundaliniPractices',
+    'pranayama': 'pranayamaTechniques'
+  };
+  
+  const toolKey = toolMap[toolType];
+  if (!toolKey) {
+    return res.status(400).json({ error: 'Invalid tool type' });
+  }
+  
+  const items = client.spiritualTools[toolKey];
+  const index = items.findIndex(item => item.id === itemId);
+  
+  if (index === -1) {
+    return res.status(404).json({ error: 'Item not found' });
+  }
+  
+  // For practices, mark as inactive instead of deleting
+  if (toolType === 'kundalini' || toolType === 'pranayama') {
+    items[index].active = false;
+  } else {
+    items.splice(index, 1);
+  }
+  
+  saveClients(clients);
+  
+  res.json({ success: true });
+});
 
 // ===========================================
 // SERVE STATIC FILES (must be after all API routes)
