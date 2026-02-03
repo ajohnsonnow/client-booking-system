@@ -345,6 +345,9 @@ function saveContent(data) { saveData(CONTENT_FILE, data); }
 function loadClients() { return loadData(CLIENTS_FILE, []); }
 function saveClients(data) { saveData(CLIENTS_FILE, data); }
 
+function loadBlogPosts() { return loadData(BLOG_POSTS_FILE, []); }
+function saveBlogPosts(data) { saveData(BLOG_POSTS_FILE, data); }
+
 function getDefaultSettings() {
   return {
     availableDays: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
@@ -1590,6 +1593,93 @@ app.delete('/api/admin/testimonials/:id', authenticateAdmin, (req, res) => {
   const content = loadContent();
   content.testimonials = content.testimonials.filter(t => t.id !== req.params.id);
   saveContent(content);
+  res.json({ success: true });
+});
+
+// ===========================================
+// BLOG POSTS ROUTES
+// ===========================================
+
+// Get all blog posts (public)
+app.get('/api/blog/posts', (req, res) => {
+  const posts = loadBlogPosts();
+  const published = posts.filter(p => p.published).sort((a, b) => 
+    new Date(b.publishedAt || b.createdAt) - new Date(a.publishedAt || a.createdAt)
+  );
+  res.json({ success: true, posts: published });
+});
+
+// Get single blog post (public)
+app.get('/api/blog/posts/:id', (req, res) => {
+  const posts = loadBlogPosts();
+  const post = posts.find(p => p.id === req.params.id && p.published);
+  if (!post) return res.status(404).json({ error: 'Post not found' });
+  res.json({ success: true, post });
+});
+
+// Admin: Get all blog posts (including drafts)
+app.get('/api/admin/blog/posts', authenticateAdmin, (req, res) => {
+  const posts = loadBlogPosts();
+  res.json({ success: true, posts });
+});
+
+// Admin: Create blog post
+app.post('/api/admin/blog/posts', authenticateAdmin, (req, res) => {
+  const { title, content, category, videoUrl, imageUrl, excerpt, published } = req.body;
+  if (!title || !content || !category) {
+    return res.status(400).json({ error: 'Title, content, and category required' });
+  }
+  
+  const posts = loadBlogPosts();
+  const post = {
+    id: uuidv4(),
+    title,
+    content,
+    category, // 'sensual' or 'spiritual'
+    videoUrl: videoUrl || null,
+    imageUrl: imageUrl || null,
+    excerpt: excerpt || content.substring(0, 200) + '...',
+    published: !!published,
+    createdAt: new Date().toISOString(),
+    publishedAt: published ? new Date().toISOString() : null,
+    updatedAt: new Date().toISOString()
+  };
+  
+  posts.push(post);
+  saveBlogPosts(posts);
+  res.json({ success: true, post });
+});
+
+// Admin: Update blog post
+app.patch('/api/admin/blog/posts/:id', authenticateAdmin, (req, res) => {
+  const posts = loadBlogPosts();
+  const post = posts.find(p => p.id === req.params.id);
+  if (!post) return res.status(404).json({ error: 'Post not found' });
+  
+  const { title, content, category, videoUrl, imageUrl, excerpt, published } = req.body;
+  if (title !== undefined) post.title = title;
+  if (content !== undefined) post.content = content;
+  if (category !== undefined) post.category = category;
+  if (videoUrl !== undefined) post.videoUrl = videoUrl;
+  if (imageUrl !== undefined) post.imageUrl = imageUrl;
+  if (excerpt !== undefined) post.excerpt = excerpt;
+  if (published !== undefined) {
+    post.published = published;
+    if (published && !post.publishedAt) {
+      post.publishedAt = new Date().toISOString();
+    }
+  }
+  post.updatedAt = new Date().toISOString();
+  
+  saveBlogPosts(posts);
+  res.json({ success: true, post });
+});
+
+// Admin: Delete blog post
+app.delete('/api/admin/blog/posts/:id', authenticateAdmin, (req, res) => {
+  let posts = loadBlogPosts();
+  posts = posts.filter(p => p.id !== req.params.id);
+  saveBlogPosts(posts);
   res.json({ success: true });
 });
 

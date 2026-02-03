@@ -2995,6 +2995,9 @@
         <li class="nav-item" data-page="spiritual-tools">
           <span class="nav-icon">🔮</span> Spiritual Tools <span class="badge badge-gold">NEW</span>
         </li>
+        <li class="nav-item" data-page="blog">
+          <span class="nav-icon">📝</span> Blog & Vlogs <span class="badge badge-gold">NEW</span>
+        </li>
         <li class="nav-item" data-page="content">
           <span class="nav-icon">✏️</span> Content
         </li>
@@ -4003,6 +4006,65 @@
               <div id="energy-sessions-list">
                 <p class="no-items-message">No energy work sessions recorded yet.</p>
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- BLOG & VLOGS PAGE -->
+      <section class="page" id="page-blog">
+        <div class="page-header">
+          <h1 class="page-title">📝 Blog & Vlogs</h1>
+          <p style="color: var(--soft-gray); margin-top: 8px;">Share your wisdom - Sensual Arts & Spiritual Teachings</p>
+        </div>
+
+        <div class="tabs">
+          <div class="tab active" data-tab="all-posts">All Posts</div>
+          <div class="tab" data-tab="sensual">🔥 Sensual Arts</div>
+          <div class="tab" data-tab="spiritual">✨ Spiritual Wisdom</div>
+        </div>
+
+        <!-- All Posts Tab -->
+        <div class="tab-content active" data-content="all-posts">
+          <div class="card">
+            <div class="card-header">
+              <h3>All Blog Posts</h3>
+              <button class="btn btn-primary" onclick="showCreatePostModal()">
+                <span>➕</span> Create Post
+              </button>
+            </div>
+            <div class="card-body" id="allBlogPostsList">
+              <p class="no-items-message">No blog posts yet. Click "Create Post" to share your first story!</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sensual Arts Tab -->
+        <div class="tab-content" data-content="sensual">
+          <div class="card">
+            <div class="card-header">
+              <h3>🔥 Sensual Arts Posts</h3>
+              <button class="btn btn-primary" onclick="showCreatePostModal('sensual')">
+                <span>➕</span> Create Sensual Post
+              </button>
+            </div>
+            <div class="card-body" id="sensualBlogPostsList">
+              <p class="no-items-message">No sensual arts posts yet.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Spiritual Wisdom Tab -->
+        <div class="tab-content" data-content="spiritual">
+          <div class="card">
+            <div class="card-header">
+              <h3>✨ Spiritual Wisdom Posts</h3>
+              <button class="btn btn-primary" onclick="showCreatePostModal('spiritual')">
+                <span>➕</span> Create Spiritual Post
+              </button>
+            </div>
+            <div class="card-body" id="spiritualBlogPostsList">
+              <p class="no-items-message">No spiritual wisdom posts yet.</p>
             </div>
           </div>
         </div>
@@ -5339,6 +5401,76 @@
     </div>
   </div>
 
+  <!-- BLOG POST MODAL -->
+  <div class="modal-overlay" id="blogPostModal">
+    <div class="modal" style="max-width: 900px;">
+      <div class="modal-header">
+        <h2 class="modal-title" id="blogPostModalTitle">Create Blog Post</h2>
+        <button class="modal-close" onclick="closeModal('blogPostModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="blogPostId">
+        
+        <div class="form-group">
+          <label class="form-label">Title *</label>
+          <input type="text" id="blogPostTitle" class="form-input" placeholder="Enter post title..." required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Category *</label>
+          <select id="blogPostCategory" class="form-input" required>
+            <option value="">Select category...</option>
+            <option value="sensual">🔥 Sensual Arts</option>
+            <option value="spiritual">✨ Spiritual Wisdom</option>
+          </select>
+          <small style="color: var(--soft-gray); font-size: 12px; margin-top: 4px; display: block;">
+            Sensual: Tantric practices, erotic embodiment, sacred sexuality | Spiritual: Meditation, healing, consciousness
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Excerpt (Preview)</label>
+          <textarea id="blogPostExcerpt" class="form-input" rows="2" placeholder="Brief summary that appears in the post list (leave blank to auto-generate)..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Content *</label>
+          <textarea id="blogPostContent" class="form-input" rows="12" placeholder="Write your story, teaching, or reflection..." required></textarea>
+          <small style="color: var(--soft-gray); font-size: 12px; margin-top: 4px; display: block;">
+            Supports paragraphs (line breaks preserved)
+          </small>
+        </div>
+
+        <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+          <div class="form-group">
+            <label class="form-label">Image URL (optional)</label>
+            <input type="url" id="blogPostImage" class="form-input" placeholder="https://example.com/image.jpg">
+            <small style="color: var(--soft-gray); font-size: 12px;">Cover image for the post</small>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Video URL (optional)</label>
+            <input type="url" id="blogPostVideo" class="form-input" placeholder="https://youtube.com/watch?v=...">
+            <small style="color: var(--soft-gray); font-size: 12px;">YouTube or Vimeo link for vlogs</small>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="blogPostPublished">
+            <span>Publish immediately (uncheck to save as draft)</span>
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('blogPostModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="saveBlogPost()">
+          <span id="blogPostSaveText">Create Post</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- TOAST CONTAINER -->
   <div class="toast-container" id="toastContainer"></div>
 
@@ -5480,6 +5612,7 @@
       if (pageName === 'discovery-calls') loadDiscoveryCalls();
       if (pageName === 'messages') loadConversations();
       if (pageName === 'marketing') loadMarketing();
+      if (pageName === 'blog') loadBlogPosts();
       if (pageName === 'content') loadContent();
       if (pageName === 'settings') loadSettings();
       if (pageName === 'export') loadBackupStats();
@@ -9512,6 +9645,185 @@ Example:
     // Energy Work Functions
     function showNewEnergySession() {
       showToast('Energy session tracker - Coming soon! Will log chakra assessments and bioenergetic findings.', 'info');
+    }
+
+    // ============ BLOG & VLOGS ============
+    
+    let blogPosts = [];
+
+    async function loadBlogPosts() {
+      showLoading(true);
+      const result = await api('/api/admin/blog/posts');
+      showLoading(false);
+      
+      if (result?.posts) {
+        blogPosts = result.posts;
+        renderBlogPosts();
+      }
+    }
+
+    function renderBlogPosts() {
+      // All posts
+      const allList = document.getElementById('allBlogPostsList');
+      const sensualList = document.getElementById('sensualBlogPostsList');
+      const spiritualList = document.getElementById('spiritualBlogPostsList');
+      
+      if (blogPosts.length === 0) {
+        allList.innerHTML = '<p class=\"no-items-message\">No blog posts yet. Click \"Create Post\" to share your first story!</p>';
+      } else {
+        allList.innerHTML = blogPosts.map(post => renderBlogPostCard(post)).join('');
+      }
+      
+      // Sensual posts
+      const sensualPosts = blogPosts.filter(p => p.category === 'sensual');
+      sensualList.innerHTML = sensualPosts.length > 0 
+        ? sensualPosts.map(post => renderBlogPostCard(post)).join('')
+        : '<p class=\"no-items-message\">No sensual arts posts yet.</p>';
+      
+      // Spiritual posts
+      const spiritualPosts = blogPosts.filter(p => p.category === 'spiritual');
+      spiritualList.innerHTML = spiritualPosts.length > 0
+        ? spiritualPosts.map(post => renderBlogPostCard(post)).join('')
+        : '<p class=\"no-items-message\">No spiritual wisdom posts yet.</p>';
+    }
+
+    function renderBlogPostCard(post) {
+      const categoryIcon = post.category === 'sensual' ? '🔥' : '✨';
+      const categoryName = post.category === 'sensual' ? 'Sensual Arts' : 'Spiritual Wisdom';
+      const publishStatus = post.published 
+        ? '<span class=\"badge badge-success\">Published</span>' 
+        : '<span class=\"badge badge-warning\">Draft</span>';
+      const date = new Date(post.publishedAt || post.createdAt).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+      
+      return `
+        <div class="blog-post-card" style="border: 1px solid #e0d6cc; border-radius: 12px; padding: 16px; margin-bottom: 16px; background: white;">
+          <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+            <div style="flex: 1;">
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                <span style="font-size: 20px;">${categoryIcon}</span>
+                <span style="color: var(--soft-gray); font-size: 13px;">${categoryName}</span>
+                ${publishStatus}
+                <span style="color: var(--soft-gray); font-size: 13px; margin-left: auto;">${date}</span>
+              </div>
+              <h3 style="color: var(--burgundy); margin: 0 0 8px 0; font-size: 18px;">${post.title}</h3>
+              <p style="color: var(--soft-gray); font-size: 14px; margin: 0 0 12px 0; line-height: 1.6;">
+                ${post.excerpt || post.content.substring(0, 150) + '...'}
+              </p>
+              ${post.videoUrl ? '<span style="color: var(--gold); font-size: 12px;">🎥 Includes video</span>' : ''}
+              ${post.imageUrl ? '<span style="color: var(--gold); font-size: 12px; margin-left: 8px;">📷 Includes image</span>' : ''}
+            </div>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn btn-sm btn-outline" onclick="editBlogPost('${post.id}')">Edit</button>
+            <button class="btn btn-sm btn-outline" onclick="viewBlogPost('${post.id}')">View</button>
+            <button class="btn btn-sm ${post.published ? 'btn-warning' : 'btn-success'}" onclick="toggleBlogPostPublish('${post.id}')">
+              ${post.published ? 'Unpublish' : 'Publish'}
+            </button>
+            <button class="btn btn-sm btn-danger" onclick="deleteBlogPost('${post.id}')">Delete</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function showCreatePostModal(category = '') {
+      document.getElementById('blogPostModalTitle').textContent = 'Create Blog Post';
+      document.getElementById('blogPostId').value = '';
+      document.getElementById('blogPostTitle').value = '';
+      document.getElementById('blogPostCategory').value = category;
+      document.getElementById('blogPostExcerpt').value = '';
+      document.getElementById('blogPostContent').value = '';
+      document.getElementById('blogPostImage').value = '';
+      document.getElementById('blogPostVideo').value = '';
+      document.getElementById('blogPostPublished').checked = false;
+      document.getElementById('blogPostSaveText').textContent = 'Create Post';
+      openModal('blogPostModal');
+    }
+
+    function editBlogPost(id) {
+      const post = blogPosts.find(p => p.id === id);
+      if (!post) return;
+      
+      document.getElementById('blogPostModalTitle').textContent = 'Edit Blog Post';
+      document.getElementById('blogPostId').value = post.id;
+      document.getElementById('blogPostTitle').value = post.title;
+      document.getElementById('blogPostCategory').value = post.category;
+      document.getElementById('blogPostExcerpt').value = post.excerpt || '';
+      document.getElementById('blogPostContent').value = post.content;
+      document.getElementById('blogPostImage').value = post.imageUrl || '';
+      document.getElementById('blogPostVideo').value = post.videoUrl || '';
+      document.getElementById('blogPostPublished').checked = post.published;
+      document.getElementById('blogPostSaveText').textContent = 'Save Changes';
+      openModal('blogPostModal');
+    }
+
+    async function saveBlogPost() {
+      const id = document.getElementById('blogPostId').value;
+      const title = document.getElementById('blogPostTitle').value.trim();
+      const category = document.getElementById('blogPostCategory').value;
+      const excerpt = document.getElementById('blogPostExcerpt').value.trim();
+      const content = document.getElementById('blogPostContent').value.trim();
+      const imageUrl = document.getElementById('blogPostImage').value.trim();
+      const videoUrl = document.getElementById('blogPostVideo').value.trim();
+      const published = document.getElementById('blogPostPublished').checked;
+      
+      if (!title || !category || !content) {
+        showToast('Please fill in title, category, and content', 'error');
+        return;
+      }
+      
+      const data = { title, category, excerpt, content, imageUrl, videoUrl, published };
+      
+      showLoading(true);
+      const result = id 
+        ? await api(`/api/admin/blog/posts/${id}`, { method: 'PATCH', body: JSON.stringify(data) })
+        : await api('/api/admin/blog/posts', { method: 'POST', body: JSON.stringify(data) });
+      showLoading(false);
+      
+      if (result?.success) {
+        showToast(id ? 'Post updated!' : 'Post created!', 'success');
+        closeModal('blogPostModal');
+        await loadBlogPosts();
+      } else {
+        showToast('Failed to save post', 'error');
+      }
+    }
+
+    async function toggleBlogPostPublish(id) {
+      const post = blogPosts.find(p => p.id === id);
+      if (!post) return;
+      
+      showLoading(true);
+      const result = await api(`/api/admin/blog/posts/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ published: !post.published })
+      });
+      showLoading(false);
+      
+      if (result?.success) {
+        showToast(result.post.published ? 'Post published!' : 'Post unpublished', 'success');
+        await loadBlogPosts();
+      }
+    }
+
+    async function deleteBlogPost(id) {
+      if (!confirm('Delete this blog post? This cannot be undone.')) return;
+      
+      showLoading(true);
+      const result = await api(`/api/admin/blog/posts/${id}`, { method: 'DELETE' });
+      showLoading(false);
+      
+      if (result?.success) {
+        showToast('Post deleted', 'success');
+        await loadBlogPosts();
+      }
+    }
+
+    function viewBlogPost(id) {
+      window.open(`/blog.html?id=${id}`, '_blank');
     }
 
     // ============ DRIP CAMPAIGNS ============
