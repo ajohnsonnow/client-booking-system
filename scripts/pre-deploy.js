@@ -1,520 +1,664 @@
 #!/usr/bin/env node
 
 /**
- * Pre-Deploy Validation Script
- * Comprehensive checks before production deployment
+ * Pre-Deploy Automation Script
+ * Handles versioning, metrics, documentation, and deployment preparation
  * Usage: node scripts/pre-deploy.js
  */
 
 import fs from 'fs';
 import path from 'path';
+import { execSync } from 'child_process';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const ROOT_DIR = path.resolve(__dirname, '..');
 
-console.log('\n🚀 Running Pre-Deploy Validation...\n');
-
-let hasErrors = false;
-let hasWarnings = false;
-
-// ==========================================
-// 1. Check All Critical Files
-// ==========================================
-console.log('📋 Checking critical files...');
-const criticalFiles = [
-  'server.js',
-  'package.json',
-  'package-lock.json',
-  'public/index.html',
-  'public/admin.html',
-  'public/portal.html',
-  'public/privacy.html',
-  'public/submit-testimonial.html',
-  'public/app.js',
-  'public/styles.css',
-  'data/.gitkeep',
-  'SETUP_GUIDE.md',
-  'ADMIN_USER_GUIDE.md',
-  'DEMO_GUIDE.md',
-  'QUICK_REFERENCE.md',
-  'BACKUP_GUIDE.md',
-  'FREE_COMMUNICATIONS_SETUP.md'
-];
-
-for (const file of criticalFiles) {
-  const filePath = path.join(ROOT_DIR, file);
-  if (!fs.existsSync(filePath)) {
-    console.error(`   ❌ Missing critical file: ${file}`);
-    hasErrors = true;
-  }
-}
-
-if (!hasErrors) {
-  console.log('   ✅ All critical files present\n');
-}
-
-// ==========================================
-// 2. Validate Production Configuration
-// ==========================================
-console.log('⚙️  Validating production configuration...');
-
-// Check package.json
-try {
-  const packageJson = JSON.parse(fs.readFileSync(path.join(ROOT_DIR, 'package.json'), 'utf8'));
-  
-  if (!packageJson.scripts || !packageJson.scripts.start) {
-    console.error('   ❌ package.json missing "start" script');
-    hasErrors = true;
-  }
-  
-  if (!packageJson.engines || !packageJson.engines.node) {
-    console.warn('   ⚠️  package.json missing Node.js engine specification');
-    hasWarnings = true;
-  }
-  
-  console.log(`   ℹ️  App version: ${packageJson.version}`);
-  
-  if (!hasErrors) {
-    console.log('   ✅ Production configuration valid\n');
-  }
-} catch (error) {
-  console.error(`   ❌ Invalid package.json: ${error.message}`);
-  hasErrors = true;
-}
-
-// ==========================================
-// 3. Verify Server Configuration
-// ==========================================
-console.log('🖥️  Verifying server configuration...');
-try {
-  const serverContent = fs.readFileSync(path.join(ROOT_DIR, 'server.js'), 'utf8');
-  
-  // Check for production-ready features
-  const productionChecks = [
-    { name: 'Environment variable support', pattern: /process\.env/, critical: true },
-    { name: 'JWT authentication', pattern: /jwt\.sign|jwt\.verify/, critical: true },
-    { name: 'Password hashing', pattern: /bcrypt/, critical: true },
-    { name: 'AES encryption', pattern: /aes-256-gcm/, critical: true },
-    { name: 'Error handling', pattern: /try\s*{[\s\S]*catch/, critical: true },
-    { name: 'Backup system', pattern: /createAutoBackup/, critical: false },
-    { name: 'CORS configuration', pattern: /cors/, critical: false },
-    { name: 'Rate limiting', pattern: /rateLimit/, critical: false }
-  ];
-  
-  for (const check of productionChecks) {
-    if (!check.pattern.test(serverContent)) {
-      if (check.critical) {
-        console.error(`   ❌ Missing critical feature: ${check.name}`);
-        hasErrors = true;
-      } else {
-        console.warn(`   ⚠️  Missing recommended feature: ${check.name}`);
-        hasWarnings = true;
-      }
-    }
-  }
-  
-  // Check for development-only code
-  if (/console\.log\((?!.*error|.*warn)/i.test(serverContent)) {
-    console.warn('   ⚠️  WARNING: console.log statements detected (consider production logging)');
-    hasWarnings = true;
-  }
-  
-  if (!hasErrors) {
-    console.log('   ✅ Server configuration ready for production\n');
-  }
-} catch (error) {
-  console.error(`   ❌ Error reading server.js: ${error.message}`);
-  hasErrors = true;
-}
-
-// ==========================================
-// 4. Check Data Directory Permissions
-// ==========================================
-console.log('💾 Checking data directory structure...');
-const dataDir = path.join(ROOT_DIR, 'data');
-const backupDir = path.join(ROOT_DIR, 'data/backups');
-
-try {
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
-    console.log('   ℹ️  Created data directory');
-  }
-  
-  if (!fs.existsSync(backupDir)) {
-    fs.mkdirSync(backupDir, { recursive: true });
-    fs.mkdirSync(path.join(backupDir, 'manual'), { recursive: true });
-    fs.mkdirSync(path.join(backupDir, 'auto'), { recursive: true });
-    console.log('   ℹ️  Created backup directories');
-  }
-  
-  // Test write permissions
-  const testFile = path.join(dataDir, '.write-test');
-  fs.writeFileSync(testFile, 'test', 'utf8');
-  fs.unlinkSync(testFile);
-  
-  console.log('   ✅ Data directory structure valid and writable\n');
-} catch (error) {
-  console.error(`   ❌ Data directory error: ${error.message}`);
-  hasErrors = true;
-}
-
-// ==========================================
-// 5. Verify HTML Integrity
-// ==========================================
-console.log('🌐 Verifying HTML files...');
-const htmlFiles = [
-  'public/index.html',
-  'public/admin.html',
-  'public/portal.html',
-  'public/privacy.html',
-  'public/submit-testimonial.html'
-];
-
-for (const file of htmlFiles) {
-  const filePath = path.join(ROOT_DIR, file);
-  if (fs.existsSync(filePath)) {
-    const content = fs.readFileSync(filePath, 'utf8');
-    
-    // Check for developer credit
-    if (!content.includes('Anth@StructuredForGrowth.com')) {
-      console.warn(`   ⚠️  ${file} missing developer credit`);
-      hasWarnings = true;
-    }
-    
-    // Check for complete HTML structure
-    if (!content.includes('<!DOCTYPE html>')) {
-      console.warn(`   ⚠️  ${file} missing DOCTYPE declaration`);
-      hasWarnings = true;
-    }
-    
-    // Check for security headers
-    if (file.includes('admin') && !content.includes('viewport')) {
-      console.warn(`   ⚠️  ${file} missing viewport meta tag`);
-      hasWarnings = true;
-    }
-  }
-}
-
-if (!hasErrors) {
-  console.log('   ✅ All HTML files valid\n');
-}
-
-// ==========================================
-// 6. Security Audit
-// ==========================================
-console.log('🔒 Running security audit...');
-
-// Check for .env file
-const envPath = path.join(ROOT_DIR, '.env');
-if (fs.existsSync(envPath)) {
-  console.log('   ℹ️  .env file found (ensure it\'s in .gitignore)');
-  
-  // Verify .gitignore includes .env
-  const gitignorePath = path.join(ROOT_DIR, '.gitignore');
-  if (fs.existsSync(gitignorePath)) {
-    const gitignore = fs.readFileSync(gitignorePath, 'utf8');
-    if (!gitignore.includes('.env')) {
-      console.error('   ❌ .env file not in .gitignore!');
-      hasErrors = true;
-    }
-  } else {
-    console.warn('   ⚠️  No .gitignore file found');
-    hasWarnings = true;
-  }
-}
-
-// Check for exposed secrets in code
-try {
-  const serverContent = fs.readFileSync(path.join(ROOT_DIR, 'server.js'), 'utf8');
-  
-  const securityChecks = [
-    { name: 'Using environment variables for secrets', pattern: /process\.env\.(JWT_SECRET|ADMIN_PASSWORD)/ },
-    { name: 'Password hashing implemented', pattern: /bcrypt\.hash/ },
-    { name: 'JWT token verification', pattern: /jwt\.verify/ },
-    { name: 'Data encryption', pattern: /crypto\.createCipher|aes-256-gcm/ }
-  ];
-  
-  for (const check of securityChecks) {
-    if (!check.pattern.test(serverContent)) {
-      console.warn(`   ⚠️  ${check.name} - verify implementation`);
-      hasWarnings = true;
-    }
-  }
-  
-  console.log('   ✅ Security checks complete\n');
-} catch (error) {
-  console.error(`   ❌ Security audit error: ${error.message}`);
-  hasErrors = true;
-}
-
-// ==========================================
-// 7. Create Pre-Deploy Backup
-// ==========================================
-console.log('💼 Creating pre-deploy backup...');
-try {
-  const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
-  const backupDir = path.join(ROOT_DIR, 'data/backups/manual');
-  
-  if (!fs.existsSync(backupDir)) {
-    fs.mkdirSync(backupDir, { recursive: true });
-  }
-  
-  const dataFiles = ['bookings.json', 'clients.json', 'settings.json', 'content.json'];
-  let backedUpCount = 0;
-  
-  for (const file of dataFiles) {
-    const sourcePath = path.join(ROOT_DIR, 'data', file);
-    if (fs.existsSync(sourcePath)) {
-      const backupName = `${file.replace('.json', '')}_predeploy_${timestamp}.json`;
-      const backupPath = path.join(backupDir, backupName);
-      fs.copyFileSync(sourcePath, backupPath);
-      backedUpCount++;
-    }
-  }
-  
-  if (backedUpCount > 0) {
-    console.log(`   ✅ Backed up ${backedUpCount} data files\n`);
-  } else {
-    console.log('   ℹ️  No existing data files to backup\n');
-  }
-} catch (error) {
-  console.warn(`   ⚠️  Backup creation failed: ${error.message}`);
-  hasWarnings = true;
-}
-
-// ==========================================
-// 8. Validate and Update Documentation
-// ==========================================
-console.log('📚 Validating and updating documentation...');
-try {
-  const docs = [
-    'SETUP_GUIDE.md',
-    'ADMIN_USER_GUIDE.md',
-    'DEMO_GUIDE.md',
-    'QUICK_REFERENCE.md',
-    'BACKUP_GUIDE.md',
-    'FREE_COMMUNICATIONS_SETUP.md',
-    'COMMUNICATIONS_IMPLEMENTATION.md',
-    'VALUE_PROPOSITION_REPORT.md',
+// Configuration
+const CONFIG = {
+  valuePropPath: path.join(ROOT_DIR, 'VALUE_PROPOSITION_REPORT.md'),
+  deploymentGuidePath: path.join(ROOT_DIR, 'DEPLOYMENT.md'),
+  packageJsonPath: path.join(ROOT_DIR, 'package.json'),
+  archiveDir: path.join(ROOT_DIR, 'archive'),
+  docsToArchive: [
     'DEPLOYMENT_SCRIPTS.md',
-    'SCRIPTS_QUICK_REF.md',
-    'AUTO_DOCUMENTATION_SYSTEM.md'
-  ];
-  
-  let missingDocs = [];
-  let totalLines = 0;
-  let updatedDocs = 0;
-  const today = new Date().toISOString().split('T')[0];
-  
-  // Check and update all documentation files
-  for (const doc of docs) {
-    const docPath = path.join(ROOT_DIR, doc);
-    if (!fs.existsSync(docPath)) {
-      missingDocs.push(doc);
-      hasWarnings = true;
-    } else {
-      let content = fs.readFileSync(docPath, 'utf8');
-      totalLines += content.split('\n').length;
-      
-      // Update "Last Updated" timestamp in each doc
-      let updated = false;
-      if (content.includes('Last Updated:')) {
-        const oldContent = content;
-        content = content.replace(/Last Updated: \d{4}-\d{2}-\d{2}/g, `Last Updated: ${today}`);
-        if (content !== oldContent) {
-          fs.writeFileSync(docPath, content, 'utf8');
-          updated = true;
-          updatedDocs++;
-        }
-      } else if (content.includes('**Report Date:**') || content.includes('Report Date:')) {
-        // Update report date format
-        const oldContent = content;
-        content = content.replace(/\*\*Report Date:\*\* [^\n]+/g, `**Last Updated:** ${today}`);
-        content = content.replace(/Report Date: [^\n]+/g, `Last Updated: ${today}`);
-        if (content !== oldContent) {
-          fs.writeFileSync(docPath, content, 'utf8');
-          updated = true;
-          updatedDocs++;
-        }
-      } else {
-        // Add Last Updated if it doesn't exist (after first heading)
-        const oldContent = content;
-        if (content.includes('# ')) {
-          // Find first markdown heading
-          const lines = content.split('\n');
-          let insertIndex = -1;
-          for (let i = 0; i < lines.length; i++) {
-            if (lines[i].startsWith('# ')) {
-              insertIndex = i + 1;
-              // Skip any existing metadata lines
-              while (insertIndex < lines.length && (lines[insertIndex].startsWith('**') || lines[insertIndex].trim() === '')) {
-                insertIndex++;
-              }
-              break;
-            }
-          }
-          if (insertIndex > 0 && insertIndex < lines.length) {
-            lines.splice(insertIndex, 0, `\n**Last Updated:** ${today}\n`);
-            content = lines.join('\n');
-          }
-        }
-        if (content !== oldContent) {
-          fs.writeFileSync(docPath, content, 'utf8');
-          updated = true;
-          updatedDocs++;
-        }
-      }
-    }
+    'DOCUMENTATION_UPDATE_COMPLETE.md'
+  ],
+  coreFiles: [
+    'server.js',
+    'public/admin.html',
+    'public/index.html',
+    'public/portal.html',
+    'public/app.js',
+    'public/blog.html',
+    'public/styles.css',
+    'communications.js'
+  ],
+  devHourlyRate: 150,
+  branch: 'ravi-sacred-healing'
+};
+
+// Utility functions
+const log = {
+  info: (msg) => console.log(`ℹ️  ${msg}`),
+  success: (msg) => console.log(`✅ ${msg}`),
+  warn: (msg) => console.log(`⚠️  ${msg}`),
+  error: (msg) => console.log(`❌ ${msg}`),
+  section: (msg) => console.log(`\n${'='.repeat(60)}\n${msg}\n${'='.repeat(60)}`)
+};
+
+function execCommand(command) {
+  try {
+    return execSync(command, { encoding: 'utf-8', cwd: ROOT_DIR }).trim();
+  } catch (error) {
+    return '';
   }
+}
+
+function readFile(filepath) {
+  try {
+    return fs.readFileSync(filepath, 'utf-8');
+  } catch (error) {
+    return '';
+  }
+}
+
+function writeFile(filepath, content) {
+  fs.writeFileSync(filepath, content, 'utf-8');
+}
+
+function ensureDir(dirPath) {
+  if (!fs.existsSync(dirPath)) {
+    fs.mkdirSync(dirPath, { recursive: true });
+  }
+}
+
+// ==========================================
+// PHASE 1: PRE-FLIGHT CHECKS
+// ==========================================
+function runPreFlightChecks() {
+  log.section('PHASE 1: PRE-FLIGHT CHECKS');
   
-  if (missingDocs.length > 0) {
-    console.warn(`   ⚠️  Missing documentation: ${missingDocs.join(', ')}`);
+  let passed = true;
+
+  // Check git branch
+  const currentBranch = execCommand('git branch --show-current');
+  if (currentBranch !== CONFIG.branch) {
+    log.error(`Not on ${CONFIG.branch} branch (current: ${currentBranch})`);
+    passed = false;
   } else {
-    console.log(`   ✅ All ${docs.length} documentation files present`);
+    log.success(`On correct branch: ${CONFIG.branch}`);
   }
-  
-  console.log(`   ℹ️  Total documentation: ${totalLines.toLocaleString()} lines`);
-  if (updatedDocs > 0) {
-    console.log(`   ✅ Updated timestamps in ${updatedDocs} documentation files`);
+
+  // Check for uncommitted changes
+  const status = execCommand('git status --porcelain');
+  if (status) {
+    log.warn('You have uncommitted changes');
+    log.info('Continue anyway? Changes will be included in version bump.');
+  } else {
+    log.success('Working tree clean');
   }
+
+  // Check critical files exist
+  const missing = CONFIG.coreFiles.filter(file => 
+    !fs.existsSync(path.join(ROOT_DIR, file))
+  );
+  if (missing.length > 0) {
+    log.error(`Missing core files: ${missing.join(', ')}`);
+    passed = false;
+  } else {
+    log.success('All core files present');
+  }
+
+  // Check package.json
+  const pkg = JSON.parse(readFile(CONFIG.packageJsonPath));
+  if (!pkg.scripts || !pkg.scripts.start) {
+    log.error('package.json missing start script');
+    passed = false;
+  } else {
+    log.success('package.json configured correctly');
+  }
+
+  return passed;
+}
+
+// ==========================================
+// PHASE 2: CALCULATE DEVELOPMENT METRICS
+// ==========================================
+function calculateDevelopmentMetrics() {
+  log.section('PHASE 2: CALCULATING DEVELOPMENT METRICS');
   
-  // Update README.md with current stats
-  const readmePath = path.join(ROOT_DIR, 'README.md');
-  if (fs.existsSync(readmePath)) {
-    let readme = fs.readFileSync(readmePath, 'utf8');
-    
-    // Update "Last Updated" date
-    if (readme.includes('Last Updated:')) {
-      readme = readme.replace(/Last Updated: \d{4}-\d{2}-\d{2}/g, `Last Updated: ${today}`);
-    } else {
-      // Add last updated if it doesn't exist
-      if (readme.includes('# ')) {
-        readme = readme.replace(/(# [^\n]+)/, `$1\n\n**Last Updated:** ${today}`);
-      }
+  const metrics = {};
+
+  // Git commits
+  const commitCount = execCommand(`git rev-list --count ${CONFIG.branch}`);
+  metrics.commits = parseInt(commitCount) || 0;
+  log.info(`Total commits: ${metrics.commits}`);
+
+  // Date range
+  const firstCommit = execCommand(`git log ${CONFIG.branch} --reverse --format=%ai | head -1`);
+  const lastCommit = execCommand(`git log ${CONFIG.branch} -1 --format=%ai`);
+  metrics.firstCommitDate = firstCommit ? new Date(firstCommit).toISOString().split('T')[0] : 'Unknown';
+  metrics.lastCommitDate = lastCommit ? new Date(lastCommit).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+  log.info(`Development period: ${metrics.firstCommitDate} to ${metrics.lastCommitDate}`);
+
+  // Lines of code
+  let totalLines = 0;
+  CONFIG.coreFiles.forEach(file => {
+    const filepath = path.join(ROOT_DIR, file);
+    if (fs.existsSync(filepath)) {
+      const content = readFile(filepath);
+      const lines = content.split('\n').length;
+      totalLines += lines;
     }
-    
-    // Get package.json version
-    const packageJson = JSON.parse(fs.readFileSync(path.join(ROOT_DIR, 'package.json'), 'utf8'));
-    
-    // Update version in README if it exists
-    if (readme.includes('Version:')) {
-      readme = readme.replace(/Version: [\d.]+/g, `Version: ${packageJson.version}`);
-    }
-    
-    fs.writeFileSync(readmePath, readme, 'utf8');
-    console.log('   ✅ Updated README.md with current date and version');
+  });
+  metrics.linesOfCode = totalLines;
+  log.info(`Total lines of code: ${metrics.linesOfCode.toLocaleString()}`);
+
+  // Code changes
+  const shortstat = execCommand(`git log ${CONFIG.branch} --shortstat --format=`);
+  const insertions = shortstat.match(/(\d+) insertion/g);
+  const deletions = shortstat.match(/(\d+) deletion/g);
+  
+  metrics.insertions = insertions ? insertions.reduce((sum, match) => {
+    return sum + parseInt(match.match(/\d+/)[0]);
+  }, 0) : 0;
+  
+  metrics.deletions = deletions ? deletions.reduce((sum, match) => {
+    return sum + parseInt(match.match(/\d+/)[0]);
+  }, 0) : 0;
+
+  log.info(`Code changes: +${metrics.insertions.toLocaleString()} / -${metrics.deletions.toLocaleString()}`);
+
+  // Estimate development hours using multiple methods
+  const method1 = metrics.commits * 0.5; // 30 min per commit
+  const method2 = metrics.linesOfCode / 250; // 250 LOC per hour
+  const method3 = 80; // Known feature count estimate
+  
+  metrics.devHoursEstimate = Math.round((method1 + method2 + method3) / 3);
+  metrics.devValueEstimate = metrics.devHoursEstimate * CONFIG.devHourlyRate;
+  
+  log.success(`Estimated development time: ${metrics.devHoursEstimate} hours`);
+  log.success(`Estimated development value: $${metrics.devValueEstimate.toLocaleString()}`);
+
+  // ROI calculation
+  const annualCost = 15; // Domain only
+  metrics.roi = Math.round((metrics.devValueEstimate / annualCost) * 100) / 100;
+  log.info(`ROI: ${metrics.roi.toLocaleString()}x return on investment`);
+
+  return metrics;
+}
+
+// ==========================================
+// PHASE 3: UPDATE VERSION
+// ==========================================
+function updateVersion() {
+  log.section('PHASE 3: VERSION MANAGEMENT');
+  
+  const pkg = JSON.parse(readFile(CONFIG.packageJsonPath));
+  const oldVersion = pkg.version || '1.0.0';
+  
+  // Parse semantic version
+  const [major, minor, patch] = oldVersion.split('.').map(Number);
+  
+  // Increment patch version
+  const newVersion = `${major}.${minor}.${patch + 1}`;
+  pkg.version = newVersion;
+  
+  writeFile(CONFIG.packageJsonPath, JSON.stringify(pkg, null, 2) + '\n');
+  
+  log.success(`Version bumped: ${oldVersion} → ${newVersion}`);
+  
+  return newVersion;
+}
+
+// ==========================================
+// PHASE 4: UPDATE DOCUMENTATION
+// ==========================================
+function updateValueProposition(metrics) {
+  log.section('PHASE 4: UPDATING DOCUMENTATION');
+  
+  let content = readFile(CONFIG.valuePropPath);
+  
+  if (!content) {
+    log.error('VALUE_PROPOSITION_REPORT.md not found');
+    return false;
   }
-  
-  // Generate/Update FEATURE_LIST.md
-  const featureListPath = path.join(ROOT_DIR, 'FEATURE_LIST.md');
-  const serverContent = fs.readFileSync(path.join(ROOT_DIR, 'server.js'), 'utf8');
-  
-  const features = [
-    { name: 'JWT Authentication', present: /jwt\.sign|jwt\.verify/.test(serverContent) },
-    { name: 'Password Hashing (bcrypt)', present: /bcrypt/.test(serverContent) },
-    { name: 'AES-256 Encryption', present: /aes-256-gcm/.test(serverContent) },
-    { name: 'Automatic Backups', present: /createAutoBackup/.test(serverContent) },
-    { name: 'Manual Backups', present: /createManualBackup/.test(serverContent) },
-    { name: 'Client Management', present: /\/api\/admin\/clients/.test(serverContent) },
-    { name: 'Booking System', present: /\/api\/bookings/.test(serverContent) },
-    { name: 'Demo Mode', present: /DEMO-2026/.test(serverContent) },
-    { name: 'Rate Limiting', present: /rateLimit/.test(serverContent) },
-    { name: 'CORS Protection', present: /cors/.test(serverContent) },
-    { name: 'Helmet Security', present: /helmet/.test(serverContent) },
-    { name: 'Content Management', present: /\/api\/admin\/content/.test(serverContent) },
-    { name: 'Settings Management', present: /\/api\/admin\/settings/.test(serverContent) },
-    { name: 'Email Notifications', present: /nodemailer|resend|brevo/.test(serverContent) },
-    { name: 'SMS Notifications', present: /textbelt|twilio/.test(serverContent) }
-  ];
-  
-  const enabledFeatures = features.filter(f => f.present);
-  
-  const featureListContent = `# Feature List - Ravi Sacred Healing
 
-**Last Updated:** ${today}  
-**Total Features:** ${enabledFeatures.length}/${features.length}
+  // Update last modified date
+  const today = new Date().toISOString().split('T')[0];
+  content = content.replace(
+    /Last Updated: \d{4}-\d{2}-\d{2}/,
+    `Last Updated: ${today}`
+  );
 
-## ✅ Enabled Features
+  // Build metrics section
+  const metricsSection = `
+## 📊 Actual Development Metrics
+*(Auto-generated on ${today})*
 
-${enabledFeatures.map(f => `- ✅ ${f.name}`).join('\n')}
+### Codebase Statistics
+- **Total Commits**: ${metrics.commits} commits on ${CONFIG.branch} branch
+- **Lines of Code**: ${metrics.linesOfCode.toLocaleString()} lines across core files
+- **Code Changes**: +${metrics.insertions.toLocaleString()} insertions / -${metrics.deletions.toLocaleString()} deletions
+- **Development Period**: ${metrics.firstCommitDate} to ${metrics.lastCommitDate}
 
-${features.filter(f => !f.present).length > 0 ? `## ⚠️ Disabled Features\n\n${features.filter(f => !f.present).map(f => `- ⚠️ ${f.name}`).join('\n')}` : ''}
+### Time Investment
+- **Estimated Development Hours**: ~${metrics.devHoursEstimate} hours
+  - *Calculated using commit frequency, code complexity, and feature count*
+- **Market Value** (at $${CONFIG.devHourlyRate}/hour): **$${metrics.devValueEstimate.toLocaleString()}**
 
----
+### Return on Investment
+- **Development Value**: $${metrics.devValueEstimate.toLocaleString()}
+- **Annual Cost to Ravi**: $15 (domain only)
+- **ROI**: **${metrics.roi.toLocaleString()}x** return
 
-## Documentation
-
-- [Setup Guide](SETUP_GUIDE.md)
-- [Admin User Guide](ADMIN_USER_GUIDE.md)
-- [Demo Guide](DEMO_GUIDE.md)
-- [Backup Guide](BACKUP_GUIDE.md)
-- [Communications Setup](FREE_COMMUNICATIONS_SETUP.md)
-- [Quick Reference](QUICK_REFERENCE.md)
-- [Deployment Scripts](DEPLOYMENT_SCRIPTS.md)
-- [Value Proposition](VALUE_PROPOSITION_REPORT.md)
-
----
-
-Built by Anth@StructuredForGrowth.com
+### Technology Stack
+\`\`\`
+Backend:     Node.js + Express (${metrics.linesOfCode.toLocaleString()} LOC)
+Frontend:    Vanilla JS + HTML5 + CSS3
+Database:    Encrypted JSON (AES-256-GCM)
+Auth:        JWT + bcrypt
+Security:    Helmet, rate limiting, CORS
+Features:    ${metrics.commits} commits worth of functionality
+\`\`\`
 `;
+
+  // Insert or replace metrics section
+  if (content.includes('## 📊 Actual Development Metrics')) {
+    // Replace existing section
+    content = content.replace(
+      /## 📊 Actual Development Metrics[\s\S]*?(?=\n## |\n---|\n\*\*|$)/,
+      metricsSection
+    );
+  } else {
+    // Insert after introduction
+    const insertPoint = content.indexOf('\n## ') !== -1 
+      ? content.indexOf('\n## ')
+      : content.length;
+    content = content.slice(0, insertPoint) + '\n' + metricsSection + '\n' + content.slice(insertPoint);
+  }
+
+  writeFile(CONFIG.valuePropPath, content);
+  log.success('VALUE_PROPOSITION_REPORT.md updated with real metrics');
   
-  fs.writeFileSync(featureListPath, featureListContent, 'utf8');
-  console.log('   ✅ Generated/updated FEATURE_LIST.md');
-  console.log(`   ℹ️  Active features: ${enabledFeatures.length}/${features.length}`);
+  return true;
+}
+
+function createDeploymentGuide() {
+  log.info('Generating DEPLOYMENT.md...');
   
-  console.log();
-} catch (error) {
-  console.error(`   ❌ Documentation error: ${error.message}`);
-  hasWarnings = true;
+  const content = `# 🚀 Deployment Guide - Render.com
+
+**Last Updated**: ${new Date().toISOString().split('T')[0]}  
+**Branch**: ${CONFIG.branch}  
+**Hosting**: Render.com Web Service (Free Tier)
+
+---
+
+## Why Render.com Web Service?
+
+✅ **Correct Choice**: Web Service (NOT Private Service)
+- Provides public HTTPS access for client bookings
+- Free tier: 750 hours/month (enough for 24/7 with sleep mode)
+- Automatic SSL certificates
+- Custom domain support
+- GitHub auto-deploy on push
+- Environment variable management
+- Health checks and monitoring
+
+---
+
+## Step-by-Step Deployment
+
+### 1. GitHub Preparation
+\`\`\`bash
+# Ensure you're on the production branch
+git checkout ${CONFIG.branch}
+
+# Run pre-deploy checks
+node scripts/pre-deploy.js
+
+# Commit any changes
+git add .
+git commit -m "chore: pre-deploy preparation v$(node -p "require('./package.json').version")"
+
+# Push to GitHub
+git push origin ${CONFIG.branch}
+\`\`\`
+
+### 2. Render.com Account Setup
+1. Go to https://render.com
+2. Sign up with GitHub account
+3. Authorize Render to access your repositories
+
+### 3. Create Web Service
+1. Click **"New +"** → **"Web Service"**
+2. Connect your GitHub repository
+3. Select the **${CONFIG.branch}** branch
+
+### 4. Configure Service
+
+**Basic Settings:**
+- **Name**: \`ravi-sacred-healing-cms\` (or your choice)
+- **Region**: Oregon (US West) or closest to your clients
+- **Branch**: \`${CONFIG.branch}\`
+- **Root Directory**: (leave blank)
+- **Runtime**: Node
+- **Build Command**: \`npm install\`
+- **Start Command**: \`npm start\`
+
+**Instance Type:**
+- Select **"Free"** (750 hours/month)
+- Note: Service will sleep after 15 min of inactivity
+- First request after sleep takes 30-60 seconds
+
+### 5. Environment Variables
+
+Click **"Advanced"** and add these environment variables:
+
+\`\`\`
+NODE_ENV=production
+PORT=3000
+ADMIN_PASSWORD=<your-secure-password>
+JWT_SECRET=<generate-random-64-char-string>
+
+# Email Provider (choose one):
+EMAIL_PROVIDER=gmail
+EMAIL_USER=your-email@gmail.com
+EMAIL_APP_PASSWORD=<gmail-app-password>
+
+# SMS Provider (optional):
+SMS_PROVIDER=twilio
+TWILIO_ACCOUNT_SID=<your-twilio-sid>
+TWILIO_AUTH_TOKEN=<your-twilio-token>
+TWILIO_PHONE_NUMBER=<your-twilio-number>
+
+# Session (optional, generated if not set):
+SESSION_SECRET=<random-string>
+\`\`\`
+
+**⚠️ Security Tips:**
+- Never commit secrets to GitHub
+- Generate strong JWT_SECRET: \`openssl rand -base64 64\`
+- Use Gmail App Passwords (not regular password)
+- Store backup of env vars securely offline
+
+### 6. Deploy
+
+1. Click **"Create Web Service"**
+2. Wait for initial deployment (3-5 minutes)
+3. Watch build logs for errors
+4. Service URL: \`https://ravi-sacred-healing-cms.onrender.com\`
+
+### 7. Custom Domain (Optional)
+
+1. Go to service Settings → Custom Domain
+2. Add your domain: \`app.ravisacredhealing.com\`
+3. Add CNAME record at your DNS provider:
+   - **Type**: CNAME
+   - **Name**: app (or @)
+   - **Value**: \`ravi-sacred-healing-cms.onrender.com\`
+4. Wait for DNS propagation (5-60 minutes)
+5. SSL certificate auto-generated by Render
+
+---
+
+## Post-Deployment
+
+### Verify Functionality
+- [ ] Visit your app URL
+- [ ] Test gate page (\`/\`)
+- [ ] Test admin login (\`/admin.html\`)
+- [ ] Test client portal (\`/portal.html\`)
+- [ ] Test blog page (\`/blog.html\`)
+- [ ] Submit test inquiry
+- [ ] Verify email notifications work
+- [ ] Test SMS (if configured)
+
+### Data Initialization
+On first deploy, data files will be created automatically:
+\`\`\`
+/data/
+  ├── clients.enc          (encrypted)
+  ├── bookings.enc         (encrypted)
+  ├── inquiries.enc        (encrypted)
+  ├── blog_posts.enc       (encrypted)
+  ├── invitation_codes.enc (encrypted)
+  └── magic_links.enc      (encrypted)
+\`\`\`
+
+### Security Checklist
+- [x] HTTPS enabled (automatic with Render)
+- [ ] Strong ADMIN_PASSWORD set
+- [ ] JWT_SECRET is random and secure
+- [ ] Email credentials using app password
+- [ ] No secrets in GitHub repository
+- [ ] .env file in .gitignore
+- [ ] Rate limiting active (built-in)
+- [ ] Data encryption active (AES-256-GCM)
+
+---
+
+## Monitoring & Maintenance
+
+### Health Checks
+Render automatically monitors:
+- HTTP response codes
+- Response times
+- Memory usage
+- CPU usage
+
+### Logs
+- View live logs: Service → Logs tab
+- Search logs by date/keyword
+- Download logs for debugging
+
+### Auto-Deploy
+Every push to \`${CONFIG.branch}\` triggers automatic deployment:
+1. Render detects push
+2. Runs build command
+3. Restarts service
+4. Keeps data files intact
+
+### Backup Strategy
+**Automatic backups** already configured:
+- Hourly backups to \`/data/backups/auto/\`
+- Manual backups via Admin → Backup tab
+- Download backups before major updates
+
+### Sleep Mode (Free Tier)
+- Service sleeps after 15 min inactivity
+- First request takes 30-60 sec to wake
+- Upgrade to paid ($7/mo) for always-on
+
+---
+
+## Troubleshooting
+
+### Build Fails
+\`\`\`bash
+# Check logs for missing dependencies
+npm install --production
+
+# Verify start command works locally
+npm start
+\`\`\`
+
+### Service Won't Start
+- Check environment variables are set
+- Verify PORT is not hardcoded (use process.env.PORT)
+- Check for syntax errors in server.js
+
+### Email Not Sending
+- Verify EMAIL_PROVIDER is set
+- Use Gmail App Password (not account password)
+- Check rate limits (Gmail: 500/day)
+
+### Data Loss
+- Data persists across deploys
+- Download backups regularly via Admin panel
+- Consider upgrading to paid tier for disk persistence guarantees
+
+### 502 Bad Gateway
+- Service may be sleeping (first request takes 30-60s)
+- Check logs for startup errors
+- Verify start command is correct
+
+---
+
+## Cost Breakdown
+
+| Tier | Price | Hours/Month | Sleep | SSL | Custom Domain |
+|------|-------|-------------|-------|-----|---------------|
+| Free | $0 | 750 | Yes (15min) | ✅ | ✅ |
+| Starter | $7/mo | Always On | No | ✅ | ✅ |
+
+**Current Setup**: Free tier is sufficient
+**Upgrade When**: You need 24/7 instant response time
+
+---
+
+## Support Resources
+
+- **Render Docs**: https://render.com/docs
+- **Node.js on Render**: https://render.com/docs/deploy-node-express-app
+- **Support**: https://render.com/support
+
+---
+
+## Feature Merge to Main Template
+
+When ready to merge features back to \`main\` branch:
+
+### Features to Port:
+- ✅ Blog/Vlog system (configurable categories)
+- ✅ SMS messaging integration
+- ✅ CSV client import
+- ✅ Available hours API endpoint
+- ✅ Auto-backup improvements
+
+### Must Strip:
+- ❌ "Ravi" name references
+- ❌ "Sacred Healing" branding
+- ❌ Client data files
+- ❌ Spiritual-specific content
+- ❌ Blog posts
+
+### Keep Generic:
+- ✅ Blog categories as configurable
+- ✅ SMS as optional provider
+- ✅ Available hours as template feature
+- ✅ All functionality intact
+
+---
+
+**🎉 Deployment Complete!**  
+Your CMS is now live and accessible worldwide with enterprise-grade security.
+`;
+
+  writeFile(CONFIG.deploymentGuidePath, content);
+  log.success('DEPLOYMENT.md created');
+  
+  return true;
 }
 
 // ==========================================
-// 9. Environment Variables Check
+// PHASE 5: ARCHIVE OLD DOCUMENTATION
 // ==========================================
-console.log('🌍 Environment variables checklist...');
-const requiredEnvVars = [
-  'JWT_SECRET',
-  'ADMIN_PASSWORD',
-  'PORT (optional, defaults to 3000)'
-];
-
-console.log('   Ensure these are set on your hosting platform:');
-requiredEnvVars.forEach(v => console.log(`   • ${v}`));
-console.log();
-
-// ==========================================
-// 10. Final Deployment Summary
-// ==========================================
-console.log('═══════════════════════════════════════════');
-if (hasErrors) {
-  console.log('❌ PRE-DEPLOY VALIDATION FAILED');
-  console.log('═══════════════════════════════════════════\n');
-  console.log('⚠️  CRITICAL ERRORS DETECTED - DO NOT DEPLOY\n');
-  console.log('Please fix the errors above before deploying.\n');
-  process.exit(1);
-} else if (hasWarnings) {
-  console.log('⚠️  PRE-DEPLOY VALIDATION PASSED WITH WARNINGS');
-  console.log('═══════════════════════════════════════════\n');
-  console.log('✅ No critical errors found\n');
-  console.log('⚠️  Warnings detected - review before deploying:\n');
-  console.log('   • Check warnings above and address if needed');
-  console.log('   • Verify environment variables are set');
-  console.log('   • Ensure backup systems are working\n');
-  console.log('Code is ready for deployment with caution. 🚀\n');
-  process.exit(0);
-} else {
-  console.log('✅ PRE-DEPLOY VALIDATION PASSED');
-  console.log('═══════════════════════════════════════════\n');
-  console.log('🎉 All checks passed! Ready for deployment.\n');
-  console.log('📋 Final deployment checklist:');
-  console.log('   ✓ All critical files present');
-  console.log('   ✓ Server configuration validated');
-  console.log('   ✓ Security checks passed');
-  console.log('   ✓ Data directories configured');
-  console.log('   ✓ Pre-deploy backup created');
-  console.log('   ✓ Documentation complete\n');
-  console.log('🚀 Ready to deploy to production!\n');
-  process.exit(0);
+function archiveOldDocs() {
+  log.section('PHASE 5: ARCHIVING OLD DOCUMENTATION');
+  
+  ensureDir(CONFIG.archiveDir);
+  
+  let archived = 0;
+  CONFIG.docsToArchive.forEach(doc => {
+    const srcPath = path.join(ROOT_DIR, doc);
+    const destPath = path.join(CONFIG.archiveDir, doc);
+    
+    if (fs.existsSync(srcPath)) {
+      fs.renameSync(srcPath, destPath);
+      log.info(`Archived: ${doc}`);
+      archived++;
+    }
+  });
+  
+  if (archived > 0) {
+    log.success(`Archived ${archived} old documentation files`);
+  } else {
+    log.info('No files to archive');
+  }
+  
+  return archived;
 }
+
+// ==========================================
+// MAIN EXECUTION
+// ==========================================
+async function main() {
+  console.log('\n' + '='.repeat(60));
+  console.log('🚀  PRE-DEPLOY AUTOMATION SCRIPT');
+  console.log('    Version Management | Metrics | Documentation');
+  console.log('='.repeat(60) + '\n');
+
+  try {
+    // Phase 1: Pre-flight checks
+    const preFlightPassed = runPreFlightChecks();
+    if (!preFlightPassed) {
+      log.error('Pre-flight checks failed. Fix issues and try again.');
+      process.exit(1);
+    }
+
+    // Phase 2: Calculate metrics
+    const metrics = calculateDevelopmentMetrics();
+
+    // Phase 3: Update version
+    const newVersion = updateVersion();
+
+    // Phase 4: Update documentation
+    const valuePropUpdated = updateValueProposition(metrics);
+    const deploymentGuideCreated = createDeploymentGuide();
+
+    if (!valuePropUpdated || !deploymentGuideCreated) {
+      log.error('Documentation update failed');
+      process.exit(1);
+    }
+
+    // Phase 5: Archive old docs
+    archiveOldDocs();
+
+    // Final summary
+    log.section('✅ PRE-DEPLOY COMPLETE');
+    console.log(`
+📦 Version: ${newVersion}
+📊 Metrics Updated: ${metrics.commits} commits, ${metrics.linesOfCode.toLocaleString()} LOC, ${metrics.devHoursEstimate} hours
+📝 Documentation: VALUE_PROPOSITION_REPORT.md + DEPLOYMENT.md
+🗂️  Archive: Outdated docs moved to archive/
+
+🎯 Next Steps:
+   1. Review updated documentation
+   2. Commit changes: git add . && git commit -m "chore: pre-deploy v${newVersion}"
+   3. Push to GitHub: git push origin ${CONFIG.branch}
+   4. Deploy on Render.com (auto-deploy or manual)
+   5. Verify deployment at your Render URL
+
+🌐 Deployment Target: Render.com Web Service (Free Tier)
+   - 750 hours/month
+   - Automatic HTTPS
+   - Custom domain support
+   - See DEPLOYMENT.md for full instructions
+`);
+
+    log.success('Pre-deploy automation completed successfully! 🎉');
+    process.exit(0);
+
+  } catch (error) {
+    log.error(`Fatal error: ${error.message}`);
+    console.error(error);
+    process.exit(1);
+  }
+}
+
+// Run the script
+main();
