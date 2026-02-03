@@ -2992,6 +2992,9 @@
         <li class="nav-item" data-page="marketing">
           <span class="nav-icon">📧</span> Marketing <span class="badge badge-gold">NEW</span>
         </li>
+        <li class="nav-item" data-page="spiritual-tools">
+          <span class="nav-icon">🔮</span> Spiritual Tools <span class="badge badge-gold">NEW</span>
+        </li>
         <li class="nav-item" data-page="content">
           <span class="nav-icon">✏️</span> Content
         </li>
@@ -3728,6 +3731,276 @@
               <div style="margin-top: 30px;">
                 <h4 style="margin-bottom: 16px;">Campaign Performance</h4>
                 <div id="campaignPerformanceList"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SPIRITUAL TOOLS PAGE -->
+      <section class="page" id="page-spiritual-tools">
+        <div class="page-header">
+          <h1 class="page-title">🔮 Spiritual Healing Tools</h1>
+          <p class="text-muted mt-8">Astrology • Numerology • Tarot • Pendulum • Kundalini • Pranayama</p>
+        </div>
+
+        <div class="tabs">
+          <div class="tab active" data-tab="astro-num">⭐ Astrology & Numerology</div>
+          <div class="tab" data-tab="tarot">🃏 Tarot Readings</div>
+          <div class="tab" data-tab="pendulum">📿 Pendulum Work</div>
+          <div class="tab" data-tab="kundalini">🧘 Kundalini & Yoga</div>
+          <div class="tab" data-tab="pranayama">🌬️ Pranayama</div>
+          <div class="tab" data-tab="bioenergetics">⚡ Bioenergetics</div>
+        </div>
+
+        <!-- Astrology & Numerology Tab -->
+        <div class="tab-content active" data-content="astro-num">
+          <div class="card">
+            <div class="card-header">
+              <h3>⭐ Astrology & Numerology Calculator</h3>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label class="form-label">Client Birthday</label>
+                <input type="date" id="astro-birthday" class="form-input" style="max-width: 300px;">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Birth Time (Optional - for Rising Sign)</label>
+                <input type="time" id="astro-birthtime" class="form-input" style="max-width: 200px;">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Birth Location (Optional - for Moon/Rising)</label>
+                <input type="text" id="astro-location" class="form-input" placeholder="City, State/Country" style="max-width: 400px;">
+              </div>
+              <button class="btn btn-primary" onclick="calculateAstrology()">🔮 Calculate Chart</button>
+              
+              <div id="astro-results" style="display: none; margin-top: 24px; padding: 20px; background: #f5f0eb; border-radius: 12px;">
+                <h4 style="margin-bottom: 16px; color: var(--burgundy);">Spiritual Profile</h4>
+                <div class="detail-grid">
+                  <div>
+                    <div class="detail-item">
+                      <div class="detail-label">☀️ Sun Sign (Core Identity)</div>
+                      <div class="detail-value" id="sun-sign"></div>
+                    </div>
+                    <div class="detail-item">
+                      <div class="detail-label">🌙 Moon Sign (Emotions)</div>
+                      <div class="detail-value" id="moon-sign">Need birth time & location</div>
+                    </div>
+                    <div class="detail-item">
+                      <div class="detail-label">⬆️ Rising Sign (Outer Self)</div>
+                      <div class="detail-value" id="rising-sign">Need birth time & location</div>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="detail-item">
+                      <div class="detail-label">🔢 Life Path Number</div>
+                      <div class="detail-value" id="life-path"></div>
+                    </div>
+                    <div class="detail-item">
+                      <div class="detail-label">💫 Expression Number</div>
+                      <div class="detail-value" id="expression-num">Need full name</div>
+                    </div>
+                    <div class="detail-item">
+                      <div class="detail-label">❤️ Soul Urge Number</div>
+                      <div class="detail-value" id="soul-urge">Need full name</div>
+                    </div>
+                  </div>
+                </div>
+                <div style="margin-top: 20px; padding: 16px; background: white; border-radius: 8px;">
+                  <h5 style="margin-bottom: 12px;">✨ Spiritual Insights</h5>
+                  <div id="spiritual-insights" style="line-height: 1.8; color: var(--charcoal);"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tarot Tab -->
+        <div class="tab-content" data-content="tarot">
+          <div class="card">
+            <div class="card-header">
+              <h3>🃏 Tarot Reading Tracker</h3>
+              <button class="btn btn-primary" onclick="showNewTarotReading()">+ New Reading</button>
+            </div>
+            <div class="card-body">
+              <p class="text-muted mb-20">Track tarot readings for clients. Record spreads, cards drawn, and interpretations.</p>
+              <div id="tarot-readings-list">
+                <p class="no-items-message">No tarot readings recorded yet. Start your first reading!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pendulum Tab -->
+        <div class="tab-content" data-content="pendulum">
+          <div class="card">
+            <div class="card-header">
+              <h3>📿 Pendulum Session Tracker</h3>
+              <button class="btn btn-primary" onclick="showNewPendulumSession()">+ New Session</button>
+            </div>
+            <div class="card-body">
+              <p class="text-muted mb-20">Track pendulum dowsing sessions, chakra work, and bioenergetic assessments.</p>
+              <div id="pendulum-sessions-list">
+                <p class="no-items-message">No pendulum sessions recorded yet.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Kundalini & Yoga Tab -->
+        <div class="tab-content" data-content="kundalini">
+          <div class="card">
+            <div class="card-header">
+              <h3>🧘 Kundalini Yoga & Meditation Library</h3>
+            </div>
+            <div class="card-body">
+              <p class="text-muted mb-20">Recommended practices for different client needs and healing goals.</p>
+              
+              <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+                <div class="stat-card" style="cursor: pointer;" onclick="showKundaliniPractices('grounding')">
+                  <div class="stat-label">🌍 Grounding Practices</div>
+                  <div class="stat-value" style="font-size: 18px;">Root Chakra Work</div>
+                </div>
+                <div class="stat-card" style="cursor: pointer;" onclick="showKundaliniPractices('heart-opening')">
+                  <div class="stat-label">💚 Heart Opening</div>
+                  <div class="stat-value" style="font-size: 18px;">Love & Compassion</div>
+                </div>
+                <div class="stat-card" style="cursor: pointer;" onclick="showKundaliniPractices('third-eye')">
+                  <div class="stat-label">👁️ Third Eye Activation</div>
+                  <div class="stat-value" style="font-size: 18px;">Intuition & Vision</div>
+                </div>
+                <div class="stat-card" style="cursor: pointer;" onclick="showKundaliniPractices('crown')">
+                  <div class="stat-label">👑 Crown Chakra</div>
+                  <div class="stat-value" style="font-size: 18px;">Divine Connection</div>
+                </div>
+              </div>
+              
+              <div id="kundalini-practices" style="display: none; margin-top: 24px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pranayama Tab -->
+        <div class="tab-content" data-content="pranayama">
+          <div class="card">
+            <div class="card-header">
+              <h3>🌬️ Pranayama Breathing Techniques</h3>
+            </div>
+            <div class="card-body">
+              <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
+                <div class="stat-card">
+                  <div class="stat-label">🌊 Nadi Shodhana</div>
+                  <div style="font-size: 13px; margin-top: 8px; color: var(--soft-gray);">
+                    <strong>Alternate Nostril Breathing</strong><br>
+                    Balances left/right brain, calms nervous system<br>
+                    <em>Duration: 5-10 minutes</em>
+                  </div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label">🔥 Kapalabhati</div>
+                  <div style="font-size: 13px; margin-top: 8px; color: var(--soft-gray);">
+                    <strong>Skull Shining Breath</strong><br>
+                    Energizes, clears mind, purifies<br>
+                    <em>Duration: 3-5 minutes</em>
+                  </div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label">🌬️ Ujjayi</div>
+                  <div style="font-size: 13px; margin-top: 8px; color: var(--soft-gray);">
+                    <strong>Ocean Breath</strong><br>
+                    Calming, warming, focus<br>
+                    <em>Duration: Throughout practice</em>
+                  </div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label">🌸 Sitali</div>
+                  <div style="font-size: 13px; margin-top: 8px; color: var(--soft-gray);">
+                    <strong>Cooling Breath</strong><br>
+                    Reduces heat, calms anger<br>
+                    <em>Duration: 5-10 minutes</em>
+                  </div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label">⚡ Bhastrika</div>
+                  <div style="font-size: 13px; margin-top: 8px; color: var(--soft-gray);">
+                    <strong>Bellows Breath</strong><br>
+                    Energizes, strengthens, awakens<br>
+                    <em>Duration: 3 rounds of 20-30 breaths</em>
+                  </div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label">🧘 Sama Vritti</div>
+                  <div style="font-size: 13px; margin-top: 8px; color: var(--soft-gray);">
+                    <strong>Equal Breathing</strong><br>
+                    Balance, calm, meditation prep<br>
+                    <em>Duration: 5-15 minutes</em>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bioenergetics Tab -->
+        <div class="tab-content" data-content="bioenergetics">
+          <div class="card">
+            <div class="card-header">
+              <h3>⚡ Bioenergetics & Energy Work</h3>
+              <button class="btn btn-primary" onclick="showNewEnergySession()">+ New Session Notes</button>
+            </div>
+            <div class="card-body">
+              <p class="text-muted mb-20">Track energy assessments, chakra readings, and bioenergetic findings.</p>
+              
+              <div style="background: #f5f0eb; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                <h4 style="margin-bottom: 16px;">🌈 Chakra System Quick Reference</h4>
+                <div style="display: grid; gap: 12px;">
+                  <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: white; border-radius: 8px;">
+                    <div style="width: 40px; height: 40px; background: #C62828; border-radius: 50%;"></div>
+                    <div>
+                      <strong>Root (Muladhara)</strong> - Grounding, survival, security
+                    </div>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: white; border-radius: 8px;">
+                    <div style="width: 40px; height: 40px; background: #F57C00; border-radius: 50%;"></div>
+                    <div>
+                      <strong>Sacral (Svadhisthana)</strong> - Creativity, sexuality, emotions
+                    </div>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: white; border-radius: 8px;">
+                    <div style="width: 40px; height: 40px; background: #FBC02D; border-radius: 50%;"></div>
+                    <div>
+                      <strong>Solar Plexus (Manipura)</strong> - Power, confidence, will
+                    </div>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: white; border-radius: 8px;">
+                    <div style="width: 40px; height: 40px; background: #388E3C; border-radius: 50%;"></div>
+                    <div>
+                      <strong>Heart (Anahata)</strong> - Love, compassion, connection
+                    </div>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: white; border-radius: 8px;">
+                    <div style="width: 40px; height: 40px; background: #1976D2; border-radius: 50%;"></div>
+                    <div>
+                      <strong>Throat (Vishuddha)</strong> - Communication, truth, expression
+                    </div>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: white; border-radius: 8px;">
+                    <div style="width: 40px; height: 40px; background: #512DA8; border-radius: 50%;"></div>
+                    <div>
+                      <strong>Third Eye (Ajna)</strong> - Intuition, vision, wisdom
+                    </div>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: white; border-radius: 8px;">
+                    <div style="width: 40px; height: 40px; background: #7B1FA2; border-radius: 50%;"></div>
+                    <div>
+                      <strong>Crown (Sahasrara)</strong> - Divine connection, enlightenment
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div id="energy-sessions-list">
+                <p class="no-items-message">No energy work sessions recorded yet.</p>
               </div>
             </div>
           </div>
@@ -4511,6 +4784,7 @@
       <div class="tabs" style="margin: 0; border-radius: 0; border-bottom: 1px solid #e0d6cc;">
         <div class="tab active" data-clienttab="info" onclick="switchClientTab('info')">📋 Info</div>
         <div class="tab" data-clienttab="messages" onclick="switchClientTab('messages')">💬 Messages <span id="modalUnreadBadge" class="badge gold-badge" style="display: none; margin-left: 4px;">0</span></div>
+        <div class="tab" data-clienttab="spiritual" onclick="switchClientTab('spiritual')">🔮 Spiritual Profile</div>
         <div class="tab" data-clienttab="history" onclick="switchClientTab('history')">📜 History</div>
         <div class="tab" data-clienttab="actions" onclick="switchClientTab('actions')">⚙️ Actions</div>
       </div>
@@ -4531,6 +4805,11 @@
               📧 Send New Message
             </button>
           </div>
+        </div>
+
+        <!-- Spiritual Profile Tab -->
+        <div class="client-tab-content" data-clientcontent="spiritual" id="clientTabSpiritual" style="display: none;">
+          <!-- Populated by JS -->
         </div>
 
         <!-- History Tab -->
@@ -6162,6 +6441,9 @@
       // Render Info tab
       renderClientInfoTab(client);
       
+      // Render Spiritual Profile tab
+      renderClientSpiritualTab(client);
+      
       // Render History tab
       renderClientHistoryTab(client);
       
@@ -6300,6 +6582,181 @@ Example:
           <div style="font-size: 11px; color: var(--soft-gray); margin-top: 8px;">
             💡 Tip: Note patterns, breakthroughs, preferences, or anything that helps continuity of care.
           </div>
+        </div>
+      `;
+    }
+
+    function renderClientSpiritualTab(client) {
+      const birthday = client.birthday;
+      let content = '';
+
+      if (!birthday) {
+        content = `
+          <div style="text-align: center; padding: 40px 20px;">
+            <div style="font-size: 64px; margin-bottom: 16px;">🔮</div>
+            <h3 style="color: var(--burgundy); margin-bottom: 12px;">No Birthday on File</h3>
+            <p style="color: var(--soft-gray); margin-bottom: 20px;">Add a birthday to unlock astrology and numerology insights</p>
+            <div class="form-group" style="max-width: 300px; margin: 0 auto;">
+              <input type="date" id="client-birthday-input" class="form-input">
+              <button class="btn btn-primary" style="margin-top: 12px;" onclick="saveClientBirthday('${client.id}')">💾 Save Birthday</button>
+            </div>
+          </div>
+        `;
+      } else {
+        const date = new Date(birthday);
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+        const year = date.getFullYear();
+        const age = Math.floor((new Date() - date) / (365.25 * 24 * 60 * 60 * 1000));
+        
+        const sunSign = getZodiacSign(month, day);
+        const lifePath = calculateLifePath(birthday);
+        const insights = getLifePathInsights(lifePath);
+
+        content = `
+          <div style="padding: 20px;">
+            <div style="background: linear-gradient(135deg, #7B1FA2 0%, #512DA8 100%); color: white; padding: 24px; border-radius: 12px; margin-bottom: 24px;">
+              <div style="text-align: center;">
+                <div style="font-size: 48px; margin-bottom: 12px;">🔮</div>
+                <h3 style="margin: 0; font-size: 24px;">Spiritual Profile</h3>
+                <p style="margin: 8px 0 0 0; opacity: 0.9;">Born ${new Date(birthday).toLocaleDateString()} • Age ${age}</p>
+              </div>
+            </div>
+
+            <div class="detail-grid">
+              <div>
+                <div class="detail-item">
+                  <div class="detail-label">☀️ Sun Sign (Core Identity)</div>
+                  <div class="detail-value" style="font-size: 24px;">${sunSign}</div>
+                </div>
+                <div class="detail-item">
+                  <div class="detail-label">🔢 Life Path Number</div>
+                  <div class="detail-value" style="font-size: 32px; color: var(--burgundy);">${lifePath}</div>
+                </div>
+              </div>
+              <div>
+                <div class="detail-item">
+                  <div class="detail-label">🌙 Moon Sign</div>
+                  <div class="detail-value" style="font-size: 14px; color: var(--soft-gray);">Need birth time & location</div>
+                </div>
+                <div class="detail-item">
+                  <div class="detail-label">⬆️ Rising Sign</div>
+                  <div class="detail-value" style="font-size: 14px; color: var(--soft-gray);">Need birth time & location</div>
+                </div>
+              </div>
+            </div>
+
+            <div style="margin-top: 24px; padding: 20px; background: #f5f0eb; border-radius: 12px; border-left: 4px solid var(--burgundy);">
+              <h4 style="margin-bottom: 12px; color: var(--burgundy);">✨ Spiritual Insights & Healing Recommendations</h4>
+              <p style="line-height: 1.8;">${insights}</p>
+            </div>
+
+            <div style="margin-top: 24px; padding: 20px; background: white; border: 2px solid #e0d6cc; border-radius: 12px;">
+              <h4 style="margin-bottom: 16px;">🧘 Recommended Practices for ${client.name.split(' ')[0]}</h4>
+              <div id="client-recommended-practices">
+                <p style="color: var(--soft-gray);">Click below to view detailed practices...</p>
+              </div>
+              <div style="display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap;">
+                <button class="btn btn-outline" onclick="loadRecommendedPractice('${lifePath}', 'chakra')">🌈 Chakra Work</button>
+                <button class="btn btn-outline" onclick="loadRecommendedPractice('${lifePath}', 'pranayama')">🌬️ Pranayama</button>
+                <button class="btn btn-outline" onclick="loadRecommendedPractice('${lifePath}', 'meditation')">🧘 Meditation</button>
+              </div>
+            </div>
+
+            <div style="margin-top: 24px; padding: 16px; background: #fff8e6; border-radius: 8px;">
+              <h4 style="margin-bottom: 12px;">📝 Session Notes & Spiritual Observations</h4>
+              <textarea id="spiritual-notes-${client.id}" class="form-input" rows="4" placeholder="Record spiritual insights, energy observations, chakra assessments, pendulum findings, tarot insights...">${client.spiritualNotes || ''}</textarea>
+              <button class="btn btn-sm btn-primary" style="margin-top: 8px;" onclick="saveSpiritualNotes('${client.id}')">💾 Save Spiritual Notes</button>
+            </div>
+          </div>
+        `;
+      }
+
+      document.getElementById('clientTabSpiritual').innerHTML = content;
+    }
+
+    async function saveClientBirthday(clientId) {
+      const birthday = document.getElementById('client-birthday-input').value;
+      if (!birthday) {
+        showToast('Please select a birthday', 'error');
+        return;
+      }
+
+      const result = await api(`/api/admin/clients/${clientId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ birthday })
+      });
+
+      if (result?.success) {
+        showToast('✅ Birthday saved!', 'success');
+        openClientModal(clientId); // Reload modal
+      }
+    }
+
+    async function saveSpiritualNotes(clientId) {
+      const notes = document.getElementById(`spiritual-notes-${clientId}`).value;
+      
+      const result = await api(`/api/admin/clients/${clientId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ spiritualNotes: notes })
+      });
+
+      if (result?.success) {
+        showToast('✅ Spiritual notes saved!', 'success');
+      }
+    }
+
+    function loadRecommendedPractice(lifePath, type) {
+      const container = document.getElementById('client-recommended-practices');
+      const practices = {
+        chakra: {
+          1: 'Solar Plexus focus - Confidence and personal power',
+          2: 'Heart Chakra focus - Sensitivity and emotional balance',
+          3: 'Throat Chakra focus - Creative expression and communication',
+          4: 'Root Chakra focus - Grounding and stability',
+          5: 'Sacral Chakra focus - Flow and adaptability',
+          6: 'Heart Chakra focus - Nurturing and compassion',
+          7: 'Third Eye focus - Spiritual insight and intuition',
+          8: 'Solar Plexus focus - Power and manifestation',
+          9: 'Crown Chakra focus - Universal love and wisdom',
+          11: 'Third Eye & Crown - Spiritual awakening',
+          22: 'Full chakra balance - Manifestation mastery',
+          33: 'Heart-centered healing - Master teacher energy'
+        },
+        pranayama: {
+          1: 'Breath of Fire - Energizing, confidence-building',
+          2: 'Alternate Nostril - Balancing, calming',
+          3: 'Ujjayi - Focus, creative flow',
+          4: 'Long Deep Breathing - Grounding, stability',
+          5: 'Kapalabhati - Cleansing, energizing',
+          6: 'Heart-centered breathing - Compassion activation',
+          7: 'Silent meditation breath - Inner knowing',
+          8: 'Power breathing - Manifestation breath',
+          9: 'Universal breathing - Connection to all',
+          11: 'Advanced pranayama - Kundalini awakening',
+          22: 'Structured breathwork - Building manifestation',
+          33: 'Healing breath - Service-oriented breathing'
+        },
+        meditation: {
+          1: 'Ego Eradicator - Leadership presence',
+          2: 'Loving Kindness - Emotional healing',
+          3: 'Creative Visualization - Artistic flow',
+          4: 'Grounding Meditation - Earth connection',
+          5: 'Dynamic Meditation - Freedom and flow',
+          6: 'Metta - Loving kindness practice',
+          7: 'Third Eye Meditation - Spiritual insight',
+          8: 'Manifestation Meditation - Goal achievement',
+          9: 'Universal Love Meditation - Service',
+          11: 'Intuitive Meditation - Psychic development',
+          22: 'Master Builder Meditation - Vision to reality',
+          33: 'Healing Light Meditation - Master teacher'
+        }
+      };
+
+      const practice = practices[type]?.[lifePath] || 'General practice recommended';
+      container.innerHTML = `
+        <div style="padding: 16px; background: #e8f5e9; border-radius: 8px; border-left: 4px solid #4CAF50;">
+          <strong style="text-transform: capitalize;">${type}:</strong> ${practice}
         </div>
       `;
     }
@@ -8887,6 +9344,171 @@ Example:
         importButton.disabled = false;
         importButton.textContent = '📥 Import Leads';
       }
+    }
+
+    // ============ SPIRITUAL TOOLS ============
+    
+    // Astrology & Numerology Functions
+    function getZodiacSign(month, day) {
+      const signs = [
+        { name: 'Capricorn', emoji: '♑', end: [1, 19] },
+        { name: 'Aquarius', emoji: '♒', end: [2, 18] },
+        { name: 'Pisces', emoji: '♓', end: [3, 20] },
+        { name: 'Aries', emoji: '♈', end: [4, 19] },
+        { name: 'Taurus', emoji: '♉', end: [5, 20] },
+        { name: 'Gemini', emoji: '♊', end: [6, 20] },
+        { name: 'Cancer', emoji: '♋', end: [7, 22] },
+        { name: 'Leo', emoji: '♌', end: [8, 22] },
+        { name: 'Virgo', emoji: '♍', end: [9, 22] },
+        { name: 'Libra', emoji: '♎', end: [10, 22] },
+        { name: 'Scorpio', emoji: '♏', end: [11, 21] },
+        { name: 'Sagittarius', emoji: '♐', end: [12, 21] },
+        { name: 'Capricorn', emoji: '♑', end: [12, 31] }
+      ];
+      
+      for (let i = 0; i < signs.length; i++) {
+        const sign = signs[i];
+        if (month < sign.end[0] || (month === sign.end[0] && day <= sign.end[1])) {
+          return `${sign.emoji} ${sign.name}`;
+        }
+      }
+      return '♑ Capricorn';
+    }
+
+    function calculateLifePath(dateStr) {
+      const digits = dateStr.replace(/\D/g, '').split('').map(Number);
+      let sum = digits.reduce((a, b) => a + b, 0);
+      
+      while (sum > 9 && sum !== 11 && sum !== 22 && sum !== 33) {
+        sum = sum.toString().split('').map(Number).reduce((a, b) => a + b, 0);
+      }
+      
+      return sum;
+    }
+
+    function calculateAstrology() {
+      const birthday = document.getElementById('astro-birthday').value;
+      if (!birthday) {
+        showToast('Please enter a birthday', 'error');
+        return;
+      }
+
+      const date = new Date(birthday);
+      const month = date.getMonth() + 1;
+      const day = date.getDate();
+      
+      // Calculate Sun Sign
+      const sunSign = getZodiacSign(month, day);
+      document.getElementById('sun-sign').textContent = sunSign;
+      
+      // Calculate Life Path Number
+      const lifePath = calculateLifePath(birthday);
+      document.getElementById('life-path').innerHTML = `<strong style="font-size: 24px; color: var(--burgundy);">${lifePath}</strong>`;
+      
+      // Show results
+      document.getElementById('astro-results').style.display = 'block';
+      
+      // Add spiritual insights based on life path
+      const insights = getLifePathInsights(lifePath);
+      document.getElementById('spiritual-insights').innerHTML = insights;
+      
+      showToast('✨ Spiritual profile calculated!', 'success');
+    }
+
+    function getLifePathInsights(number) {
+      const insights = {
+        1: '<strong>The Leader:</strong> Natural leadership, independence, innovation. Best practices: Solar plexus work, confidence-building pranayama.',
+        2: '<strong>The Peacemaker:</strong> Sensitive, diplomatic, intuitive. Best practices: Heart chakra opening, calming breath work.',
+        3: '<strong>The Creative:</strong> Expressive, optimistic, artistic. Best practices: Throat chakra work, creative visualization.',
+        4: '<strong>The Builder:</strong> Practical, disciplined, grounded. Best practices: Root chakra grounding, steady pranayama.',
+        5: '<strong>The Freedom Seeker:</strong> Adventurous, versatile, dynamic. Best practices: Sacral chakra flow, energizing breath.',
+        6: '<strong>The Nurturer:</strong> Caring, responsible, harmonious. Best practices: Heart opening, compassionate meditation.',
+        7: '<strong>The Seeker:</strong> Analytical, spiritual, introspective. Best practices: Third eye activation, deep meditation.',
+        8: '<strong>The Powerhouse:</strong> Ambitious, authoritative, material success. Best practices: Solar plexus empowerment, grounding.',
+        9: '<strong>The Humanitarian:</strong> Compassionate, wise, selfless. Best practices: Crown chakra work, universal love meditation.',
+        11: '<strong>The Spiritual Messenger:</strong> Master number - intuitive, visionary, inspiring. Best practices: Third eye + crown work, kundalini awakening.',
+        22: '<strong>The Master Builder:</strong> Master number - manifesting dreams into reality. Best practices: Full chakra balancing, manifestation meditation.',
+        33: '<strong>The Master Teacher:</strong> Master number - highest spiritual teaching and healing. Best practices: Heart-centered service, all healing modalities.'
+      };
+      
+      return insights[number] || 'Unique spiritual path';
+    }
+
+    // Tarot Functions
+    function showNewTarotReading() {
+      showToast('Tarot reading feature - Coming soon! Will track spreads and interpretations.', 'info');
+    }
+
+    // Pendulum Functions
+    function showNewPendulumSession() {
+      showToast('Pendulum session tracker - Coming soon! Will log dowsing results and chakra assessments.', 'info');
+    }
+
+    // Kundalini Practices
+    function showKundaliniPractices(type) {
+      const practices = {
+        'grounding': {
+          title: '🌍 Root Chakra Grounding Practices',
+          practices: [
+            '<strong>Sat Kriya:</strong> Powerful kundalini kriya for root chakra. Chant "Sat Nam" while pumping navel. 3-11 minutes.',
+            '<strong>Rock Pose (Vajrasana):</strong> Sitting on heels, spine straight. Grounds energy into earth. 3-5 minutes.',
+            '<strong>Frog Pose:</strong> Squat position, strengthens lower body and root chakra. 26-54 repetitions.',
+            '<strong>Body Drops:</strong> Releases tension and grounds. Drop into squat position. 26 times.',
+            '<strong>Mantra: LAM</strong> - Seed sound of root chakra. Chant for 5-11 minutes.'
+          ]
+        },
+        'heart-opening': {
+          title: '💚 Heart Chakra Opening Practices',
+          practices: [
+            '<strong>Archer Pose:</strong> Opens heart, builds courage. Hold each side 2-3 minutes.',
+            '<strong>Camel Pose:</strong> Deep heart opener. Hold 1-3 minutes with long deep breathing.',
+            '<strong>Ego Eradicator:</strong> Arms in V shape, thumb to Venus mound. Opens heart, clears ego. 1-3 minutes.',
+            '<strong>Breath of Fire:</strong> In easy pose, hands on heart. 3-5 minutes.',
+            '<strong>Mantra: YAM</strong> - Heart chakra seed sound. Sing from heart. 11 minutes.'
+          ]
+        },
+        'third-eye': {
+          title: '👁️ Third Eye Activation Practices',
+          practices: [
+            '<strong>Meditation on the Third Eye:</strong> Focus at brow point, breathe deeply. 11-31 minutes.',
+            '<strong>Kirtan Kriya:</strong> Sa Ta Na Ma with mudras. Enhances intuition. 12-31 minutes.',
+            '<strong>Pranayama - Alternate Nostril:</strong> Balances brain hemispheres. 5-11 minutes.',
+            '<strong>Trataka (Candle Gazing):</strong> Strengthens third eye. Gaze without blinking 3-11 minutes.',
+            '<strong>Mantra: OM or AUM</strong> - Universal sound. Chant at third eye point. 11 minutes.'
+          ]
+        },
+        'crown': {
+          title: '👑 Crown Chakra Divine Connection',
+          practices: [
+            '<strong>Sat Kriya:</strong> Connects earth to heaven. Arms overhead, chant "Sat Nam". 3-11 minutes.',
+            '<strong>Miracle Bend:</strong> Hands overhead, bend back. Opens all chakras to crown. 1-3 minutes.',
+            '<strong>Thousand Petal Lotus Meditation:</strong> Visualize crown opening. 11-31 minutes.',
+            '<strong>Silent Meditation:</strong> No mantra, pure presence. Connect to divine. 31-62 minutes.',
+            '<strong>Mantra: Silence or OM</strong> - Beyond sound into pure consciousness.'
+          ]
+        }
+      };
+
+      const practice = practices[type];
+      const container = document.getElementById('kundalini-practices');
+      
+      if (practice) {
+        container.innerHTML = `
+          <div style="background: white; padding: 24px; border-radius: 12px; border-left: 4px solid var(--burgundy);">
+            <h4 style="margin-bottom: 16px; color: var(--burgundy);">${practice.title}</h4>
+            <ul style="list-style: none; padding: 0;">
+              ${practice.practices.map(p => `<li style="padding: 12px; margin-bottom: 8px; background: #f5f0eb; border-radius: 8px;">${p}</li>`).join('')}
+            </ul>
+          </div>
+        `;
+        container.style.display = 'block';
+        container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+
+    // Energy Work Functions
+    function showNewEnergySession() {
+      showToast('Energy session tracker - Coming soon! Will log chakra assessments and bioenergetic findings.', 'info');
     }
 
     // ============ DRIP CAMPAIGNS ============

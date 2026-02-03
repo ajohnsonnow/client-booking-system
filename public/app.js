@@ -70,6 +70,7 @@
       const name = document.getElementById('inquiry-name').value.trim();
       const email = document.getElementById('inquiry-email').value.trim();
       const phone = document.getElementById('inquiry-phone').value.trim();
+      const birthday = document.getElementById('inquiry-birthday').value;
       const message = document.getElementById('inquiry-message').value.trim();
       const errorEl = document.getElementById('inquiry-error');
       const submitBtn = document.getElementById('inquiry-btn');
@@ -82,7 +83,7 @@
         const response = await fetch('/api/inquiry', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, email, phone, message })
+          body: JSON.stringify({ name, email, phone, birthday, message })
         });
 
         const data = await response.json();
