@@ -3676,14 +3676,15 @@
         <div class="tab-content" data-content="templates">
           <div class="card">
             <div class="card-header">
-              <h3>Email Templates</h3>
+              <h3>📧 Email Templates</h3>
               <button class="btn btn-primary" onclick="showTemplateEditor()">
                 <span>📄</span> Create Template
               </button>
             </div>
             <div class="card-body">
+              <p style="color: var(--soft-gray); margin-bottom: 16px; font-size: 14px;">Your saved email templates for marketing campaigns. Click any template to preview and send.</p>
               <div class="template-gallery" id="templateGallery">
-                <!-- Pre-built templates will be loaded here -->
+                <!-- Email templates will be loaded here -->
               </div>
             </div>
           </div>
@@ -8786,6 +8787,8 @@ Example:
     }
 
     function toggleTimeSlot(dayKey, slot) {
+      if (!settings.weeklyAvailability) settings.weeklyAvailability = {};
+      if (!settings.weeklyAvailability[dayKey]) settings.weeklyAvailability[dayKey] = { enabled: false, slots: [] };
       if (!settings.weeklyAvailability[dayKey].slots) settings.weeklyAvailability[dayKey].slots = [];
       const slots = settings.weeklyAvailability[dayKey].slots;
       const index = slots.indexOf(slot);

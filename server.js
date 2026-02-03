@@ -2082,6 +2082,36 @@ app.delete('/api/admin/settings/block-date/:index', authenticateAdmin, (req, res
   }
 });
 
+// PUBLIC: Get available hours (for intake forms to display Ravi's schedule)
+app.get('/api/available-hours', (req, res) => {
+  const settings = loadSettings();
+  const availability = settings.weeklyAvailability || {};
+  
+  // Format for public consumption
+  const publicAvailability = {};
+  Object.keys(availability).forEach(day => {
+    if (availability[day].enabled && availability[day].slots?.length > 0) {
+      publicAvailability[day] = {
+        enabled: true,
+        slots: availability[day].slots.map(slot => {
+          // Convert 24hr slot to readable time
+          const hour = Math.floor(slot / 60);
+          const minutes = slot % 60;
+          const period = hour >= 12 ? 'PM' : 'AM';
+          const hour12 = hour % 12 || 12;
+          return `${hour12}:${minutes.toString().padStart(2, '0')} ${period}`;
+        })
+      };
+    }
+  });
+  
+  res.json({ 
+    success: true, 
+    availability: publicAvailability,
+    timezone: settings.timezone || 'America/Los_Angeles'
+  });
+});
+
 // ===========================================
 // EXPORT & BACKUP ROUTES
 // ===========================================
