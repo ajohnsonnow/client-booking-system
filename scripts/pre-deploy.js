@@ -35,7 +35,7 @@ const CONFIG = {
     'public/styles.css',
     'communications.js'
   ],
-  devHourlyRate: 150,
+  devHourlyRate: 420,
   branch: 'ravi-sacred-healing'
 };
 
@@ -171,16 +171,41 @@ function calculateDevelopmentMetrics() {
 
   log.info(`Code changes: +${metrics.insertions.toLocaleString()} / -${metrics.deletions.toLocaleString()}`);
 
-  // Estimate development hours using multiple methods
-  const method1 = metrics.commits * 0.5; // 30 min per commit
-  const method2 = metrics.linesOfCode / 250; // 250 LOC per hour
-  const method3 = 80; // Known feature count estimate
+  // Calculate actual development time using commit timestamps
+  const timestamps = execCommand(`git log ${CONFIG.branch} --format=%at`);
+  if (timestamps) {
+    const times = timestamps.split('\n').map(t => parseInt(t)).filter(t => !isNaN(t));
+    if (times.length > 0) {
+      const timeSpanHours = (Math.max(...times) - Math.min(...times)) / 3600;
+      const timeSpanDays = timeSpanHours / 24;
+      metrics.timeSpanHours = Math.round(timeSpanHours * 10) / 10;
+      metrics.timeSpanDays = Math.round(timeSpanDays * 10) / 10;
+      log.info(`Development period span: ${metrics.timeSpanHours} hours (${metrics.timeSpanDays} days)`);
+    }
+  }
+
+  // REALISTIC development hours estimation
+  // Method 1: Commits * average time (45 min per meaningful commit)
+  const avgCommitTime = 0.75; // 45 minutes per commit (includes planning, coding, testing)
+  const method1 = metrics.commits * avgCommitTime;
   
-  metrics.devHoursEstimate = Math.round((method1 + method2 + method3) / 3);
+  // Method 2: Lines of code / realistic rate (75 LOC/hour for quality full-stack with security)
+  const method2 = metrics.linesOfCode / 75;
+  
+  // Method 3: Based on time span (assume 25% productivity - rest is breaks, planning, research)
+  const method3 = (metrics.timeSpanHours || 0) * 0.25;
+  
+  // Use the median of three methods (more conservative than average)
+  const estimates = [method1, method2, method3].sort((a, b) => a - b);
+  metrics.devHoursEstimate = Math.round(estimates[1]); // median
   metrics.devValueEstimate = metrics.devHoursEstimate * CONFIG.devHourlyRate;
   
-  log.success(`Estimated development time: ${metrics.devHoursEstimate} hours`);
-  log.success(`Estimated development value: $${metrics.devValueEstimate.toLocaleString()}`);
+  log.info(`Development time estimates:`);
+  log.info(`  - Commit-based: ${Math.round(method1)} hours (${metrics.commits} commits × ${avgCommitTime}h)`);
+  log.info(`  - LOC-based: ${Math.round(method2)} hours (${metrics.linesOfCode.toLocaleString()} LOC ÷ 75/hr)`);
+  log.info(`  - Time-span-based: ${Math.round(method3)} hours (${metrics.timeSpanHours}h span × 25% productivity)`);
+  log.success(`Estimated development time: ${metrics.devHoursEstimate} hours (median)`);
+  log.success(`Estimated development value: $${metrics.devValueEstimate.toLocaleString()} at $${CONFIG.devHourlyRate}/hr`);
 
   // ROI calculation
   const annualCost = 15; // Domain only
@@ -246,7 +271,7 @@ function updateValueProposition(metrics) {
 
 ### Time Investment
 - **Estimated Development Hours**: ~${metrics.devHoursEstimate} hours
-  - *Calculated using commit frequency, code complexity, and feature count*
+  - *Calculated using commit frequency (45min/commit), code complexity (75 LOC/hr), and actual time span*
 - **Market Value** (at $${CONFIG.devHourlyRate}/hour): **$${metrics.devValueEstimate.toLocaleString()}**
 
 ### Return on Investment
