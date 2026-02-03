@@ -28,8 +28,24 @@ When you first log in, you'll see the **Overview** page with:
 - **✅ Confirmed Sessions**: Scheduled bookings
 - **⏳ Pending**: Awaiting your confirmation
 - **✨ Completed**: Finished sessions
-- **💰 Total Revenue**: Lifetime earnings
-- **👥 Total Clients**: Unique client count
+- **💰 Total Revenue**: Lifetime earnings (this month and total)
+- **👥 Total Clients**: Unique client count with repeat client info
+
+### 🎯 Action Items Panel
+Smart notifications that tell you what needs attention:
+
+| Icon | Action Item | Priority | What It Means |
+|------|------------|----------|---------------|
+| ⏳ | Bookings awaiting response | Urgent | New booking requests need your confirmation |
+| 📬 | New inquiries awaiting review | Urgent | Visitors submitted contact forms |
+| 📹 | Discovery calls past due | Important | Scheduled calls that need status update |
+| 🔄 | Inquiries need follow-up | Important | Inquiries marked for follow-up action |
+| 💬 | Unread messages | Urgent | Clients sent messages in portal |
+| 🌸 | Clients may need check-in | Info | Returning clients inactive 30+ days |
+| 📅 | Sessions this week | Info | Upcoming confirmed appointments |
+| ⭐ | Client close to VIP | Info | One more session for VIP tier |
+
+**Each action item is clickable** - takes you directly to the relevant page!
 
 ### Recent Bookings
 Quick view of your latest 5 bookings with:

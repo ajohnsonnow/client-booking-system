@@ -1,34 +1,47 @@
 # 🪷 Ravi's Sacred Healing Website
 
-**Version:** 1.0.0  
-**Last Updated:** 2026-01-28
+**Version:** 1.1.0  
+**Last Updated:** 2026-02-03
 
 A beautiful, secure, privacy-first scheduling website for Ravi's Sacred Pelvic Healing and BlissFlow Rituals practice.
 
 ## ✨ Features
 
-### Security & Privacy (100% Secure)
-- 🔐 **Password-protected entry** - Only screened clients can access
-- 🔒 **Encrypted data storage** - All client data is AES encrypted
+### Security & Privacy (Military-Grade)
+- 🔐 **Invitation-code entry** - Only invited clients can access
+- 🔒 **AES-256-GCM encryption** - All client data is encrypted at rest
 - 🛡️ **Rate limiting** - Prevents brute force attacks
 - 🚫 **No tracking/cookies** - Zero third-party analytics
 - 🔑 **JWT authentication** - Secure session management
 - 🪖 **Helmet.js security headers** - Industry best practices
+- 🕐 **PST timezone** - All dates/times in Pacific Standard Time
 
 ### For Clients
-- 📝 Comprehensive intake form (mirrors your Google Form)
+- 📝 Comprehensive intake form with inclusive options
 - 📅 Service selection with all pricing tiers ($111-$777)
 - 💬 Space for intentions, concerns, and health notes
 - ✍️ Electronic consent signature
 - 📱 Mobile-responsive design
+- 🎟️ Client portal for messaging and booking history
 
 ### For Ravi (Admin Panel)
-- 📊 Dashboard with booking statistics
-- 📋 View all booking requests with full details
-- ✏️ Update booking status (pending → confirmed → completed)
-- 📝 Add private admin notes
-- ⚙️ Configure available days and time slots
-- 📧 Email notifications for new bookings
+- 📊 Dashboard with smart action items panel
+- 🎯 Action items: new inquiries, pending bookings, unread messages
+- 📬 Inquiry management with discovery call scheduling
+- 📋 Complete booking lifecycle management
+- 📅 Interactive calendar view
+- 👥 Client database with tier system (New → Regular → Favored → VIP)
+- 💬 Secure messaging portal
+- 📧 Email templates with one-click sending
+- 🎟️ Invitation code generation with print support
+- ⚙️ Full availability and service configuration
+- 📊 Revenue tracking and analytics
+- 💾 Automatic backups (50 per data type)
+
+### Communications (FREE)
+- 📧 15,000+ free emails/month (Resend + Brevo + SendGrid)
+- 📱 30+ free SMS/month (TextBelt)
+- 🔄 Multi-provider failover for reliability
 
 ## 🚀 Quick Start
 
