@@ -153,6 +153,7 @@ const TEMPLATES_FILE = path.join(DATA_DIR, 'templates.enc');
 const LEADS_FILE = path.join(DATA_DIR, 'leads.enc');
 const LEAD_MAGNETS_FILE = path.join(DATA_DIR, 'lead_magnets.enc');
 const DRIP_CAMPAIGNS_FILE = path.join(DATA_DIR, 'drip_campaigns.enc');
+const BLOG_POSTS_FILE = path.join(DATA_DIR, 'blog_posts.enc');
 const MESSAGES_FILE = path.join(DATA_DIR, 'messages.enc');
 const BACKUP_DIR = path.join(DATA_DIR, 'backups');
 const AUTO_BACKUP_DIR = path.join(BACKUP_DIR, 'auto');
