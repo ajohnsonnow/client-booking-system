@@ -4523,18 +4523,13 @@
 
         <!-- Messages Tab -->
         <div class="client-tab-content" data-clientcontent="messages" id="clientTabMessages" style="display: none;">
-          <div id="clientModalMessages" style="max-height: 280px; overflow-y: auto; margin-bottom: 16px;">
-            <p style="text-align: center; color: var(--soft-gray);">Loading messages...</p>
+          <div id="clientModalMessages" style="max-height: 400px; overflow-y: auto; margin-bottom: 16px;">
+            <p style="text-align: center; color: var(--soft-gray);">Loading message history...</p>
           </div>
-          <div style="border-top: 1px solid #e0d6cc; padding-top: 16px;">
-            <textarea id="clientModalReplyInput" placeholder="Type your message..." style="width: 100%; min-height: 80px; padding: 12px; border: 2px solid #e0d6cc; border-radius: 8px; font-family: inherit; resize: vertical;"></textarea>
-            <div style="display: flex; gap: 12px; margin-top: 12px; align-items: center;">
-              <button class="btn btn-primary" onclick="sendClientModalReply()">📨 Send Message</button>
-              <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: #666;">
-                <input type="checkbox" id="clientModalSendEmail" checked>
-                Send email notification
-              </label>
-            </div>
+          <div style="border-top: 2px solid #e0d6cc; padding-top: 16px; text-align: center;">
+            <button class="btn btn-primary" onclick="openClientMessageModal(currentClientId, 'client', currentClientData.name, currentClientData.email)">
+              📧 Send New Message
+            </button>
           </div>
         </div>
 
@@ -4766,6 +4761,25 @@
           <label class="form-label">Message</label>
           <textarea class="form-textarea" id="clientMessageText" rows="6" required placeholder="Write your message here..."></textarea>
         </div>
+        
+        <!-- Communication Method -->
+        <div class="form-group">
+          <label class="form-label">Send Via</label>
+          <div style="display: flex; gap: 16px;">
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+              <input type="checkbox" id="sendViaEmail" checked>
+              <span>📧 Email</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+              <input type="checkbox" id="sendViaSMS">
+              <span>💬 SMS Text Message</span>
+            </label>
+          </div>
+          <small style="color: var(--soft-gray); margin-top: 8px; display: block;">
+            💡 SMS helps avoid spam folders - messages go straight to their phone
+          </small>
+        </div>
+        
         <div class="form-group" id="proposedTimeGroup" style="display: none;">
           <label class="form-label">Proposed Appointment</label>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
@@ -6468,35 +6482,50 @@ Example:
     }
 
     async function loadClientModalMessages(email) {
-      const messages = await api(`/api/admin/messages/${encodeURIComponent(email.toLowerCase())}`);
-      const container = document.getElementById('clientModalMessages');
+      if (!currentClientData) return;
       
-      if (!messages?.messages || messages.messages.length === 0) {
-        container.innerHTML = '<p style="text-align: center; color: var(--soft-gray); padding: 20px;">No messages yet. Send the first message below!</p>';
+      const container = document.getElementById('clientModalMessages');
+      const messageHistory = currentClientData.messageHistory || [];
+      
+      if (messageHistory.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: var(--soft-gray); padding: 20px;">No messages sent yet. Use "Send Message to Client" button to start communication!</p>';
         document.getElementById('modalUnreadBadge').style.display = 'none';
         return;
       }
 
-      const unreadCount = messages.messages.filter(m => m.from === 'client' && !m.read).length;
-      const badge = document.getElementById('modalUnreadBadge');
-      if (unreadCount > 0) {
-        badge.textContent = unreadCount;
-        badge.style.display = 'inline-block';
-      } else {
-        badge.style.display = 'none';
-      }
+      // Sort by date (newest first)
+      const sorted = [...messageHistory].sort((a, b) => new Date(b.sentAt) - new Date(a.sentAt));
 
-      container.innerHTML = messages.messages.map(msg => `
-        <div style="display: flex; flex-direction: column; align-items: ${msg.from === 'client' ? 'flex-start' : 'flex-end'}; margin-bottom: 12px;">
-          <div style="background: ${msg.from === 'client' ? '#f8f5f0' : 'var(--burgundy)'}; color: ${msg.from === 'client' ? 'var(--charcoal)' : 'white'}; padding: 12px 16px; border-radius: 12px; max-width: 85%; ${msg.from === 'client' ? 'border-bottom-left-radius: 4px;' : 'border-bottom-right-radius: 4px;'}">
-            <div style="font-size: 11px; font-weight: 600; margin-bottom: 4px; opacity: 0.8;">${msg.from === 'client' ? (msg.fromName || 'Client') : '🪷 You'}</div>
-            <div style="white-space: pre-wrap;">${escapeHtml(msg.message)}</div>
-            <div style="font-size: 10px; opacity: 0.7; margin-top: 6px;">${formatDateTime(msg.createdAt)}</div>
+      container.innerHTML = sorted.map(msg => {
+        const sentViaEmail = msg.sentVia?.email || (!msg.sentVia && true); // Default to email if old format
+        const sentViaSMS = msg.sentVia?.sms || false;
+        const methods = [];
+        if (sentViaEmail) methods.push('📧 Email');
+        if (sentViaSMS) methods.push('💬 SMS');
+        
+        return `
+          <div style="background: #f8f5f0; border-left: 4px solid var(--burgundy); padding: 16px; border-radius: 8px; margin-bottom: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+              <div>
+                <div style="font-weight: 600; color: var(--burgundy); margin-bottom: 4px;">${escapeHtml(msg.subject)}</div>
+                <div style="font-size: 11px; color: var(--soft-gray);">
+                  ${methods.join(' & ')} • ${formatDateTime(msg.sentAt)}
+                </div>
+              </div>
+            </div>
+            <div style="white-space: pre-wrap; font-size: 14px; line-height: 1.6; color: var(--charcoal); padding: 12px; background: white; border-radius: 6px; margin-top: 8px;">
+              ${escapeHtml(msg.message)}
+            </div>
+            ${msg.includeTestimonialLink ? `
+              <div style="margin-top: 8px; font-size: 12px; color: var(--soft-gray);">
+                💖 Included testimonial submission link
+              </div>
+            ` : ''}
           </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
       
-      container.scrollTop = container.scrollHeight;
+      document.getElementById('modalUnreadBadge').style.display = 'none';
     }
 
     async function sendClientModalReply() {
@@ -11627,9 +11656,16 @@ Ravi 🪷`
       const proposedDate = document.getElementById('proposedDate').value;
       const proposedTime = document.getElementById('proposedTime').value;
       const includeTestimonialLink = document.getElementById('includeTestimonialLink').checked;
+      const sendViaEmail = document.getElementById('sendViaEmail').checked;
+      const sendViaSMS = document.getElementById('sendViaSMS').checked;
 
       if (!subject || !message) {
         showToast('Please enter subject and message', 'error');
+        return;
+      }
+
+      if (!sendViaEmail && !sendViaSMS) {
+        showToast('Please select at least one communication method', 'error');
         return;
       }
 
@@ -11646,14 +11682,24 @@ Ravi 🪷`
           message, 
           proposedDate, 
           proposedTime,
-          includeTestimonialLink
+          includeTestimonialLink,
+          sendViaEmail,
+          sendViaSMS
         })
       });
       showLoading(false);
 
       if (result?.success) {
-        showToast('Message sent successfully!', 'success');
+        const methods = [];
+        if (result.emailSent) methods.push('email');
+        if (result.smsSent) methods.push('SMS');
+        showToast(`✅ Message sent via ${methods.join(' and ')}!`, 'success');
         closeModal('clientMessageModal');
+        
+        // Reload client data to show updated message history
+        if (type === 'client') {
+          loadClients();
+        }
       } else {
         showToast(result?.error || 'Failed to send message', 'error');
       }

@@ -1728,10 +1728,14 @@ app.post('/api/admin/testimonials/:id/reject', authenticateAdmin, (req, res) => 
 
 // Send message to client
 app.post('/api/admin/clients/:id/message', authenticateAdmin, async (req, res) => {
-  const { subject, message, includeTestimonialLink } = req.body;
+  const { subject, message, includeTestimonialLink, sendViaEmail, sendViaSMS } = req.body;
   
   if (!subject || !message) {
     return res.status(400).json({ error: 'Subject and message are required' });
+  }
+
+  if (!sendViaEmail && !sendViaSMS) {
+    return res.status(400).json({ error: 'Please select at least one communication method' });
   }
 
   const clients = loadClients();
@@ -1741,58 +1745,97 @@ app.post('/api/admin/clients/:id/message', authenticateAdmin, async (req, res) =
     return res.status(404).json({ error: 'Client not found' });
   }
 
-  let emailBody = message;
-  let htmlBody = `
-    <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #FDF8F3;">
-      <div style="text-align: center; margin-bottom: 24px;">
-        <span style="font-size: 32px;">🪷</span>
-        <h2 style="color: #722F37; margin: 8px 0;">Ravi ~ Sacred Healing</h2>
-      </div>
-      <div style="background: white; padding: 24px; border-radius: 12px;">
-        <p>Dear ${client.name.split(' ')[0]},</p>
-        <div style="white-space: pre-wrap;">${message}</div>
-  `;
+  let emailSent = false;
+  let smsSent = false;
+  let errors = [];
 
-  if (includeTestimonialLink) {
-    const testimonialUrl = `${process.env.SITE_URL || 'http://localhost:3000'}/submit-testimonial.html`;
-    htmlBody += `
-        <div style="margin-top: 24px; padding: 16px; background: #f5f0eb; border-radius: 8px; text-align: center;">
-          <p style="margin-bottom: 12px;"><strong>💖 Share Your Experience</strong></p>
-          <p style="font-size: 14px; color: #666;">Your words help others find their path to healing</p>
-          <a href="${testimonialUrl}" style="display: inline-block; margin-top: 12px; padding: 12px 24px; background: #722F37; color: white; text-decoration: none; border-radius: 8px;">Submit a Testimonial</a>
+  // Send Email
+  if (sendViaEmail) {
+    try {
+      let emailBody = message;
+      let htmlBody = `
+        <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #FDF8F3;">
+          <div style="text-align: center; margin-bottom: 24px;">
+            <span style="font-size: 32px;">🪷</span>
+            <h2 style="color: #722F37; margin: 8px 0;">Ravi ~ Sacred Healing</h2>
+          </div>
+          <div style="background: white; padding: 24px; border-radius: 12px;">
+            <p>Dear ${client.name.split(' ')[0]},</p>
+            <div style="white-space: pre-wrap;">${message}</div>
+      `;
+
+      if (includeTestimonialLink) {
+        const testimonialUrl = `${process.env.SITE_URL || 'http://localhost:3000'}/submit-testimonial.html`;
+        htmlBody += `
+            <div style="margin-top: 24px; padding: 16px; background: #f5f0eb; border-radius: 8px; text-align: center;">
+              <p style="margin-bottom: 12px;"><strong>💖 Share Your Experience</strong></p>
+              <p style="font-size: 14px; color: #666;">Your words help others find their path to healing</p>
+              <a href="${testimonialUrl}" style="display: inline-block; margin-top: 12px; padding: 12px 24px; background: #722F37; color: white; text-decoration: none; border-radius: 8px;">Submit a Testimonial</a>
+            </div>
+        `;
+        emailBody += `\n\n---\n💖 Share Your Experience: ${testimonialUrl}`;
+      }
+
+      htmlBody += `
+            <p style="margin-top: 24px;">With love and gratitude,<br><strong>Ravi</strong> 🪷</p>
+          </div>
+          <p style="text-align: center; margin-top: 24px; font-size: 12px; color: #999;">
+            This email was sent from Ravi's Sacred Healing
+          </p>
         </div>
-    `;
-    emailBody += `\n\n---\n💖 Share Your Experience: ${testimonialUrl}`;
+      `;
+
+      await sendEmail(client.email, subject, emailBody, htmlBody);
+      emailSent = true;
+    } catch (err) {
+      console.error('Failed to send email:', err);
+      errors.push('Email failed');
+    }
   }
 
-  htmlBody += `
-        <p style="margin-top: 24px;">With love and gratitude,<br><strong>Ravi</strong> 🪷</p>
-      </div>
-      <p style="text-align: center; margin-top: 24px; font-size: 12px; color: #999;">
-        This email was sent from Ravi's Sacred Healing
-      </p>
-    </div>
-  `;
+  // Send SMS
+  if (sendViaSMS && client.phone) {
+    try {
+      const smsText = `${subject}\n\n${message}\n\n- Ravi 🪷\nRavi's Sacred Healing`;
+      const smsSuccess = await sendSMS(client.phone, smsText);
+      if (smsSuccess) {
+        smsSent = true;
+      } else {
+        errors.push('SMS failed');
+      }
+    } catch (err) {
+      console.error('Failed to send SMS:', err);
+      errors.push('SMS failed');
+    }
+  } else if (sendViaSMS && !client.phone) {
+    errors.push('No phone number on file');
+  }
 
-  try {
-    await sendEmail(client.email, subject, emailBody, htmlBody);
-    
-    // Log the message
+  // Log the message to history
+  if (emailSent || smsSent) {
     if (!client.messageHistory) client.messageHistory = [];
     client.messageHistory.push({
       id: uuidv4(),
       subject,
       message,
       sentAt: new Date().toISOString(),
-      includeTestimonialLink
+      includeTestimonialLink,
+      sentVia: {
+        email: emailSent,
+        sms: smsSent
+      }
     });
     client.lastContact = new Date().toISOString();
     saveClients(clients);
 
-    res.json({ success: true, message: 'Message sent successfully' });
-  } catch (err) {
-    console.error('Failed to send message:', err);
-    res.status(500).json({ error: 'Failed to send email. Please check email configuration.' });
+    res.json({ 
+      success: true, 
+      emailSent, 
+      smsSent,
+      message: `Message sent${errors.length ? ` (${errors.join(', ')})` : ''}`
+    });
+  } else {
+    res.status(500).json({ error: errors.join(', ') || 'Failed to send message' });
   }
 });
 
