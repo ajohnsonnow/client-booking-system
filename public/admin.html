@@ -3745,20 +3745,208 @@
       <section class="page" id="page-spiritual-tools">
         <div class="page-header">
           <h1 class="page-title">🔮 Spiritual Healing Tools</h1>
-          <p class="text-muted mt-8">Astrology • Numerology • Tarot • Pendulum • Kundalini • Pranayama</p>
+          <p class="text-muted mt-8">Professional-Grade Spiritual Assessment & Healing Modalities</p>
         </div>
 
         <div class="tabs">
-          <div class="tab active" data-tab="astro-num">⭐ Astrology & Numerology</div>
-          <div class="tab" data-tab="tarot">🃏 Tarot Readings</div>
-          <div class="tab" data-tab="pendulum">📿 Pendulum Work</div>
-          <div class="tab" data-tab="kundalini">🧘 Kundalini & Yoga</div>
+          <div class="tab active" data-tab="astrology">⭐ Astrology</div>
+          <div class="tab" data-tab="numerology">🔢 Numerology</div>
+          <div class="tab" data-tab="tarot">🃏 Tarot</div>
+          <div class="tab" data-tab="pendulum">📿 Pendulum</div>
+          <div class="tab" data-tab="kundalini">🧘 Kundalini</div>
           <div class="tab" data-tab="pranayama">🌬️ Pranayama</div>
           <div class="tab" data-tab="bioenergetics">⚡ Bioenergetics</div>
         </div>
 
-        <!-- Astrology & Numerology Tab -->
-        <div class="tab-content active" data-content="astro-num">
+        <!-- ASTROLOGY TAB -->
+        <div class="tab-content active" data-content="astrology">
+          <div class="card">
+            <div class="card-header" style="background: linear-gradient(135deg, #512DA8 0%, #7B1FA2 100%); color: white;">
+              <h3>⭐ Professional Astrology Chart Calculator</h3>
+              <p style="margin: 8px 0 0; opacity: 0.9; font-size: 14px;">Birth chart analysis for spiritual healing and life path guidance</p>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label class="form-label">Client Birthday <span style="color: red;">*</span></label>
+                <input type="date" id="astro-birthday" class="form-input" style="max-width: 300px;">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Birth Time (for Rising Sign & Houses)</label>
+                <input type="time" id="astro-birthtime" class="form-input" style="max-width: 200px;">
+                <p style="font-size: 12px; color: var(--soft-gray); margin-top: 4px;">
+                  ⏰ Time of birth determines Rising Sign and House placements. If unknown, Sun sign analysis still provides deep insights.
+                </p>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Birth Location (for Moon & Rising Sign accuracy)</label>
+                <input type="text" id="astro-location" class="form-input" placeholder="City, State/Country" style="max-width: 400px;">
+                <p style="font-size: 12px; color: var(--soft-gray); margin-top: 4px;">
+                  📍 Location affects Rising and Moon sign calculations. For full accuracy, use an ephemeris tool or astrology software.
+                </p>
+              </div>
+              <button class="btn btn-primary" onclick="calculateAstrology()">🔮 Calculate Astrological Profile</button>
+              
+              <div id="astro-results" style="display: none; margin-top: 24px;">
+                <!-- Sun Sign Profile -->
+                <div style="padding: 20px; background: linear-gradient(135deg, #FFA726 0%, #FB8C00 100%); color: white; border-radius: 12px; margin-bottom: 16px;">
+                  <h4 style="margin-bottom: 12px; font-size: 20px;">☀️ Sun Sign: Core Identity & Life Force</h4>
+                  <div style="font-size: 32px; margin: 12px 0;" id="sun-sign"></div>
+                  <div id="sun-sign-description" style="line-height: 1.7; opacity: 0.95;"></div>
+                </div>
+
+                <!-- Big Three -->
+                <div class="detail-grid" style="margin-bottom: 20px;">
+                  <div class="card" style="background: #E3F2FD;">
+                    <div class="card-body">
+                      <div class="detail-label" style="color: #1565C0;">🌙 Moon Sign (Emotional Nature)</div>
+                      <div class="detail-value" id="moon-sign" style="font-size: 18px; color: #0D47A1;"></div>
+                      <div id="moon-sign-note" style="font-size: 12px; margin-top: 8px; color: #1976D2;"></div>
+                    </div>
+                  </div>
+                  <div class="card" style="background: #FFF3E0;">
+                    <div class="card-body">
+                      <div class="detail-label" style="color: #E65100;">⬆️ Rising Sign (Outer Persona)</div>
+                      <div class="detail-value" id="rising-sign" style="font-size: 18px; color: #BF360C;"></div>
+                      <div id="rising-sign-note" style="font-size: 12px; margin-top: 8px; color: #D84315;"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Healing Recommendations -->
+                <div style="padding: 20px; background: white; border: 2px solid #7B1FA2; border-radius: 12px; margin-bottom: 16px;">
+                  <h5 style="margin-bottom: 16px; color: #7B1FA2;">✨ Healing Recommendations Based on Sun Sign</h5>
+                  <div id="astro-healing-recs" style="line-height: 1.8;"></div>
+                </div>
+
+                <!-- Element & Modality -->
+                <div class="detail-grid">
+                  <div class="card">
+                    <div class="card-body">
+                      <div class="detail-label">🔥 Element</div>
+                      <div class="detail-value" id="astro-element"></div>
+                      <p id="astro-element-desc" style="font-size: 13px; margin-top: 8px; color: #666;"></p>
+                    </div>
+                  </div>
+                  <div class="card">
+                    <div class="card-body">
+                      <div class="detail-label">⚖️ Modality</div>
+                      <div class="detail-value" id="astro-modality"></div>
+                      <p id="astro-modality-desc" style="font-size: 13px; margin-top: 8px; color: #666;"></p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Astrology Knowledge Base -->
+              <div style="margin-top: 32px; padding: 20px; background: #F5F5F5; border-radius: 12px;">
+                <h4 style="margin-bottom: 16px; color: var(--burgundy);">📚 Astrology Reference Guide</h4>
+                <p style="color: var(--soft-gray); margin-bottom: 20px;">Quick reference for chart interpretation and healing applications</p>
+                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                  <button class="btn btn-outline" onclick="showAstrologyGuide('signs')">Zodiac Signs</button>
+                  <button class="btn btn-outline" onclick="showAstrologyGuide('elements')">Elements & Modalities</button>
+                  <button class="btn btn-outline" onclick="showAstrologyGuide('houses')">Houses</button>
+                  <button class="btn btn-outline" onclick="showAstrologyGuide('planets')">Planets</button>
+                  <button class="btn btn-outline" onclick="showAstrologyGuide('aspects')">Aspects</button>
+                  <button class="btn btn-outline" onclick="showAstrologyGuide('healing')">Healing by Sign</button>
+                </div>
+                <div id="astrology-guide-content" style="margin-top: 20px; display: none;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- NUMEROLOGY TAB -->
+        <div class="tab-content" data-content="numerology">
+          <div class="card">
+            <div class="card-header" style="background: linear-gradient(135deg, #C62828 0%, #D32F2F 100%); color: white;">
+              <h3>🔢 Professional Numerology Calculator</h3>
+              <p style="margin: 8px 0 0; opacity: 0.9; font-size: 14px;">Complete numerological profile for life path guidance</p>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label class="form-label">Client Birthday <span style="color: red;">*</span></label>
+                <input type="date" id="num-birthday" class="form-input" style="max-width: 300px;">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Full Birth Name (for Expression & Soul Urge)</label>
+                <input type="text" id="num-fullname" class="form-input" placeholder="First Middle Last" style="max-width: 500px;">
+                <p style="font-size: 12px; color: var(--soft-gray); margin-top: 4px;">
+                  📝 Use the name exactly as it appears on birth certificate for accurate calculations
+                </p>
+              </div>
+              <button class="btn btn-primary" onclick="calculateNumerology()">🔢 Calculate Numerological Profile</button>
+              
+              <div id="num-results" style="display: none; margin-top: 24px;">
+                <!-- Life Path Number -->
+                <div style="padding: 24px; background: linear-gradient(135deg, #C62828 0%, #D32F2F 100%); color: white; border-radius: 12px; margin-bottom: 16px; text-align: center;">
+                  <div class="detail-label" style="color: white; opacity: 0.9; margin-bottom: 8px;">🛤️ Life Path Number</div>
+                  <div style="font-size: 72px; font-weight: bold; margin: 16px 0;" id="life-path-number"></div>
+                  <h4 id="life-path-title" style="margin-bottom: 12px;"></h4>
+                  <div id="life-path-description" style="line-height: 1.7; opacity: 0.95;"></div>
+                </div>
+
+                <!-- Core Numbers -->
+                <div class="detail-grid" style="margin-bottom: 20px;">
+                  <div class="card" style="background: #E8F5E9;">
+                    <div class="card-body">
+                      <div class="detail-label" style="color: #2E7D32;">💫 Expression Number</div>
+                      <div class="detail-value" id="expression-number" style="font-size: 36px; color: #1B5E20;"></div>
+                      <div id="expression-description" style="font-size: 13px; margin-top: 8px; line-height: 1.6;"></div>
+                    </div>
+                  </div>
+                  <div class="card" style="background: #FCE4EC;">
+                    <div class="card-body">
+                      <div class="detail-label" style="color: #C2185B;">❤️ Soul Urge Number</div>
+                      <div class="detail-value" id="soul-urge-number" style="font-size: 36px; color: #880E4F;"></div>
+                      <div id="soul-urge-description" style="font-size: 13px; margin-top: 8px; line-height: 1.6;"></div>
+                    </div>
+                  </div>
+                  <div class="card" style="background: #FFF3E0;">
+                    <div class="card-body">
+                      <div class="detail-label" style="color: #EF6C00;">🎭 Personality Number</div>
+                      <div class="detail-value" id="personality-number" style="font-size: 36px; color: #E65100;"></div>
+                      <div id="personality-description" style="font-size: 13px; margin-top: 8px; line-height: 1.6;"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Personal Year -->
+                <div class="card" style="background: #E1F5FE;">
+                  <div class="card-body">
+                    <div class="detail-label" style="color: #01579B;">📅 Personal Year (2026)</div>
+                    <div style="display: flex; align-items: center; gap: 20px;">
+                      <div class="detail-value" id="personal-year" style="font-size: 48px; color: #0277BD;"></div>
+                      <div id="personal-year-description" style="flex: 1; font-size: 14px; line-height: 1.7;"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Healing Recommendations -->
+                <div style="margin-top: 16px; padding: 20px; background: white; border: 2px solid #C62828; border-radius: 12px;">
+                  <h5 style="margin-bottom: 16px; color: #C62828;">✨ Healing Practices by Life Path</h5>
+                  <div id="num-healing-recs" style="line-height: 1.8;"></div>
+                </div>
+              </div>
+
+              <!-- Numerology Knowledge Base -->
+              <div style="margin-top: 32px; padding: 20px; background: #F5F5F5; border-radius: 12px;">
+                <h4 style="margin-bottom: 16px; color: var(--burgundy);">📚 Numerology Reference Guide</h4>
+                <p style="color: var(--soft-gray); margin-bottom: 20px;">Master number meanings and interpretation frameworks</p>
+                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                  <button class="btn btn-outline" onclick="showNumerologyGuide('life-path')">Life Path Numbers</button>
+                  <button class="btn btn-outline" onclick="showNumerologyGuide('expression')">Expression Numbers</button>
+                  <button class="btn btn-outline" onclick="showNumerologyGuide('master')">Master Numbers</button>
+                  <button class="btn btn-outline" onclick="showNumerologyGuide('personal-year')">Personal Year Cycles</button>
+                  <button class="btn btn-outline" onclick="showNumerologyGuide('compatibility')">Number Compatibility</button>
+                </div>
+                <div id="numerology-guide-content" style="margin-top: 20px; display: none;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tarot Tab -->
+        <div class="tab-content" data-content="tarot">
           <div class="card">
             <div class="card-header">
               <h3>⭐ Astrology & Numerology Calculator</h3>
@@ -3948,63 +4136,83 @@
         <!-- Bioenergetics Tab -->
         <div class="tab-content" data-content="bioenergetics">
           <div class="card">
-            <div class="card-header">
+            <div class="card-header" style="background: linear-gradient(135deg, #00695C 0%, #00897B 100%); color: white;">
               <h3>⚡ Bioenergetics & Energy Work</h3>
-              <button class="btn btn-primary" onclick="showNewEnergySession()">+ New Session Notes</button>
+              <p style="margin: 8px 0 0; opacity: 0.9; font-size: 14px;">Track energy assessments, muscle testing, and bioenergetic findings</p>
             </div>
             <div class="card-body">
-              <p class="text-muted mb-20">Track energy assessments, chakra readings, and bioenergetic findings.</p>
+              <p class="text-muted mb-20">Bioenergetics combines physical movement, breathing, and emotional release to restore energy flow. Use this section to document sessions with clients.</p>
               
-              <div style="background: #f5f0eb; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
-                <h4 style="margin-bottom: 16px;">🌈 Chakra System Quick Reference</h4>
+              <div style="background: #E0F2F1; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                <h4 style="margin-bottom: 16px; color: #00695C;">🌈 Chakra System Quick Reference</h4>
                 <div style="display: grid; gap: 12px;">
                   <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: white; border-radius: 8px;">
                     <div style="width: 40px; height: 40px; background: #C62828; border-radius: 50%;"></div>
-                    <div>
+                    <div style="flex: 1;">
                       <strong>Root (Muladhara)</strong> - Grounding, survival, security
+                      <div style="font-size: 12px; color: #666; margin-top: 4px;">Physical Location: Base of spine • Color: Red • Element: Earth</div>
                     </div>
                   </div>
                   <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: white; border-radius: 8px;">
                     <div style="width: 40px; height: 40px; background: #F57C00; border-radius: 50%;"></div>
-                    <div>
+                    <div style="flex: 1;">
                       <strong>Sacral (Svadhisthana)</strong> - Creativity, sexuality, emotions
+                      <div style="font-size: 12px; color: #666; margin-top: 4px;">Physical Location: Lower abdomen • Color: Orange • Element: Water</div>
                     </div>
                   </div>
                   <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: white; border-radius: 8px;">
                     <div style="width: 40px; height: 40px; background: #FBC02D; border-radius: 50%;"></div>
-                    <div>
+                    <div style="flex: 1;">
                       <strong>Solar Plexus (Manipura)</strong> - Power, confidence, will
+                      <div style="font-size: 12px; color: #666; margin-top: 4px;">Physical Location: Upper abdomen • Color: Yellow • Element: Fire</div>
                     </div>
                   </div>
                   <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: white; border-radius: 8px;">
                     <div style="width: 40px; height: 40px; background: #388E3C; border-radius: 50%;"></div>
-                    <div>
+                    <div style="flex: 1;">
                       <strong>Heart (Anahata)</strong> - Love, compassion, connection
+                      <div style="font-size: 12px; color: #666; margin-top: 4px;">Physical Location: Center of chest • Color: Green • Element: Air</div>
                     </div>
                   </div>
                   <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: white; border-radius: 8px;">
                     <div style="width: 40px; height: 40px; background: #1976D2; border-radius: 50%;"></div>
-                    <div>
+                    <div style="flex: 1;">
                       <strong>Throat (Vishuddha)</strong> - Communication, truth, expression
+                      <div style="font-size: 12px; color: #666; margin-top: 4px;">Physical Location: Throat • Color: Blue • Element: Ether</div>
                     </div>
                   </div>
                   <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: white; border-radius: 8px;">
                     <div style="width: 40px; height: 40px; background: #512DA8; border-radius: 50%;"></div>
-                    <div>
+                    <div style="flex: 1;">
                       <strong>Third Eye (Ajna)</strong> - Intuition, vision, wisdom
+                      <div style="font-size: 12px; color: #666; margin-top: 4px;">Physical Location: Between eyebrows • Color: Indigo • Element: Light</div>
                     </div>
                   </div>
                   <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: white; border-radius: 8px;">
                     <div style="width: 40px; height: 40px; background: #7B1FA2; border-radius: 50%;"></div>
-                    <div>
+                    <div style="flex: 1;">
                       <strong>Crown (Sahasrara)</strong> - Divine connection, enlightenment
+                      <div style="font-size: 12px; color: #666; margin-top: 4px;">Physical Location: Top of head • Color: Violet/White • Element: Thought</div>
                     </div>
                   </div>
                 </div>
               </div>
-              
-              <div id="energy-sessions-list">
-                <p class="no-items-message">No energy work sessions recorded yet.</p>
+
+              <!-- Muscle Testing Guide -->
+              <div style="background: #FFF3E0; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                <h4 style="margin-bottom: 16px; color: #E65100;">💪 Muscle Testing (Kinesiology) Quick Guide</h4>
+                <div style="line-height: 1.8;">
+                  <p><strong>Strong Response:</strong> Body aligned with statement/substance. Muscles stay strong.</p>
+                  <p><strong>Weak Response:</strong> Body not aligned. Muscles weaken or give way.</p>
+                  <p style="margin-top: 12px; font-size: 14px; color: #666;">
+                    Common applications: Food sensitivities, supplement testing, chakra balance, emotional triggers, belief systems
+                  </p>
+                </div>
+              </div>
+
+              <div style="background: white; padding: 16px; border: 2px dashed #00897B; border-radius: 8px; text-align: center;">
+                <p style="color: var(--soft-gray); margin-bottom: 12px;">Bioenergetics sessions are tracked per client.</p>
+                <p style="font-size: 14px; color: #666;">Go to <strong>Clients</strong> → Open client card → <strong>Spiritual Profile</strong> tab → Click "Add Bioenergetics Session"</p>
               </div>
             </div>
           </div>
@@ -5684,6 +5892,95 @@
     </div>
   </div>
 
+  <!-- BIOENERGETICS SESSION MODAL -->
+  <div class="modal-overlay" id="bioenergeticsModal">
+    <div class="modal" style="max-width: 700px;">
+      <div class="modal-header" style="background: linear-gradient(135deg, #00695c 0%, #00897b 100%); color: white;">
+        <h2 class="modal-title">⚡ Record Bioenergetics Session</h2>
+        <button class="modal-close" onclick="closeModal('bioenergeticsModal')" style="color: white;">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="bioenergeticsClientId">
+        <input type="hidden" id="bioenergeticsSessionId">
+        <div class="form-group">
+          <label class="form-label">Session Type</label>
+          <select class="form-input" id="bioenergeticsType">
+            <option value="muscle-testing">Muscle Testing (Kinesiology)</option>
+            <option value="chakra-assessment">Chakra Assessment</option>
+            <option value="energy-clearing">Energy Clearing</option>
+            <option value="grounding-work">Grounding & Boundaries</option>
+            <option value="emotional-release">Emotional Release (Body-based)</option>
+            <option value="meridian-balance">Meridian Balancing</option>
+            <option value="breathwork">Bioenergetic Breathwork</option>
+            <option value="trauma-release">Trauma Release Exercises</option>
+            <option value="other">Other Energy Work</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Chakras Assessed/Worked On</label>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 8px;">
+            <label style="display: flex; align-items: center; gap: 8px; padding: 8px; background: #FFF; border: 2px solid #E0E0E0; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+              <input type="checkbox" class="bioenergetics-chakra" id="bioenergetics-root" value="root">
+              <div style="width: 24px; height: 24px; background: #C62828; border-radius: 50%;"></div>
+              <span style="font-size: 13px; font-weight: 500;">Root</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; padding: 8px; background: #FFF; border: 2px solid #E0E0E0; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+              <input type="checkbox" class="bioenergetics-chakra" id="bioenergetics-sacral" value="sacral">
+              <div style="width: 24px; height: 24px; background: #F57C00; border-radius: 50%;"></div>
+              <span style="font-size: 13px; font-weight: 500;">Sacral</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; padding: 8px; background: #FFF; border: 2px solid #E0E0E0; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+              <input type="checkbox" class="bioenergetics-chakra" id="bioenergetics-solar" value="solar">
+              <div style="width: 24px; height: 24px; background: #FBC02D; border-radius: 50%;"></div>
+              <span style="font-size: 13px; font-weight: 500;">Solar</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; padding: 8px; background: #FFF; border: 2px solid #E0E0E0; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+              <input type="checkbox" class="bioenergetics-chakra" id="bioenergetics-heart" value="heart">
+              <div style="width: 24px; height: 24px; background: #388E3C; border-radius: 50%;"></div>
+              <span style="font-size: 13px; font-weight: 500;">Heart</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; padding: 8px; background: #FFF; border: 2px solid #E0E0E0; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+              <input type="checkbox" class="bioenergetics-chakra" id="bioenergetics-throat" value="throat">
+              <div style="width: 24px; height: 24px; background: #1976D2; border-radius: 50%;"></div>
+              <span style="font-size: 13px; font-weight: 500;">Throat</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; padding: 8px; background: #FFF; border: 2px solid #E0E0E0; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+              <input type="checkbox" class="bioenergetics-chakra" id="bioenergetics-thirdEye" value="thirdEye">
+              <div style="width: 24px; height: 24px; background: #512DA8; border-radius: 50%;"></div>
+              <span style="font-size: 13px; font-weight: 500;">Third Eye</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; padding: 8px; background: #FFF; border: 2px solid #E0E0E0; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+              <input type="checkbox" class="bioenergetics-chakra" id="bioenergetics-crown" value="crown">
+              <div style="width: 24px; height: 24px; background: #7B1FA2; border-radius: 50%;"></div>
+              <span style="font-size: 13px; font-weight: 500;">Crown</span>
+            </label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Muscle Testing Results</label>
+          <textarea class="form-textarea" id="bioenergetics-muscleResults" rows="3" placeholder="Strong responses, weak responses, food/supplement tests, belief system tests..."></textarea>
+          <p style="font-size: 12px; color: var(--soft-gray); margin-top: 4px;">Document what tested strong vs. weak</p>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Energy Patterns Observed</label>
+          <textarea class="form-textarea" id="bioenergetics-energyPatterns" rows="3" placeholder="Blockages, flow patterns, hot/cold areas, client sensations..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Session Findings & Insights</label>
+          <textarea class="form-textarea" id="bioenergetics-findings" rows="4" placeholder="What emerged during the session, emotional releases, physical sensations..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Recommendations & Homework</label>
+          <textarea class="form-textarea" id="bioenergetics-recommendations" rows="3" placeholder="Follow-up practices, lifestyle adjustments, next steps..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('bioenergeticsModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="saveBioenergeticsSession()">💾 Save Session</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // ===========================================
     // STATE & CONFIG
@@ -7011,6 +7308,9 @@ Example:
                 <button class="btn btn-primary" onclick="openPendulumModal('${client.id}')" style="background: linear-gradient(135deg, #1976d2, #2196f3);">
                   ⚖️ Add Pendulum Session
                 </button>
+                <button class="btn btn-primary" onclick="openBioenergeticsModal('${client.id}')" style="background: linear-gradient(135deg, #00695c, #00897b);">
+                  ⚡ Add Bioenergetics Session
+                </button>
                 <button class="btn btn-primary" onclick="openKundaliniModal('${client.id}')" style="background: linear-gradient(135deg, #d84315, #ff5722);">
                   🧘 Recommend Kundalini
                 </button>
@@ -7088,6 +7388,61 @@ Example:
                 ${session.notes ? `<div style="font-size: 13px; margin-top: 6px; font-style: italic; color: var(--soft-gray);">${session.notes}</div>` : ''}
               </div>
             `).join('')}
+          </div>
+        `;
+      }
+      
+      // Bioenergetics Sessions
+      if (tools.bioenergetics && tools.bioenergetics.length > 0) {
+        historyHTML += `
+          <div style="margin-top: 16px;">
+            <h5 style="color: #00695c; margin-bottom: 12px;">⚡ Bioenergetics Sessions (${tools.bioenergetics.length})</h5>
+            ${tools.bioenergetics.map(session => {
+              const chakraNames = {
+                'root': 'Root 🔴',
+                'sacral': 'Sacral 🟠',
+                'solar': 'Solar 🟡',
+                'heart': 'Heart 🟢',
+                'throat': 'Throat 🔵',
+                'thirdEye': 'Third Eye 🟣',
+                'crown': 'Crown ⚪'
+              };
+              
+              return `
+                <div style="background: white; padding: 12px; border-radius: 8px; margin-bottom: 8px; border-left: 3px solid #00695c; position: relative;">
+                  <button onclick="openBioenergeticsModal('${client.id}', '${session.id}')" 
+                          style="position: absolute; top: 8px; right: 8px; background: #00897b; color: white; border: none; padding: 4px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                    ✏️ Edit
+                  </button>
+                  <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px; padding-right: 60px;">
+                    <strong>${session.type.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</strong>
+                    <span style="font-size: 12px; color: var(--soft-gray);">${new Date(session.date).toLocaleDateString()}</span>
+                  </div>
+                  ${session.chakrasAssessed && session.chakrasAssessed.length > 0 ? `
+                    <div style="font-size: 13px; margin-bottom: 8px; display: flex; gap: 6px; flex-wrap: wrap;">
+                      <strong>Chakras:</strong>
+                      ${session.chakrasAssessed.map(c => `<span style="background: #E0F2F1; padding: 2px 8px; border-radius: 12px; font-size: 12px;">${chakraNames[c] || c}</span>`).join(' ')}
+                    </div>
+                  ` : ''}
+                  ${session.muscleResults ? `
+                    <div style="font-size: 13px; margin-bottom: 6px; background: #FFF3E0; padding: 8px; border-radius: 4px;">
+                      <strong>Muscle Testing:</strong> ${session.muscleResults}
+                    </div>
+                  ` : ''}
+                  ${session.energyPatterns ? `
+                    <div style="font-size: 13px; margin-bottom: 6px;">
+                      <strong>Energy Patterns:</strong> ${session.energyPatterns}
+                    </div>
+                  ` : ''}
+                  <div style="font-size: 14px; color: #555; margin-bottom: 6px;">${session.findings}</div>
+                  ${session.recommendations ? `
+                    <div style="font-size: 13px; margin-top: 8px; padding: 8px; background: #E8F5E9; border-radius: 4px; border-left: 3px solid #4CAF50;">
+                      <strong>Recommendations:</strong> ${session.recommendations}
+                    </div>
+                  ` : ''}
+                </div>
+              `;
+            }).join('')}
           </div>
         `;
       }
@@ -10150,6 +10505,93 @@ Example:
       if (result?.success) {
         showToast('🌬️ Pranayama technique added!', 'success');
         closeModal('pranayamaModal');
+        if (currentClientId === clientId) {
+          await loadClientDetails(clientId);
+        }
+      }
+    }
+
+    // Bioenergetics Functions
+    function openBioenergeticsModal(clientId, sessionId = null) {
+      document.getElementById('bioenergeticsClientId').value = clientId;
+      document.getElementById('bioenergeticsSessionId').value = sessionId || '';
+      
+      if (sessionId) {
+        // Load existing session data for editing
+        const client = clients.find(c => c.id === clientId);
+        if (client && client.spiritualTools && client.spiritualTools.bioenergetics) {
+          const session = client.spiritualTools.bioenergetics.find(s => s.id === sessionId);
+          if (session) {
+            document.getElementById('bioenergeticsType').value = session.type || '';
+            document.getElementById('bioenergetics-muscleResults').value = session.muscleResults || '';
+            document.getElementById('bioenergetics-energyPatterns').value = session.energyPatterns || '';
+            document.getElementById('bioenergetics-findings').value = session.findings || '';
+            document.getElementById('bioenergetics-recommendations').value = session.recommendations || '';
+            
+            // Clear all chakra checkboxes first
+            document.querySelectorAll('.bioenergetics-chakra').forEach(cb => cb.checked = false);
+            
+            // Check the chakras that were assessed
+            if (session.chakrasAssessed && Array.isArray(session.chakrasAssessed)) {
+              session.chakrasAssessed.forEach(chakra => {
+                const checkbox = document.getElementById(`bioenergetics-${chakra}`);
+                if (checkbox) checkbox.checked = true;
+              });
+            }
+          }
+        }
+      } else {
+        // Clear form for new session
+        document.getElementById('bioenergeticsType').value = 'muscle-testing';
+        document.getElementById('bioenergetics-muscleResults').value = '';
+        document.getElementById('bioenergetics-energyPatterns').value = '';
+        document.getElementById('bioenergetics-findings').value = '';
+        document.getElementById('bioenergetics-recommendations').value = '';
+        document.querySelectorAll('.bioenergetics-chakra').forEach(cb => cb.checked = false);
+      }
+      
+      openModal('bioenergeticsModal');
+    }
+
+    async function saveBioenergeticsSession() {
+      const clientId = document.getElementById('bioenergeticsClientId').value;
+      const sessionId = document.getElementById('bioenergeticsSessionId').value;
+      const type = document.getElementById('bioenergeticsType').value;
+      const muscleResults = document.getElementById('bioenergetics-muscleResults').value.trim();
+      const energyPatterns = document.getElementById('bioenergetics-energyPatterns').value.trim();
+      const findings = document.getElementById('bioenergetics-findings').value.trim();
+      const recommendations = document.getElementById('bioenergetics-recommendations').value.trim();
+      
+      // Get selected chakras
+      const chakrasAssessed = [];
+      document.querySelectorAll('.bioenergetics-chakra:checked').forEach(cb => {
+        chakrasAssessed.push(cb.value);
+      });
+      
+      if (!type || !findings) {
+        showToast('Please select session type and enter findings', 'error');
+        return;
+      }
+      
+      showLoading(true);
+      const result = await api(`/api/admin/clients/${clientId}/bioenergetics`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: sessionId || undefined,
+          type,
+          chakrasAssessed,
+          muscleResults,
+          energyPatterns,
+          findings,
+          recommendations
+        })
+      });
+      showLoading(false);
+      
+      if (result?.success) {
+        showToast(sessionId ? '✅ Bioenergetics session updated!' : '⚡ Bioenergetics session saved!', 'success');
+        closeModal('bioenergeticsModal');
         if (currentClientId === clientId) {
           await loadClientDetails(clientId);
         }

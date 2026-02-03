@@ -732,7 +732,8 @@ function findOrCreateClient(booking) {
         tarotReadings: [],   // Array of tarot session records
         pendulumSessions: [], // Array of pendulum work records
         kundaliniPractices: [], // Recommended kundalini practices
-        pranayamaTechniques: []  // Recommended breathing techniques
+        pranayamaTechniques: [], // Recommended breathing techniques
+        bioenergetics: []     // Bioenergetics/muscle testing sessions
       }
     };
     clients.push(client);
@@ -5682,7 +5683,8 @@ app.post('/api/admin/clients/:id/tarot', authenticateAdmin, (req, res) => {
       tarotReadings: [],
       pendulumSessions: [],
       kundaliniPractices: [],
-      pranayamaTechniques: []
+      pranayamaTechniques: [],
+      bioenergetics: []
     };
   }
   
@@ -5719,7 +5721,8 @@ app.post('/api/admin/clients/:id/pendulum', authenticateAdmin, (req, res) => {
       tarotReadings: [],
       pendulumSessions: [],
       kundaliniPractices: [],
-      pranayamaTechniques: []
+      pranayamaTechniques: [],
+      bioenergetics: []
     };
   }
   
@@ -5756,7 +5759,8 @@ app.post('/api/admin/clients/:id/kundalini', authenticateAdmin, (req, res) => {
       tarotReadings: [],
       pendulumSessions: [],
       kundaliniPractices: [],
-      pranayamaTechniques: []
+      pranayamaTechniques: [],
+      bioenergetics: []
     };
   }
   
@@ -5794,7 +5798,8 @@ app.post('/api/admin/clients/:id/pranayama', authenticateAdmin, (req, res) => {
       tarotReadings: [],
       pendulumSessions: [],
       kundaliniPractices: [],
-      pranayamaTechniques: []
+      pranayamaTechniques: [],
+      bioenergetics: []
     };
   }
   
@@ -5812,6 +5817,69 @@ app.post('/api/admin/clients/:id/pranayama', authenticateAdmin, (req, res) => {
   saveClients(clients);
   
   res.json({ success: true, technique });
+});
+
+// Save bioenergetics session to client
+app.post('/api/admin/clients/:id/bioenergetics', authenticateAdmin, (req, res) => {
+  const { id } = req.params;
+  const { id: sessionId, type, chakrasAssessed, muscleResults, energyPatterns, findings, recommendations } = req.body;
+  
+  const clients = loadClients();
+  const client = clients.find(c => c.id === id);
+  
+  if (!client) {
+    return res.status(404).json({ error: 'Client not found' });
+  }
+  
+  if (!client.spiritualTools) {
+    client.spiritualTools = {
+      astrology: null,
+      tarotReadings: [],
+      pendulumSessions: [],
+      kundaliniPractices: [],
+      pranayamaTechniques: [],
+      bioenergetics: []
+    };
+  }
+  
+  if (!client.spiritualTools.bioenergetics) {
+    client.spiritualTools.bioenergetics = [];
+  }
+  
+  if (sessionId) {
+    // Update existing session
+    const sessionIndex = client.spiritualTools.bioenergetics.findIndex(s => s.id === sessionId);
+    if (sessionIndex !== -1) {
+      client.spiritualTools.bioenergetics[sessionIndex] = {
+        ...client.spiritualTools.bioenergetics[sessionIndex],
+        type,
+        chakrasAssessed,
+        muscleResults,
+        energyPatterns,
+        findings,
+        recommendations,
+        updatedAt: new Date().toISOString()
+      };
+    }
+  } else {
+    // Create new session
+    const session = {
+      id: uuidv4(),
+      date: new Date().toISOString(),
+      type,
+      chakrasAssessed,
+      muscleResults,
+      energyPatterns,
+      findings,
+      recommendations
+    };
+    
+    client.spiritualTools.bioenergetics.push(session);
+  }
+  
+  saveClients(clients);
+  
+  res.json({ success: true });
 });
 
 // Save astrology chart to client
@@ -5832,7 +5900,8 @@ app.post('/api/admin/clients/:id/astrology', authenticateAdmin, (req, res) => {
       tarotReadings: [],
       pendulumSessions: [],
       kundaliniPractices: [],
-      pranayamaTechniques: []
+      pranayamaTechniques: [],
+      bioenergetics: []
     };
   }
   
@@ -5867,7 +5936,8 @@ app.delete('/api/admin/clients/:id/spiritual-tool/:toolType/:itemId', authentica
     'tarot': 'tarotReadings',
     'pendulum': 'pendulumSessions',
     'kundalini': 'kundaliniPractices',
-    'pranayama': 'pranayamaTechniques'
+    'pranayama': 'pranayamaTechniques',
+    'bioenergetics': 'bioenergetics'
   };
   
   const toolKey = toolMap[toolType];
