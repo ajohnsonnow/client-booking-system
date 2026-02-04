@@ -3664,7 +3664,7 @@ app.post('/api/client/validate-invitation', rateLimit({
   // Create session token directly
   const sessionToken = jwt.sign(
     { email: email.toLowerCase(), type: 'client' },
-    process.env.JWT_SECRET || 'ravi-secret-2024',
+    JWT_SECRET,
     { expiresIn: '24h' }
   );
   
@@ -3779,7 +3779,7 @@ app.post('/api/client/validate-token', (req, res) => {
   // Create session token (valid for 24 hours)
   const sessionToken = jwt.sign(
     { email: linkData.email, type: 'client' },
-    process.env.JWT_SECRET || 'ravi-secret-2024',
+    JWT_SECRET,
     { expiresIn: '24h' }
   );
   
@@ -3809,7 +3809,7 @@ function authenticateClient(req, res, next) {
   const token = authHeader.split(' ')[1];
   
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'ravi-secret-2024');
+    const decoded = jwt.verify(token, JWT_SECRET);
     if (decoded.type !== 'client') {
       return res.status(401).json({ error: 'Invalid token type' });
     }
