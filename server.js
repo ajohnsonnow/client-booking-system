@@ -27,6 +27,11 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
+// Trust proxy when behind Render/reverse proxy (required for rate limiting & IP detection)
+if (IS_PRODUCTION) {
+  app.set('trust proxy', 1);
+}
+
 // ===========================================
 // PRODUCTION SECURITY VALIDATION
 // ===========================================
@@ -2640,6 +2645,182 @@ async function sendSMS(to, message) {
     return false;
   }
 }
+
+// ===========================================
+// TWILIO INBOUND SMS WEBHOOK
+// ===========================================
+
+// Validate that requests actually come from Twilio
+function validateTwilioWebhook(req) {
+  if (!process.env.TWILIO_AUTH_TOKEN) return false;
+  
+  try {
+    const twilioSignature = req.headers['x-twilio-signature'];
+    if (!twilioSignature) return false;
+    
+    // Build the full URL Twilio used to reach us
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+    const url = `${protocol}://${req.headers.host}${req.originalUrl}`;
+    
+    // Sort POST params and append to URL 
+    const params = req.body || {};
+    const sortedKeys = Object.keys(params).sort();
+    let dataString = url;
+    for (const key of sortedKeys) {
+      dataString += key + params[key];
+    }
+    
+    // HMAC-SHA1 with auth token
+    const hmac = crypto.createHmac('sha1', process.env.TWILIO_AUTH_TOKEN);
+    hmac.update(dataString, 'utf-8');
+    const expectedSignature = hmac.digest('base64');
+    
+    // Timing-safe comparison
+    const sigBuffer = Buffer.from(twilioSignature, 'base64');
+    const expectedBuffer = Buffer.from(expectedSignature, 'base64');
+    if (sigBuffer.length !== expectedBuffer.length) return false;
+    return crypto.timingSafeEqual(sigBuffer, expectedBuffer);
+  } catch (err) {
+    console.error('Twilio webhook validation error:', err.message);
+    return false;
+  }
+}
+
+// Twilio sends inbound SMS to this endpoint
+// Configure in Twilio Console: Phone Number → Messaging → Webhook URL
+// URL: https://your-domain.com/api/webhooks/twilio/inbound-sms (HTTP POST)
+app.post('/api/webhooks/twilio/inbound-sms', async (req, res) => {
+  try {
+    // Validate request is from Twilio (skip in dev for testing)
+    if (IS_PRODUCTION && !validateTwilioWebhook(req)) {
+      console.error('SECURITY: Invalid Twilio webhook signature - BLOCKED');
+      return res.status(403).send('<Response></Response>');
+    }
+    
+    const { From, Body, MessageSid } = req.body;
+    
+    if (!From || !Body) {
+      return res.type('text/xml').send('<Response></Response>');
+    }
+    
+    console.log(`📱 Inbound SMS from ${From}: ${Body.substring(0, 50)}...`);
+    
+    // Clean the incoming phone number for matching
+    const cleanPhone = From.replace(/[^\d]/g, '');
+    const phoneVariants = [
+      cleanPhone,
+      cleanPhone.startsWith('1') ? cleanPhone.substring(1) : '1' + cleanPhone,
+      From // Original format
+    ];
+    
+    // Try to match sender to an existing client
+    const clients = loadClients();
+    const bookings = loadBookings();
+    
+    let matchedClient = null;
+    let matchedEmail = null;
+    
+    // Search clients by phone
+    for (const client of clients) {
+      if (!client.phone) continue;
+      const clientPhone = client.phone.replace(/[^\d]/g, '');
+      if (phoneVariants.includes(clientPhone) || clientPhone.endsWith(cleanPhone.slice(-10))) {
+        matchedClient = client;
+        matchedEmail = client.email?.toLowerCase();
+        break;
+      }
+    }
+    
+    // If not found in clients, search bookings
+    if (!matchedClient) {
+      for (const booking of bookings) {
+        if (!booking.phone) continue;
+        const bookingPhone = booking.phone.replace(/[^\d]/g, '');
+        if (phoneVariants.includes(bookingPhone) || bookingPhone.endsWith(cleanPhone.slice(-10))) {
+          matchedClient = booking;
+          matchedEmail = booking.email?.toLowerCase();
+          break;
+        }
+      }
+    }
+    
+    const senderName = matchedClient?.name || `Unknown (${From})`;
+    const conversationId = matchedEmail || `sms-${cleanPhone.slice(-10)}`;
+    
+    // Store the inbound SMS as a message in the conversation system
+    const newMessage = {
+      id: uuidv4(),
+      conversationId: conversationId,
+      from: 'client',
+      fromEmail: matchedEmail || null,
+      fromPhone: From,
+      fromName: senderName,
+      subject: 'SMS Reply',
+      message: Body.trim(),
+      createdAt: new Date().toISOString(),
+      read: false,
+      channel: 'sms',
+      twilioMessageSid: MessageSid || null
+    };
+    
+    const messages = loadMessages();
+    messages.push(newMessage);
+    saveMessages(messages);
+    
+    // Notify Ravi via email about the inbound SMS
+    const adminHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: Georgia, serif; background: #FDF8F3; padding: 40px; }
+    .container { max-width: 500px; margin: 0 auto; background: white; border-radius: 16px; padding: 32px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+    .header { background: linear-gradient(135deg, #2E7D32 0%, #388E3C 100%); color: white; padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 24px; }
+    .message-box { background: #f8f5f0; padding: 20px; border-radius: 8px; border-left: 4px solid #4CAF50; white-space: pre-wrap; }
+    .info { color: #666; font-size: 14px; margin-top: 12px; }
+    .btn { display: inline-block; padding: 14px 28px; background: #722F37; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2 style="margin: 0;">📱 Inbound SMS Reply</h2>
+    </div>
+    <p><strong>From:</strong> ${senderName}</p>
+    <p><strong>Phone:</strong> ${From}</p>
+    ${matchedEmail ? `<p><strong>Email:</strong> ${matchedEmail}</p>` : '<p class="info">⚠️ Could not match to a known client email</p>'}
+    <div class="message-box">${Body.trim()}</div>
+    <p class="info">Reply via the Admin Panel or text them directly.</p>
+    <a href="${process.env.BASE_URL || 'http://localhost:' + PORT}/admin.html" class="btn">Open Admin Panel</a>
+  </div>
+</body>
+</html>
+    `;
+    
+    try {
+      await sendEmail(
+        process.env.ADMIN_EMAIL || process.env.EMAIL_USER,
+        `📱 SMS Reply from ${senderName}`,
+        `Inbound SMS from ${senderName} (${From}):\n\n${Body.trim()}\n\n---\nReply via Admin Panel`,
+        adminHtml
+      );
+    } catch (err) {
+      console.error('Failed to send inbound SMS notification email:', err);
+    }
+    
+    // Respond with TwiML - send auto-reply acknowledgment
+    const twiml = `<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+  <Message>Thank you for your message! Ravi will get back to you soon. 🪷</Message>
+</Response>`;
+    
+    res.type('text/xml').send(twiml);
+    
+  } catch (err) {
+    console.error('Inbound SMS webhook error:', err);
+    res.type('text/xml').send('<Response></Response>');
+  }
+});
 
 // ===========================================
 // MAGIC LINK STORAGE
