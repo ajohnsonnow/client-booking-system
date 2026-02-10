@@ -5365,38 +5365,60 @@ app.post('/api/admin/demo/populate', authenticateAdmin, (req, res) => {
       email: 'lisa@example.com',
       phone: '503-555-0105',
       sessions: [
-        { date: addDays(today, -150), service: 'Discovery Call (30 min)', price: 0, status: 'completed', sessionNotes: 'Initial consultation. Very open and ready for deep work.' },
-        { date: addDays(today, -143), service: 'BlissFlow Ritual (2 hours)', price: 350, status: 'completed' },
-        { date: addDays(today, -120), service: 'BlissFlow Ritual (2 hours)', price: 350, status: 'completed' },
-        { date: addDays(today, -100), service: 'Sacred Pelvic Healing (90 min)', price: 275, status: 'completed' },
-        { date: addDays(today, -80), service: 'BlissFlow Ritual (2 hours)', price: 350, status: 'completed' },
-        { date: addDays(today, -60), service: 'BlissFlow Ritual (2 hours)', price: 350, status: 'completed' },
-        { date: addDays(today, -45), service: 'BlissFlow Ritual (2 hours)', price: 350, status: 'completed' },
-        { date: addDays(today, -30), service: 'Sacred Pelvic Healing (90 min)', price: 275, status: 'completed' },
-        { date: addDays(today, -15), service: 'BlissFlow Ritual (2 hours)', price: 350, status: 'completed' },
-        { date: addDays(today, -2), service: 'BlissFlow Ritual (2 hours)', price: 350, status: 'completed', sessionNotes: 'Wonderful session. Exploring deeper heart opening work.' },
-        { date: addDays(today, 12), service: 'BlissFlow Ritual (2 hours)', price: 350, status: 'confirmed' }
+        { date: addDays(today, -150), service: '30 min Tantric Coaching (Video)', price: 111, status: 'completed', sessionNotes: 'Initial consultation. Very open and ready for deep work.' },
+        { date: addDays(today, -143), service: '2 Hour Session', price: 555, status: 'completed' },
+        { date: addDays(today, -120), service: '2 Hour Session', price: 555, status: 'completed' },
+        { date: addDays(today, -100), service: '90 Minute Session', price: 444, status: 'completed' },
+        { date: addDays(today, -80), service: '2 Hour Session', price: 555, status: 'completed' },
+        { date: addDays(today, -60), service: '2 Hour Session', price: 555, status: 'completed' },
+        { date: addDays(today, -45), service: '2 Hour Session', price: 555, status: 'completed' },
+        { date: addDays(today, -30), service: '90 Minute Session', price: 444, status: 'completed' },
+        { date: addDays(today, -15), service: '2 Hour Session', price: 555, status: 'completed' },
+        { date: addDays(today, -2), service: '2 Hour Session', price: 555, status: 'completed', sessionNotes: 'Wonderful session. Exploring deeper heart opening work.' },
+        { date: addDays(today, 12), service: '2 Hour Session', price: 555, status: 'confirmed' }
       ],
       totalSessions: 11,
-      totalSpent: 3350,
+      totalSpent: 5328,
       lastContact: addDays(today, -1),
       tier: 'favored',
       tierManual: true,
       tags: ['favored', 'monthly', 'referred-others', 'vip'],
       notes: '⭐ FAVORED CLIENT - My most dedicated client. Weekly sessions for 5 months. Refers many friends. Always tips $50+. Prefers Tuesday afternoons.',
       birthday: '1979-08-30',
+      gender: 'Woman',
+      pronouns: 'she/her',
       address: '789 Cedar Heights, Lake Oswego, OR 97034',
       createdAt: addDays(today, -150),
-      // Spiritual tool data
-      tarotReadings: [
-        { id: uuidv4(), date: addDays(today, -30), spread: 'Celtic Cross', cards: ['The High Priestess', 'The Star', 'Three of Cups', 'The Empress'], interpretation: 'Powerful feminine energy emerging. Time for nurturing self and others.', notes: 'Very receptive to the reading. Emotional release.' }
-      ],
-      reikiSessions: [
-        { id: uuidv4(), date: addDays(today, -45), type: 'Full Body', duration: 60, chakrasWorked: ['Heart', 'Solar Plexus', 'Crown'], findings: 'Strong heart chakra opening. Some blockage in solar plexus releasing.', clientFeedback: 'Felt waves of warmth and peace.' }
-      ],
-      auraReadings: [
-        { id: uuidv4(), date: addDays(today, -15), colors: ['Violet', 'Gold', 'Pink'], interpretation: 'Highly spiritual aura with strong intuition. Pink indicates opening heart.', recommendations: 'Continue meditation practice. Consider crystal work.' }
-      ]
+      spiritualTools: {
+        astrology: {
+          sunSign: 'Virgo',
+          moonSign: 'Pisces',
+          risingSign: 'Scorpio',
+          venus: 'Leo',
+          mars: 'Capricorn',
+          notes: 'Very intuitive water-heavy chart. Strong Virgo-Pisces axis — healer archetype. Scorpio rising adds depth and magnetism.',
+          updatedAt: addDays(today, -100)
+        },
+        tarotReadings: [
+          { id: uuidv4(), date: addDays(today, -30), spread: 'Celtic Cross', cards: ['The High Priestess', 'The Star', 'Three of Cups', 'The Empress'], interpretation: 'Powerful feminine energy emerging. Time for nurturing self and others.', notes: 'Very receptive to the reading. Emotional release.' }
+        ],
+        pendulumSessions: [
+          { id: uuidv4(), date: addDays(today, -60), question: 'Is Lisa ready for deeper kundalini work?', response: 'Yes - strong clockwise rotation', notes: 'Confirmed readiness. Began integrating kundalini breathing next session.' }
+        ],
+        kundaliniPractices: [],
+        pranayamaTechniques: [],
+        bioenergetics: [
+          { id: uuidv4(), date: addDays(today, -45), technique: 'Grounding Exercises', duration: 25, observations: 'Strong tremoring in legs during bow position. Good emotional release.', notes: 'Continue with grounding before pelvic work.' }
+        ],
+        reikiSessions: [
+          { id: uuidv4(), date: addDays(today, -45), type: 'Full Body', duration: 60, chakrasWorked: ['Heart', 'Solar Plexus', 'Crown'], findings: 'Strong heart chakra opening. Some blockage in solar plexus releasing.', clientFeedback: 'Felt waves of warmth and peace.' }
+        ],
+        crystalSessions: [],
+        soundHealingSessions: [],
+        auraReadings: [
+          { id: uuidv4(), date: addDays(today, -15), colors: ['Violet', 'Gold', 'Pink'], interpretation: 'Highly spiritual aura with strong intuition. Pink indicates opening heart.', recommendations: 'Continue meditation practice. Consider crystal work.' }
+        ]
+      }
     },
     
     // ===== VIP CLIENT - High value, regular =====
@@ -5406,26 +5428,39 @@ app.post('/api/admin/demo/populate', authenticateAdmin, (req, res) => {
       email: 'sarah@example.com',
       phone: '503-555-0101',
       sessions: [
-        { date: addDays(today, -90), service: 'Discovery Call (30 min)', price: 0, status: 'completed' },
-        { date: addDays(today, -83), service: 'BlissFlow Ritual (2 hours)', price: 350, status: 'completed' },
-        { date: addDays(today, -60), service: 'BlissFlow Ritual (2 hours)', price: 350, status: 'completed' },
-        { date: addDays(today, -45), service: 'Sacred Pelvic Healing (90 min)', price: 275, status: 'completed' },
-        { date: addDays(today, -30), service: 'BlissFlow Ritual (2 hours)', price: 350, status: 'completed' },
-        { date: addDays(today, -14), service: 'BlissFlow Ritual (2 hours)', price: 350, status: 'completed' },
-        { date: addDays(today, 5), service: 'BlissFlow Ritual (2 hours)', price: 350, status: 'confirmed' }
+        { date: addDays(today, -90), service: '30 min Tantric Coaching (Video)', price: 111, status: 'completed' },
+        { date: addDays(today, -83), service: '2 Hour Session', price: 555, status: 'completed' },
+        { date: addDays(today, -60), service: '2 Hour Session', price: 555, status: 'completed' },
+        { date: addDays(today, -45), service: '90 Minute Session', price: 444, status: 'completed' },
+        { date: addDays(today, -30), service: '2 Hour Session', price: 555, status: 'completed' },
+        { date: addDays(today, -14), service: 'Couples Session (2 hours)', price: 666, status: 'completed' },
+        { date: addDays(today, 5), service: '2 Hour Session', price: 555, status: 'confirmed' }
       ],
       totalSessions: 7,
-      totalSpent: 1675,
+      totalSpent: 2886,
       lastContact: addDays(today, -3),
       tier: 'vip',
       tags: ['vip', 'referred-others'],
       notes: 'Wonderful VIP client. Prefers afternoon sessions. Has referred 3 friends.',
       birthday: '1988-06-15',
+      gender: 'Woman',
+      pronouns: 'she/her',
       address: '123 Rose Garden Lane, Portland, OR 97201',
       createdAt: addDays(today, -90),
-      crystalSessions: [
-        { id: uuidv4(), date: addDays(today, -30), crystals: ['Rose Quartz', 'Amethyst', 'Clear Quartz'], layout: 'Heart-centered grid', intentions: 'Opening to love and healing past wounds', observations: 'Strong energy response to rose quartz on heart.' }
-      ]
+      spiritualTools: {
+        astrology: null,
+        tarotReadings: [],
+        pendulumSessions: [],
+        kundaliniPractices: [],
+        pranayamaTechniques: [],
+        bioenergetics: [],
+        reikiSessions: [],
+        crystalSessions: [
+          { id: uuidv4(), date: addDays(today, -30), crystals: ['Rose Quartz', 'Amethyst', 'Clear Quartz'], layout: 'Heart-centered grid', intentions: 'Opening to love and healing past wounds', observations: 'Strong energy response to rose quartz on heart.' }
+        ],
+        soundHealingSessions: [],
+        auraReadings: []
+      }
     },
     
     // ===== REGULAR CLIENT - Consistent =====
@@ -5435,23 +5470,36 @@ app.post('/api/admin/demo/populate', authenticateAdmin, (req, res) => {
       email: 'james@example.com',
       phone: '503-555-0106',
       sessions: [
-        { date: addDays(today, -75), service: 'Discovery Call (30 min)', price: 0, status: 'completed' },
-        { date: addDays(today, -68), service: 'BlissFlow Ritual (2 hours)', price: 350, status: 'completed' },
-        { date: addDays(today, -50), service: 'BlissFlow Ritual (2 hours)', price: 350, status: 'completed' },
-        { date: addDays(today, -35), service: 'BlissFlow Ritual (2 hours)', price: 350, status: 'completed' },
-        { date: addDays(today, -20), service: 'BlissFlow Ritual (2 hours)', price: 350, status: 'completed' }
+        { date: addDays(today, -75), service: '30 min Tantric Coaching (Video)', price: 111, status: 'completed' },
+        { date: addDays(today, -68), service: '2 Hour Session', price: 555, status: 'completed' },
+        { date: addDays(today, -50), service: '2 Hour Session', price: 555, status: 'completed' },
+        { date: addDays(today, -35), service: 'Duo Session (with assistant)', price: 777, status: 'completed' },
+        { date: addDays(today, -20), service: '2 Hour Session', price: 555, status: 'completed' }
       ],
       totalSessions: 5,
-      totalSpent: 1400,
+      totalSpent: 2553,
       lastContact: addDays(today, -20),
       tier: 'regular',
       tags: ['regular', 'evening-preferred'],
       notes: 'Comes every 2 weeks. Prefers evening appointments after work.',
       birthday: '1990-02-14',
+      gender: 'Man',
+      pronouns: 'he/him',
       createdAt: addDays(today, -75),
-      kundaliniWork: [
-        { id: uuidv4(), date: addDays(today, -35), technique: 'Breath of Fire', duration: 20, observations: 'Strong energy movement. Some kriyas present.', guidance: 'Continue grounding practices between sessions.' }
-      ]
+      spiritualTools: {
+        astrology: null,
+        tarotReadings: [],
+        pendulumSessions: [],
+        kundaliniPractices: [
+          { id: uuidv4(), date: addDays(today, -35), technique: 'Breath of Fire', duration: 20, observations: 'Strong energy movement. Some kriyas present.', guidance: 'Continue grounding practices between sessions.' }
+        ],
+        pranayamaTechniques: [],
+        bioenergetics: [],
+        reikiSessions: [],
+        crystalSessions: [],
+        soundHealingSessions: [],
+        auraReadings: []
+      }
     },
     
     // ===== REGULAR CLIENT - Growing =====
@@ -5461,23 +5509,36 @@ app.post('/api/admin/demo/populate', authenticateAdmin, (req, res) => {
       email: 'david@example.com',
       phone: '503-555-0104',
       sessions: [
-        { date: addDays(today, -42), service: 'Discovery Call (30 min)', price: 0, status: 'completed' },
-        { date: addDays(today, -35), service: 'BlissFlow Ritual (2 hours)', price: 350, status: 'completed' },
-        { date: addDays(today, -21), service: 'BlissFlow Ritual (2 hours)', price: 350, status: 'completed' },
-        { date: addDays(today, -7), service: 'Sacred Pelvic Healing (90 min)', price: 275, status: 'completed' }
+        { date: addDays(today, -42), service: '30 min Tantric Coaching (Video)', price: 111, status: 'completed' },
+        { date: addDays(today, -35), service: '2 Hour Session', price: 555, status: 'completed' },
+        { date: addDays(today, -21), service: '2 Hour Session', price: 555, status: 'completed' },
+        { date: addDays(today, -7), service: '90 Minute Session', price: 444, status: 'completed' }
       ],
       totalSessions: 4,
-      totalSpent: 975,
+      totalSpent: 1665,
       lastContact: addDays(today, -7),
       tier: 'regular',
       tags: ['regular', 'membership-interested'],
       notes: 'Great progress! Interested in monthly membership. Works in tech, needs stress relief.',
       birthday: '1985-11-08',
+      gender: 'Man',
+      pronouns: 'he/him',
       address: '456 Willow Street, Portland, OR 97202',
       createdAt: addDays(today, -42),
-      soundHealingSessions: [
-        { id: uuidv4(), date: addDays(today, -21), instruments: ['Singing Bowls', 'Tuning Forks'], duration: 45, frequencies: ['528 Hz', '432 Hz'], response: 'Deep relaxation. Reported seeing colors during session.', notes: 'Very receptive to sound therapy.' }
-      ]
+      spiritualTools: {
+        astrology: null,
+        tarotReadings: [],
+        pendulumSessions: [],
+        kundaliniPractices: [],
+        pranayamaTechniques: [],
+        bioenergetics: [],
+        reikiSessions: [],
+        crystalSessions: [],
+        soundHealingSessions: [
+          { id: uuidv4(), date: addDays(today, -21), instruments: ['Singing Bowls', 'Tuning Forks'], duration: 45, frequencies: ['528 Hz', '432 Hz'], response: 'Deep relaxation. Reported seeing colors during session.', notes: 'Very receptive to sound therapy.' }
+        ],
+        auraReadings: []
+      }
     },
     
     // ===== RETURNING CLIENT - Building relationship =====
@@ -5487,20 +5548,33 @@ app.post('/api/admin/demo/populate', authenticateAdmin, (req, res) => {
       email: 'amanda@example.com',
       phone: '503-555-0107',
       sessions: [
-        { date: addDays(today, -28), service: 'Discovery Call (30 min)', price: 0, status: 'completed' },
-        { date: addDays(today, -14), service: 'BlissFlow Ritual (2 hours)', price: 350, status: 'completed' }
+        { date: addDays(today, -28), service: '30 min Tantric Coaching (Video)', price: 111, status: 'completed' },
+        { date: addDays(today, -14), service: '1 Hour "Angel" Session', price: 333, status: 'completed' }
       ],
       totalSessions: 2,
-      totalSpent: 350,
+      totalSpent: 444,
       lastContact: addDays(today, -14),
       tier: 'returning',
       tags: ['returning', 'trauma-informed'],
       notes: 'Healing from past relationship trauma. Very sensitive, needs slow approach. Making great progress.',
       birthday: '1993-04-22',
+      gender: 'Non-binary',
+      pronouns: 'they/them',
       createdAt: addDays(today, -28),
-      pranayamaWork: [
-        { id: uuidv4(), date: addDays(today, -14), technique: 'Nadi Shodhana', duration: 15, rounds: 9, observations: 'Helped calm nervous system after emotional release work.' }
-      ]
+      spiritualTools: {
+        astrology: null,
+        tarotReadings: [],
+        pendulumSessions: [],
+        kundaliniPractices: [],
+        pranayamaTechniques: [
+          { id: uuidv4(), date: addDays(today, -14), technique: 'Nadi Shodhana', duration: 15, rounds: 9, observations: 'Helped calm nervous system after emotional release work.' }
+        ],
+        bioenergetics: [],
+        reikiSessions: [],
+        crystalSessions: [],
+        soundHealingSessions: [],
+        auraReadings: []
+      }
     },
     
     // ===== NEW CLIENT - Just started =====
@@ -5510,7 +5584,7 @@ app.post('/api/admin/demo/populate', authenticateAdmin, (req, res) => {
       email: 'michael@example.com',
       phone: '503-555-0102',
       sessions: [
-        { date: addDays(today, 7), service: 'Sacred Pelvic Healing (90 min)', price: 275, status: 'confirmed', intentions: 'Healing from past trauma', concerns: 'First time, feeling nervous' }
+        { date: addDays(today, 7), service: '90 Minute Session', price: 444, status: 'confirmed', intentions: 'Healing from past trauma', concerns: 'First time, feeling nervous' }
       ],
       totalSessions: 1,
       totalSpent: 0,
@@ -5519,6 +5593,8 @@ app.post('/api/admin/demo/populate', authenticateAdmin, (req, res) => {
       tags: ['new', 'referral'],
       notes: 'Referred by Sarah. First time client, feeling nervous about trauma healing. Sent prep materials.',
       birthday: '1992-03-22',
+      gender: 'Man',
+      pronouns: 'he/him',
       createdAt: addDays(today, -2)
     },
     
@@ -5529,7 +5605,7 @@ app.post('/api/admin/demo/populate', authenticateAdmin, (req, res) => {
       email: 'emma@example.com',
       phone: '503-555-0103',
       sessions: [
-        { date: addDays(today, 2), service: 'Discovery Call (30 min)', price: 0, status: 'pending', intentions: 'Curious about sacred bodywork', concerns: 'Want to learn more before committing' }
+        { date: addDays(today, 2), service: '30 min Tantric Coaching (Video)', price: 111, status: 'pending', intentions: 'Curious about sacred bodywork', concerns: 'Want to learn more before committing' }
       ],
       totalSessions: 0,
       totalSpent: 0,
@@ -5537,6 +5613,8 @@ app.post('/api/admin/demo/populate', authenticateAdmin, (req, res) => {
       tier: 'new',
       tags: ['lead', 'discovery', 'website-inquiry'],
       notes: 'Found us through Instagram. Curious about sacred bodywork. Seems ready but cautious.',
+      gender: 'Woman',
+      pronouns: 'she/her',
       createdAt: addDays(today, -1)
     },
     
@@ -5547,17 +5625,19 @@ app.post('/api/admin/demo/populate', authenticateAdmin, (req, res) => {
       email: 'robert.blake@example.com',
       phone: '503-555-0108',
       sessions: [
-        { date: addDays(today, -60), service: 'Discovery Call (30 min)', price: 0, status: 'completed' },
-        { date: addDays(today, -53), service: 'BlissFlow Ritual (2 hours)', price: 350, status: 'completed' }
+        { date: addDays(today, -60), service: '30 min Tantric Coaching (Video)', price: 111, status: 'completed' },
+        { date: addDays(today, -53), service: '2 Hour Session', price: 555, status: 'completed' }
       ],
       totalSessions: 2,
-      totalSpent: 350,
+      totalSpent: 666,
       lastContact: addDays(today, -45),
       tier: 'returning',
       status: 'suspended',
       suspendReason: 'Missed 2 appointments without notice. Will reactivate when they reach out.',
       tags: ['returning', 'no-show'],
       notes: 'Good energy in sessions but attendance issues. Suspended until they demonstrate commitment.',
+      gender: 'Man',
+      pronouns: 'he/him',
       createdAt: addDays(today, -60)
     }
   ];
@@ -5698,9 +5778,609 @@ app.post('/api/admin/demo/populate', authenticateAdmin, (req, res) => {
   demoClients.forEach(client => {
     if (client.sessions && Array.isArray(client.sessions)) {
       client.sessions.forEach((session, index) => {
-        demoBookings.push(makeBooking(client, session, index));
+        const booking = makeBooking(client, session, index);
+        // Add booking-level demo flags for completed sessions
+        if (session.status === 'completed' && index > 0) {
+          booking.aftercareSent = true;
+          booking.aftercareSentAt = addDays(session.date, 1);
+          booking.reminderSent = true;
+        }
+        demoBookings.push(booking);
       });
     }
+  });
+
+  // Add a cancelled booking (David cancelled one)
+  demoBookings.push({
+    id: uuidv4(),
+    name: 'David Park',
+    email: 'david@example.com',
+    phone: '503-555-0104',
+    serviceName: '2 Hour Session',
+    serviceDuration: 120,
+    servicePrice: 555,
+    status: 'cancelled',
+    confirmedDate: addDays(today, -14),
+    confirmedTime: '10:00',
+    availability: 'Flexible',
+    intentions: 'Weekly session',
+    cancelReason: 'Work travel came up unexpectedly',
+    createdAt: addDays(today, -17),
+    updatedAt: now.toISOString()
+  });
+
+  // Add a proposed (awaiting client acceptance) booking
+  demoBookings.push({
+    id: uuidv4(),
+    name: 'Amanda Foster',
+    email: 'amanda@example.com',
+    phone: '503-555-0107',
+    serviceName: '90 Minute Session',
+    serviceDuration: 90,
+    servicePrice: 444,
+    status: 'confirmed',
+    confirmedDate: addDays(today, 8),
+    confirmedTime: '14:00',
+    proposedDate: addDays(today, 8),
+    proposedTime: '14:00',
+    proposedAt: addDays(today, -1),
+    availability: 'Afternoons preferred',
+    intentions: 'Continue healing work from last session',
+    createdAt: addDays(today, -3),
+    updatedAt: now.toISOString()
+  });
+
+  // ===== DISCOVERY CALLS - Full lifecycle demo =====
+  // Need inquiry IDs for cross-referencing
+  const inquiryJenniferId = demoInquiries[0].id;
+  const inquiryThomasId = demoInquiries[1].id;
+  const inquiryPatriciaId = demoInquiries[2].id;
+
+  // Add more inquiries with various statuses
+  const calledInquiryId = uuidv4();
+  const approvedInquiryId = uuidv4();
+  const declinedInquiryId = uuidv4();
+  const noShowInquiryId = uuidv4();
+
+  demoInquiries.push(
+    {
+      id: calledInquiryId,
+      name: 'Rachel Kim',
+      email: 'rachel@example.com',
+      phone: '503-555-0203',
+      message: 'Lisa Thompson referred me. I\'ve been wanting to explore sacred bodywork for a while.',
+      status: 'call_scheduled',
+      discoveryCallId: null, // will be set below
+      createdAt: addDays(today, -5),
+      source: 'referral'
+    },
+    {
+      id: approvedInquiryId,
+      name: 'Daniel Garcia',
+      email: 'daniel@example.com',
+      phone: '503-555-0204',
+      message: 'Very interested in BlissFlow Ritual. I\'ve done breathwork retreats before.',
+      status: 'invited',
+      invitationCode: 'RAVI-DG7K',
+      invitedAt: addDays(today, -3),
+      approvedAt: addDays(today, -3),
+      createdAt: addDays(today, -12),
+      source: 'website'
+    },
+    {
+      id: declinedInquiryId,
+      name: 'Kevin Murphy',
+      email: 'kevin@example.com',
+      phone: '503-555-0205',
+      message: 'I want a happy ending massage.',
+      status: 'declined',
+      declinedAt: addDays(today, -8),
+      declineReason: 'Not aligned with the sacred healing nature of this work.',
+      createdAt: addDays(today, -10),
+      source: 'website'
+    },
+    {
+      id: noShowInquiryId,
+      name: 'Chris Taylor',
+      email: 'chris@example.com',
+      phone: '503-555-0206',
+      message: 'Interested in exploring tantric work. I\'ve read about it but never tried.',
+      status: 'no_show',
+      noShowAt: addDays(today, -4),
+      createdAt: addDays(today, -15),
+      source: 'instagram'
+    }
+  );
+
+  const demoDiscoveryCalls = [
+    // Upcoming scheduled call (Rachel)
+    {
+      id: uuidv4(),
+      inquiryId: calledInquiryId,
+      scheduledDate: addDays(today, 3),
+      scheduledTime: '11:00',
+      duration: 30,
+      meetingLink: 'https://meet.google.com/demo-ravi-rachel',
+      notes: 'Referred by Lisa. Seems very ready.',
+      status: 'scheduled',
+      outcome: null,
+      outcomeNotes: '',
+      createdAt: addDays(today, -4),
+      updatedAt: addDays(today, -4),
+      reminderSent: false,
+      confirmationSent: true
+    },
+    // Completed & approved call (Daniel)
+    {
+      id: uuidv4(),
+      inquiryId: approvedInquiryId,
+      scheduledDate: addDays(today, -5),
+      scheduledTime: '14:00',
+      duration: 30,
+      meetingLink: 'https://meet.google.com/demo-ravi-daniel',
+      notes: 'Has breathwork experience. Very articulate about intentions.',
+      status: 'completed',
+      outcome: 'approved',
+      outcomeNotes: 'Great conversation. Genuine seeker, understands boundaries. Sent invitation code.',
+      completedAt: addDays(today, -5),
+      createdAt: addDays(today, -10),
+      updatedAt: addDays(today, -5),
+      reminderSent: true,
+      confirmationSent: true
+    },
+    // Completed & declined call (Kevin)
+    {
+      id: uuidv4(),
+      inquiryId: declinedInquiryId,
+      scheduledDate: addDays(today, -8),
+      scheduledTime: '10:00',
+      duration: 15,
+      meetingLink: 'https://meet.google.com/demo-ravi-kevin',
+      notes: '',
+      status: 'completed',
+      outcome: 'declined',
+      outcomeNotes: 'Looking for sexual services, not healing work. Politely declined.',
+      completedAt: addDays(today, -8),
+      createdAt: addDays(today, -9),
+      updatedAt: addDays(today, -8),
+      reminderSent: true,
+      confirmationSent: true
+    },
+    // No-show call (Chris)
+    {
+      id: uuidv4(),
+      inquiryId: noShowInquiryId,
+      scheduledDate: addDays(today, -4),
+      scheduledTime: '16:00',
+      duration: 30,
+      meetingLink: 'https://meet.google.com/demo-ravi-chris',
+      notes: 'Seemed genuine. Hopefully will reschedule.',
+      status: 'completed',
+      outcome: 'no_show',
+      outcomeNotes: 'Did not show up. Sent follow-up email.',
+      completedAt: addDays(today, -4),
+      createdAt: addDays(today, -7),
+      updatedAt: addDays(today, -4),
+      reminderSent: true,
+      confirmationSent: true
+    },
+    // Pending call (Jennifer - from original inquiries)
+    {
+      id: uuidv4(),
+      inquiryId: inquiryJenniferId,
+      scheduledDate: null,
+      scheduledTime: null,
+      duration: 30,
+      meetingLink: '',
+      notes: 'Need to schedule after she confirms availability.',
+      status: 'pending',
+      outcome: null,
+      outcomeNotes: '',
+      createdAt: addDays(today, -1),
+      updatedAt: addDays(today, -1),
+      reminderSent: false,
+      confirmationSent: false
+    }
+  ];
+
+  // ===== BLOG POSTS =====
+  const demoBlogPosts = [
+    {
+      id: uuidv4(),
+      title: 'What Is Sacred Pelvic Healing?',
+      slug: 'what-is-sacred-pelvic-healing',
+      content: 'Sacred Pelvic Healing is a trauma-informed, consent-based modality that works with the energetic and physical body to release stored tension, emotional blockages, and cultural conditioning around sexuality and pleasure.\n\nUnlike traditional massage, this work honors the pelvic bowl as a sacred vessel — a place where we hold not only physical tension but also emotional memories, grief, shame, and unexpressed desires.\n\n## How It Differs From Traditional Bodywork\n\nThe key distinction is intention. Every touch is guided by presence, breath, and a deep respect for what your body is ready to release. There is no agenda, no rush, and no expectation.\n\nI often describe it as holding space for your body to remember its own wholeness.\n\n## Who Is This For?\n\nAnyone who:\n- Feels disconnected from their body or sexual energy\n- Has experienced sexual trauma or shame\n- Wants to deepen their relationship with pleasure\n- Is curious about tantric healing modalities\n- Seeks to integrate body, mind, and spirit\n\nIf you feel called to this work, trust that feeling. 🪷',
+      excerpt: 'An introduction to the sacred art of pelvic healing — what it is, how it differs from traditional bodywork, and who it serves.',
+      category: 'spiritual',
+      status: 'published',
+      publishedAt: addDays(today, -30),
+      createdAt: addDays(today, -32),
+      updatedAt: addDays(today, -30)
+    },
+    {
+      id: uuidv4(),
+      title: 'The Power of Breath in Sacred Sexuality',
+      slug: 'power-of-breath-sacred-sexuality',
+      content: 'Breath is the bridge between the conscious and unconscious, between the physical and the spiritual. In sacred sexuality work, breath is perhaps our most powerful tool.\n\n## Why Breath Matters\n\nWhen we hold our breath — which many of us do unconsciously during intimacy — we actually limit our capacity for pleasure and connection. Deep, conscious breathing opens the channels through which erotic energy can flow.\n\n## A Simple Practice to Try\n\nTry this before your next session or intimate moment:\n\n1. **Ground yourself**: Feel your feet on the floor, your sit bones on the cushion\n2. **Breathe into your belly**: Let it expand fully, softening the pelvic floor\n3. **Exhale slowly**: Release through the mouth with a gentle sigh\n4. **Repeat**: Do this for 5-10 minutes, allowing any sounds that want to come\n\nNotice how your body begins to tingle, soften, and open. This is energy moving.\n\n## In Our Sessions\n\nI guide breathwork throughout our time together, using it to deepen sensation, move energy, and help you stay present in your body. Many clients report that learning to breathe consciously has transformed not just their sessions but their entire relationship with their body.\n\nWith love and breath,\nRavi 🪷',
+      excerpt: 'Discover how conscious breathing can transform your relationship with pleasure, presence, and sacred sexuality.',
+      category: 'sensual',
+      status: 'published',
+      publishedAt: addDays(today, -14),
+      createdAt: addDays(today, -16),
+      updatedAt: addDays(today, -14)
+    },
+    {
+      id: uuidv4(),
+      title: 'Understanding Your Chakras: A Beginner\'s Guide',
+      slug: 'understanding-chakras-beginners-guide',
+      content: 'Many clients ask me about chakras during our sessions, so I wanted to share a simple guide...\n\nThe seven main chakras are energy centers that run along your spine. Each one governs different aspects of your physical, emotional, and spiritual life.\n\n## The Seven Chakras\n\n1. **Root (Muladhara)** — Safety, grounding, survival\n2. **Sacral (Svadhisthana)** — Creativity, pleasure, sexuality\n3. **Solar Plexus (Manipura)** — Personal power, confidence\n4. **Heart (Anahata)** — Love, compassion, connection\n5. **Throat (Vishuddha)** — Expression, truth, communication\n6. **Third Eye (Ajna)** — Intuition, wisdom, insight\n7. **Crown (Sahasrara)** — Spiritual connection, divine consciousness\n\n## How This Relates to Our Work\n\nIn sacred pelvic healing, we often work primarily with the sacral and heart chakras — opening the flow between pleasure and love. When these two centers are in harmony, you experience a profound sense of wholeness.\n\nDraft in progress — more to come on chakra-specific practices...',
+      excerpt: 'A simple, accessible guide to the seven chakras and how they relate to sacred healing work.',
+      category: 'spiritual',
+      status: 'draft',
+      createdAt: addDays(today, -3),
+      updatedAt: addDays(today, -1)
+    }
+  ];
+
+  // ===== CONTENT - Pending testimonials for approve/reject =====
+  const content = loadContent();
+  if (!content.pendingTestimonials) content.pendingTestimonials = [];
+  content.pendingTestimonials.push(
+    {
+      id: uuidv4(),
+      name: 'David P.',
+      email: 'david@example.com',
+      text: 'Ravi\'s work has fundamentally changed how I relate to my body. After years of carrying stress from work, I\'ve found a new sense of ease and presence. Each session builds on the last, and I feel like I\'m becoming more myself. The sound healing component was especially powerful.',
+      rating: 5,
+      submittedAt: addDays(today, -2),
+      status: 'pending'
+    },
+    {
+      id: uuidv4(),
+      name: 'Anonymous',
+      email: 'amanda@example.com',
+      text: 'I came to Ravi carrying deep wounds from past relationships. Her patience and gentleness created a space where I could finally begin to let go. I cried, I laughed, I felt things I haven\'t felt in years. This work is real, and Ravi is a true healer. 💖',
+      rating: 5,
+      submittedAt: addDays(today, -1),
+      status: 'pending'
+    }
+  );
+
+  // ===== SETTINGS - With blocked dates =====
+  const settings = getDefaultSettings();
+  settings.blockedDates = [
+    { date: addDays(today, 20), reason: 'Personal retreat day' },
+    { date: addDays(today, 21), reason: 'Personal retreat day' },
+    { date: addDays(today, 35), reason: 'Attending workshop' },
+    { date: addDays(today, 36), reason: 'Attending workshop' },
+    { date: addDays(today, 37), reason: 'Attending workshop' }
+  ];
+  settings.videoChatLink = 'https://meet.google.com/ravi-sacred-healing';
+
+  // ===== MARKETING CAMPAIGNS =====
+  const demoCampaigns = [
+    {
+      id: uuidv4(),
+      name: 'Valentine\'s Self-Love Special',
+      subject: '💝 A Valentine\'s Gift for Your Sacred Self',
+      body: 'Dear {{firstName}},\n\nThis Valentine\'s Day, I invite you to celebrate the most important relationship of all — the one with yourself.\n\nBook a session this month and receive a complimentary crystal healing add-on. 🔮\n\nLet\'s honor your body as the sacred temple it is.\n\nWith love,\nRavi 🪷',
+      segment: 'all',
+      status: 'sent',
+      sentDate: addDays(today, -7),
+      recipientCount: 6,
+      createdDate: addDays(today, -10),
+      stats: { openRate: 42, clickRate: 12, sent: 6, failed: 0 }
+    },
+    {
+      id: uuidv4(),
+      name: 'Spring Renewal Invitation',
+      subject: '🌸 Spring Into Sacred Renewal',
+      body: 'Dear {{firstName}},\n\nAs the seasons change, it\'s a beautiful time to shed what no longer serves you and bloom into your fullest expression.\n\nI\'m opening up a few special spring renewal sessions — extended 2-hour BlissFlow Rituals with seasonal aromatherapy.\n\nBook yours before they fill up.\n\nWith spring blessings,\nRavi 🌸',
+      segment: 'returning-clients',
+      status: 'draft',
+      sentDate: null,
+      recipientCount: 0,
+      createdDate: addDays(today, -2),
+      stats: {}
+    },
+    {
+      id: uuidv4(),
+      name: 'Re-engagement: We Miss You',
+      subject: '🪷 Your Sacred Space is Waiting',
+      body: 'Dear {{firstName}},\n\nIt\'s been a while since your last session, and I wanted you to know — your sacred space is always here for you.\n\nIf life has gotten busy, that\'s even more reason to pause, breathe, and reconnect with your body.\n\nReply to this email if you\'d like to schedule a session. No pressure, just love.\n\nWarmly,\nRavi 🪷',
+      segment: 'inactive',
+      status: 'sent',
+      sentDate: addDays(today, -20),
+      recipientCount: 2,
+      createdDate: addDays(today, -21),
+      stats: { openRate: 50, clickRate: 25, sent: 2, failed: 0 }
+    }
+  ];
+
+  // ===== MARKETING SEGMENTS =====
+  const demoSegments = [
+    {
+      id: uuidv4(),
+      name: 'All Clients',
+      description: 'Every client in the database',
+      filters: { tier: 'all' },
+      count: demoClients.length,
+      createdDate: addDays(today, -30)
+    },
+    {
+      id: 'returning-clients',
+      name: 'Returning & Regular Clients',
+      description: 'Clients who have had 2+ sessions',
+      filters: { minSessions: 2, status: 'active' },
+      count: 5,
+      createdDate: addDays(today, -30)
+    },
+    {
+      id: 'inactive',
+      name: 'Inactive Clients',
+      description: 'Haven\'t booked in 30+ days',
+      filters: { lastSessionDaysAgo: 30, status: 'active' },
+      count: 2,
+      createdDate: addDays(today, -25)
+    },
+    {
+      id: uuidv4(),
+      name: 'VIP & Favored',
+      description: 'Top-tier clients for special offerings',
+      filters: { tier: ['vip', 'favored'] },
+      count: 2,
+      createdDate: addDays(today, -20)
+    },
+    {
+      id: uuidv4(),
+      name: 'New Leads',
+      description: 'People who inquired but haven\'t booked yet',
+      filters: { tier: 'new', totalSessions: 0 },
+      count: 2,
+      createdDate: addDays(today, -15)
+    }
+  ];
+
+  // ===== AUTOMATION WORKFLOWS =====
+  const demoWorkflows = [
+    {
+      id: uuidv4(),
+      name: 'Welcome Series',
+      description: 'Automatic emails for new clients after their first booking',
+      trigger: 'first_booking',
+      active: true,
+      steps: [
+        { delay: 0, action: 'send_email', template: 'welcome', subject: 'Welcome to Sacred Healing 🪷' },
+        { delay: 24, action: 'send_email', template: 'prep_guide', subject: 'Preparing for Your Session ✨' },
+        { delay: 72, action: 'send_email', template: 'what_to_expect', subject: 'What to Expect in Your Session 🌹' }
+      ],
+      stats: { triggered: 4, completed: 3, inProgress: 1 },
+      createdDate: addDays(today, -60)
+    },
+    {
+      id: uuidv4(),
+      name: 'Post-Session Aftercare',
+      description: 'Follow-up care emails after each completed session',
+      trigger: 'session_completed',
+      active: true,
+      steps: [
+        { delay: 2, action: 'send_email', template: 'aftercare', subject: 'Aftercare & Integration 💝' },
+        { delay: 72, action: 'send_email', template: 'check_in', subject: 'How Are You Feeling? 🌸' },
+        { delay: 168, action: 'send_email', template: 'rebooking', subject: 'Ready for Your Next Session? 🪷' }
+      ],
+      stats: { triggered: 12, completed: 10, inProgress: 2 },
+      createdDate: addDays(today, -45)
+    },
+    {
+      id: uuidv4(),
+      name: 'Birthday Blessing',
+      description: 'Special birthday message with discount offer',
+      trigger: 'client_birthday',
+      active: true,
+      steps: [
+        { delay: 0, action: 'send_email', template: 'birthday', subject: '🎂 Happy Birthday! A Gift From Ravi' }
+      ],
+      stats: { triggered: 2, completed: 2, inProgress: 0 },
+      createdDate: addDays(today, -30)
+    },
+    {
+      id: uuidv4(),
+      name: 'Re-engagement (Inactive)',
+      description: 'Reach out to clients who haven\'t booked in 45+ days',
+      trigger: 'inactive_45_days',
+      active: false,
+      steps: [
+        { delay: 0, action: 'send_email', template: 'we_miss_you', subject: 'Your Sacred Space Awaits 🪷' },
+        { delay: 168, action: 'send_email', template: 'special_offer', subject: 'A Special Invitation Just for You ✨' }
+      ],
+      stats: { triggered: 1, completed: 0, inProgress: 1 },
+      createdDate: addDays(today, -20)
+    }
+  ];
+
+  // ===== MARKETING TEMPLATES =====
+  const demoMarketingTemplates = [
+    {
+      id: uuidv4(),
+      name: 'Welcome Email',
+      category: 'onboarding',
+      subject: 'Welcome to Sacred Healing 🪷',
+      body: 'Dear {{firstName}},\n\nThank you for trusting me with your healing journey. I\'m honored to be part of your path.\n\nHere\'s what happens next:\n1. We\'ll schedule your session at a time that works for you\n2. I\'ll send you preparation materials\n3. We\'ll have a beautiful, sacred experience together\n\nWith love and light,\nRavi 🪷',
+      createdDate: addDays(today, -60)
+    },
+    {
+      id: uuidv4(),
+      name: 'Session Reminder',
+      category: 'transactional',
+      subject: 'Your Session Tomorrow 🌹',
+      body: 'Dear {{firstName}},\n\nJust a gentle reminder about your session tomorrow.\n\n📅 Date: {{date}}\n🕐 Time: {{time}}\n📍 Location: I\'ll send directions via text\n\nTo prepare:\n- Hydrate well today\n- Wear comfortable clothing\n- Set an intention for what you\'d like to receive\n\nSee you soon! 🪷\nRavi',
+      createdDate: addDays(today, -55)
+    },
+    {
+      id: uuidv4(),
+      name: 'Aftercare Guide',
+      category: 'aftercare',
+      subject: 'Aftercare & Integration 💝',
+      body: 'Dear {{firstName}},\n\nThank you for our beautiful session together. Here are some aftercare suggestions:\n\n🌊 Drink plenty of water\n🛁 Take a warm bath with epsom salts\n📝 Journal about any feelings that arise\n🧘 Gentle movement (yoga, walking)\n💤 Rest when your body asks\n\nEmotions may continue to surface over the next few days — this is normal and healthy. Be gentle with yourself.\n\nWith love,\nRavi 🪷',
+      createdDate: addDays(today, -50)
+    },
+    {
+      id: uuidv4(),
+      name: 'Birthday Blessing',
+      category: 'engagement',
+      subject: '🎂 Happy Birthday, {{firstName}}!',
+      body: 'Dear {{firstName}},\n\nWishing you the most beautiful birthday! 🎂✨\n\nAs a birthday gift, I\'d love to offer you a special session — $50 off any service this month.\n\nMay this year bring you deeper connection, more joy, and abundant self-love.\n\nWith birthday blessings,\nRavi 🪷',
+      createdDate: addDays(today, -30)
+    }
+  ];
+
+  // ===== LEADS =====
+  const demoLeads = [
+    {
+      id: uuidv4(),
+      name: 'Sophia Martinez',
+      email: 'sophia.m@example.com',
+      phone: '503-555-0301',
+      source: 'instagram',
+      stage: 'lead',
+      status: 'new',
+      notes: 'Liked several posts and DM\'d asking about pricing',
+      createdAt: addDays(today, -2)
+    },
+    {
+      id: uuidv4(),
+      name: 'Marcus Johnson',
+      email: 'marcus.j@example.com',
+      phone: '503-555-0302',
+      source: 'referral',
+      stage: 'lead',
+      status: 'contacted',
+      lastContactedAt: addDays(today, -3),
+      notes: 'Referred by James Wilson. Sent intro email.',
+      createdAt: addDays(today, -5)
+    },
+    {
+      id: uuidv4(),
+      name: 'Priya Patel',
+      email: 'priya.p@example.com',
+      phone: '',
+      source: 'website',
+      stage: 'lead',
+      status: 'new',
+      notes: 'Downloaded the meditation guide lead magnet',
+      createdAt: addDays(today, -1)
+    }
+  ];
+
+  // ===== LEAD MAGNETS =====
+  const demoLeadMagnets = [
+    {
+      id: uuidv4(),
+      name: 'Sacred Breath Meditation Guide',
+      description: 'A 10-minute guided meditation for connecting with your sacral energy',
+      type: 'pdf',
+      downloads: 12,
+      conversionRate: 33,
+      active: true,
+      createdAt: addDays(today, -45)
+    },
+    {
+      id: uuidv4(),
+      name: '7 Days of Self-Love Practices',
+      description: 'Daily practices for reconnecting with your body and pleasure',
+      type: 'email-series',
+      downloads: 8,
+      conversionRate: 25,
+      active: true,
+      createdAt: addDays(today, -30)
+    }
+  ];
+
+  // ===== DRIP CAMPAIGNS =====
+  const demoDripCampaigns = [
+    {
+      id: uuidv4(),
+      name: 'New Lead Welcome Drip',
+      trigger: 'website',
+      active: true,
+      emails: [
+        { day: 0, subject: 'Welcome! Here\'s your free meditation guide 🪷', status: 'active' },
+        { day: 3, subject: 'What is Sacred Pelvic Healing?', status: 'active' },
+        { day: 7, subject: 'Stories of transformation from my clients', status: 'active' },
+        { day: 14, subject: 'Ready to begin your journey?', status: 'active' }
+      ],
+      stats: { enrolled: 5, completed: 2, inProgress: 3 },
+      createdAt: addDays(today, -40)
+    },
+    {
+      id: uuidv4(),
+      name: 'Referral Lead Nurture',
+      trigger: 'referral',
+      active: true,
+      emails: [
+        { day: 0, subject: 'A friend thought you\'d resonate with this work 🌹', status: 'active' },
+        { day: 5, subject: 'Your friend\'s experience (and what yours could look like)', status: 'active' },
+        { day: 10, subject: 'Book a free discovery call', status: 'active' }
+      ],
+      stats: { enrolled: 3, completed: 1, inProgress: 2 },
+      createdAt: addDays(today, -35)
+    }
+  ];
+
+  // ===== EMAIL TEMPLATES =====
+  const demoEmailTemplates = [
+    {
+      id: '1',
+      name: 'Booking Confirmation',
+      subject: 'Your Session is Confirmed 🌹',
+      body: 'Dear {{name}},\n\nYour session has been confirmed!\n\n📅 {{date}}\n🕐 {{time}}\n💫 {{service}}\n\nPlease arrive 5 minutes early to settle in. I\'ll send you directions the day before.\n\nWith love,\nRavi 🪷',
+      category: 'transactional',
+      createdAt: addDays(today, -60),
+      updatedAt: addDays(today, -30)
+    },
+    {
+      id: '2',
+      name: 'Session Aftercare',
+      subject: 'Aftercare & Integration Guide 💝',
+      body: 'Dear {{name}},\n\nThank you for our sacred time together. Here are some aftercare practices:\n\n🌊 Stay hydrated\n🛁 Warm bath with epsom salts\n📝 Journal any feelings\n🧘 Gentle yoga or walking\n💤 Rest when needed\n\nEmotions may surface over the next few days — this is your body processing and healing.\n\nI\'m here if you need anything.\n\nWith love,\nRavi 🪷',
+      category: 'aftercare',
+      createdAt: addDays(today, -55),
+      updatedAt: addDays(today, -20)
+    },
+    {
+      id: '3',
+      name: 'Discovery Call Invitation',
+      subject: 'Let\'s Connect! Free Discovery Call 🪷',
+      body: 'Dear {{name}},\n\nThank you for your interest in sacred healing work. I\'d love to connect with you on a brief video call to:\n\n✨ Answer any questions you have\n💬 Understand your intentions\n🙏 See if we\'re a good fit\n\nClick here to join: {{meetingLink}}\n\nWith anticipation,\nRavi 🪷',
+      category: 'outreach',
+      createdAt: addDays(today, -50),
+      updatedAt: addDays(today, -50)
+    },
+    {
+      id: '4',
+      name: 'Re-engagement',
+      subject: 'Your Sacred Space is Waiting 🪷',
+      body: 'Dear {{name}},\n\nIt\'s been a while and I\'ve been thinking of you. Your sacred space is always here whenever you\'re ready to return.\n\nIf life has been busy, that\'s even more reason to pause and reconnect with your body and spirit.\n\nJust reply to this email if you\'d like to book a session.\n\nWith love always,\nRavi 🪷',
+      category: 'engagement',
+      createdAt: addDays(today, -40),
+      updatedAt: addDays(today, -40)
+    }
+  ];
+
+  // Add an inbound SMS message to demonstrate that feature
+  demoMessages.push({
+    id: uuidv4(),
+    conversationId: 'james@example.com',
+    from: 'client',
+    fromPhone: '+15035550106',
+    fromName: 'James Wilson',
+    fromEmail: 'james@example.com',
+    subject: 'SMS Reply',
+    message: 'Hey Ravi! Got your reminder text. See you Thursday evening. 🙏',
+    createdAt: addDays(today, -1) + 'T18:30:00Z',
+    read: false,
+    channel: 'sms',
+    twilioMessageSid: 'SM' + uuidv4().replace(/-/g, '').substring(0, 32)
   });
 
   // Save all demo data
@@ -5709,6 +6389,18 @@ app.post('/api/admin/demo/populate', authenticateAdmin, (req, res) => {
   saveMessages(demoMessages);
   saveInquiries(demoInquiries);
   saveInvitationCodes(demoCodes);
+  saveDiscoveryCalls(demoDiscoveryCalls);
+  saveBlogPosts(demoBlogPosts);
+  saveContent(content);
+  saveSettings(settings);
+  saveCampaigns(demoCampaigns);
+  saveSegments(demoSegments);
+  saveWorkflows(demoWorkflows);
+  saveTemplates(demoMarketingTemplates);
+  saveLeads(demoLeads);
+  saveLeadMagnets(demoLeadMagnets);
+  saveDripCampaigns(demoDripCampaigns);
+  saveEmailTemplates(demoEmailTemplates);
 
   // Calculate totals for response
   const completedRevenue = demoBookings
@@ -5721,10 +6413,23 @@ app.post('/api/admin/demo/populate', authenticateAdmin, (req, res) => {
     counts: {
       bookings: demoBookings.length,
       completedBookings: demoBookings.filter(b => b.status === 'completed').length,
+      cancelledBookings: demoBookings.filter(b => b.status === 'cancelled').length,
       clients: demoClients.length,
       messages: demoMessages.length,
       inquiries: demoInquiries.length,
       invitationCodes: demoCodes.length,
+      discoveryCalls: demoDiscoveryCalls.length,
+      blogPosts: demoBlogPosts.length,
+      pendingTestimonials: content.pendingTestimonials.length,
+      campaigns: demoCampaigns.length,
+      segments: demoSegments.length,
+      workflows: demoWorkflows.length,
+      templates: demoMarketingTemplates.length,
+      leads: demoLeads.length,
+      leadMagnets: demoLeadMagnets.length,
+      dripCampaigns: demoDripCampaigns.length,
+      emailTemplates: demoEmailTemplates.length,
+      blockedDates: settings.blockedDates.length,
       totalRevenue: completedRevenue
     }
   });
