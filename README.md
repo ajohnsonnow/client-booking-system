@@ -59,9 +59,6 @@ cp .env.example .env
 
 Edit `.env` with your settings:
 ```env
-# Site password (give this to screened clients)
-SITE_PASSWORD=your_client_password
-
 # Admin credentials
 ADMIN_USERNAME=ravi
 ADMIN_PASSWORD=your_secure_admin_password
@@ -106,7 +103,6 @@ To receive booking notifications:
 5. Deploy!
 
 **Environment Variables to set in Render:**
-- `SITE_PASSWORD`
 - `ADMIN_USERNAME`
 - `ADMIN_PASSWORD`
 - `JWT_SECRET`

@@ -104,49 +104,6 @@
     });
   }
 
-  // Handle password form submission (legacy support)
-  const passwordForm = document.getElementById('password-form');
-  if (passwordForm) {
-    passwordForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      const password = document.getElementById('site-password').value;
-      const errorEl = document.getElementById('password-error');
-      const submitBtn = e.target.querySelector('button');
-      
-      submitBtn.disabled = true;
-      submitBtn.setAttribute('aria-busy', 'true');
-      submitBtn.textContent = 'Verifying...';
-      errorEl.textContent = '';
-
-      try {
-        const response = await fetch('/api/auth/verify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ password })
-        });
-
-        const data = await response.json();
-
-        if (response.ok && data.success) {
-          authToken = data.token;
-          sessionStorage.setItem('sacredToken', authToken);
-          showMainSite();
-          loadServices();
-        } else {
-          errorEl.textContent = data.error || 'Invalid password. Please try again.';
-          document.getElementById('site-password').focus();
-        }
-      } catch (err) {
-        errorEl.textContent = 'Connection error. Please try again.';
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.removeAttribute('aria-busy');
-        submitBtn.textContent = 'Enter Sacred Space';
-      }
-    });
-  }
-
   function showMainSite() {
     const gate = document.getElementById('password-gate');
     const mainSite = document.getElementById('main-site');
@@ -904,11 +861,6 @@
     const gate = document.getElementById('password-gate');
     if (gate && !gate.classList.contains('hidden')) {
       document.body.style.overflow = 'hidden';
-      // Focus on password input for accessibility
-      const passwordInput = document.getElementById('site-password');
-      if (passwordInput) {
-        setTimeout(() => passwordInput.focus(), 100);
-      }
     }
     
     // Handle escape key to close mobile menu

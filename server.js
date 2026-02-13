@@ -774,7 +774,11 @@ function findOrCreateClient(booking) {
         pendulumSessions: [], // Array of pendulum work records
         kundaliniPractices: [], // Recommended kundalini practices
         pranayamaTechniques: [], // Recommended breathing techniques
-        bioenergetics: []     // Bioenergetics/muscle testing sessions
+        bioenergetics: [],    // Bioenergetics/muscle testing sessions
+        reikiSessions: [],    // Reiki healing sessions
+        crystalSessions: [],  // Crystal healing sessions
+        soundHealingSessions: [], // Sound healing sessions
+        auraReadings: []      // Aura reading records
       }
     };
     clients.push(client);
@@ -851,9 +855,6 @@ if (!JWT_SECRET) {
   console.error('❌ JWT_SECRET is required in production!');
   process.exit(1);
 }
-
-// Client site access password
-const SITE_PASSWORD = process.env.SITE_PASSWORD || 'sacred2024';
 
 // Admin credentials (production requires strong password set via environment)
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'ravi';
@@ -1074,25 +1075,6 @@ app.post('/api/inquiry', rateLimit({
   );
   
   res.json({ success: true, message: 'Inquiry received' });
-});
-
-// Client site password verification (legacy support)
-app.post('/api/auth/verify', authLimiter, (req, res) => {
-  const { password } = req.body;
-  if (!password) return res.status(400).json({ error: 'Password required' });
-
-  // Check maintenance mode
-  const content = loadContent();
-  if (content.siteSettings?.maintenanceMode) {
-    return res.status(503).json({ error: 'Site is temporarily unavailable. Please try again later.' });
-  }
-
-  if (password === SITE_PASSWORD) {
-    const token = jwt.sign({ type: 'client' }, JWT_SECRET, { expiresIn: '24h' });
-    return res.json({ success: true, token });
-  }
-
-  res.status(401).json({ error: 'Invalid password' });
 });
 
 // Admin login
@@ -5320,14 +5302,29 @@ app.post('/api/admin/demo/populate', authenticateAdmin, (req, res) => {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   };
   
+  // Map service name to service ID
+  const serviceIdMap = {
+    '30 min Tantric Coaching (Video)': 'video-coaching',
+    '1 Hour "Angel" Session': 'angel-session',
+    '90 Minute Session': 'standard-session',
+    '2 Hour Session': 'extended-session',
+    'Couples Session (2 hours)': 'couples-session',
+    'Duo Session (with assistant)': 'duo-session'
+  };
+
   // Generate booking from session data for consistency
   const makeBooking = (client, session, index) => ({
     id: uuidv4(),
     name: client.name,
     email: client.email,
     phone: client.phone,
+    gender: client.gender || '',
+    pronouns: client.pronouns || '',
+    textPermission: client.textPermission || false,
+    newsletter: true,
+    serviceId: serviceIdMap[session.service] || 'standard-session',
     serviceName: session.service,
-    serviceDuration: session.service.includes('2 hours') ? 120 : session.service.includes('90') ? 90 : 30,
+    serviceDuration: session.service.includes('2 hours') || session.service.includes('Couples') || session.service.includes('Duo') ? 120 : session.service.includes('90') ? 90 : session.service.includes('Angel') ? 60 : 30,
     servicePrice: session.price,
     status: session.status,
     confirmedDate: session.date,
@@ -5337,8 +5334,14 @@ app.post('/api/admin/demo/populate', authenticateAdmin, (req, res) => {
     concerns: session.concerns || '',
     healthNotes: '',
     sensitivities: '',
+    additionalInfo: '',
+    consentSignature: client.name,
+    boundariesAgreed: true,
+    ageConfirmed: true,
     notes: session.notes || '',
     sessionNotes: session.status === 'completed' ? (session.sessionNotes || 'Great session.') : '',
+    reminders: session.status === 'confirmed' ? { h24: false, h1: false } : { h24: true, h1: true },
+    messages: [],
     createdAt: addDays(session.date, -3),
     updatedAt: now.toISOString()
   });
@@ -5364,6 +5367,11 @@ app.post('/api/admin/demo/populate', authenticateAdmin, (req, res) => {
       name: 'Lisa Thompson',
       email: 'lisa@example.com',
       phone: '503-555-0105',
+      gender: 'Woman',
+      pronouns: 'she/her',
+      textPermission: true,
+      status: 'active',
+      preferences: { email: true, sms: true, reminder: '24' },
       sessions: [
         { date: addDays(today, -150), service: '30 min Tantric Coaching (Video)', price: 111, status: 'completed', sessionNotes: 'Initial consultation. Very open and ready for deep work.' },
         { date: addDays(today, -143), service: '2 Hour Session', price: 555, status: 'completed' },
@@ -5385,10 +5393,13 @@ app.post('/api/admin/demo/populate', authenticateAdmin, (req, res) => {
       tags: ['favored', 'monthly', 'referred-others', 'vip'],
       notes: '⭐ FAVORED CLIENT - My most dedicated client. Weekly sessions for 5 months. Refers many friends. Always tips $50+. Prefers Tuesday afternoons.',
       birthday: '1979-08-30',
-      gender: 'Woman',
-      pronouns: 'she/her',
       address: '789 Cedar Heights, Lake Oswego, OR 97034',
+      invitationCode: 'LOTUS-RAVI',
+      source: 'referral',
       createdAt: addDays(today, -150),
+      messageHistory: [
+        { id: uuidv4(), subject: 'Session Follow-Up', message: 'Thank you for today\'s beautiful session. Your crystal grid recommendation has been noted.', sentAt: addDays(today, -15), sentVia: { email: true, sms: false } }
+      ],
       spiritualTools: {
         astrology: {
           sunSign: 'Virgo',
@@ -5427,6 +5438,11 @@ app.post('/api/admin/demo/populate', authenticateAdmin, (req, res) => {
       name: 'Sarah Mitchell',
       email: 'sarah@example.com',
       phone: '503-555-0101',
+      gender: 'Woman',
+      pronouns: 'she/her',
+      textPermission: true,
+      status: 'active',
+      preferences: { email: true, sms: true, reminder: '24' },
       sessions: [
         { date: addDays(today, -90), service: '30 min Tantric Coaching (Video)', price: 111, status: 'completed' },
         { date: addDays(today, -83), service: '2 Hour Session', price: 555, status: 'completed' },
@@ -5443,10 +5459,11 @@ app.post('/api/admin/demo/populate', authenticateAdmin, (req, res) => {
       tags: ['vip', 'referred-others'],
       notes: 'Wonderful VIP client. Prefers afternoon sessions. Has referred 3 friends.',
       birthday: '1988-06-15',
-      gender: 'Woman',
-      pronouns: 'she/her',
       address: '123 Rose Garden Lane, Portland, OR 97201',
+      invitationCode: 'SACRED-SM22',
+      source: 'website',
       createdAt: addDays(today, -90),
+      messageHistory: [],
       spiritualTools: {
         astrology: null,
         tarotReadings: [],
@@ -5469,6 +5486,11 @@ app.post('/api/admin/demo/populate', authenticateAdmin, (req, res) => {
       name: 'James Wilson',
       email: 'james@example.com',
       phone: '503-555-0106',
+      gender: 'Man',
+      pronouns: 'he/him',
+      textPermission: true,
+      status: 'active',
+      preferences: { email: true, sms: true, reminder: '24' },
       sessions: [
         { date: addDays(today, -75), service: '30 min Tantric Coaching (Video)', price: 111, status: 'completed' },
         { date: addDays(today, -68), service: '2 Hour Session', price: 555, status: 'completed' },
@@ -5483,9 +5505,10 @@ app.post('/api/admin/demo/populate', authenticateAdmin, (req, res) => {
       tags: ['regular', 'evening-preferred'],
       notes: 'Comes every 2 weeks. Prefers evening appointments after work.',
       birthday: '1990-02-14',
-      gender: 'Man',
-      pronouns: 'he/him',
+      invitationCode: 'SACRED-JW18',
+      source: 'instagram',
       createdAt: addDays(today, -75),
+      messageHistory: [],
       spiritualTools: {
         astrology: null,
         tarotReadings: [],
@@ -5508,6 +5531,11 @@ app.post('/api/admin/demo/populate', authenticateAdmin, (req, res) => {
       name: 'David Park',
       email: 'david@example.com',
       phone: '503-555-0104',
+      gender: 'Man',
+      pronouns: 'he/him',
+      textPermission: true,
+      status: 'active',
+      preferences: { email: true, sms: false, reminder: '24' },
       sessions: [
         { date: addDays(today, -42), service: '30 min Tantric Coaching (Video)', price: 111, status: 'completed' },
         { date: addDays(today, -35), service: '2 Hour Session', price: 555, status: 'completed' },
@@ -5521,10 +5549,11 @@ app.post('/api/admin/demo/populate', authenticateAdmin, (req, res) => {
       tags: ['regular', 'membership-interested'],
       notes: 'Great progress! Interested in monthly membership. Works in tech, needs stress relief.',
       birthday: '1985-11-08',
-      gender: 'Man',
-      pronouns: 'he/him',
       address: '456 Willow Street, Portland, OR 97202',
+      invitationCode: 'SACRED-DP14',
+      source: 'website',
       createdAt: addDays(today, -42),
+      messageHistory: [],
       spiritualTools: {
         astrology: null,
         tarotReadings: [],
@@ -5547,6 +5576,11 @@ app.post('/api/admin/demo/populate', authenticateAdmin, (req, res) => {
       name: 'Amanda Foster',
       email: 'amanda@example.com',
       phone: '503-555-0107',
+      gender: 'Non-binary',
+      pronouns: 'they/them',
+      textPermission: false,
+      status: 'active',
+      preferences: { email: true, sms: false, reminder: '24' },
       sessions: [
         { date: addDays(today, -28), service: '30 min Tantric Coaching (Video)', price: 111, status: 'completed' },
         { date: addDays(today, -14), service: '1 Hour "Angel" Session', price: 333, status: 'completed' }
@@ -5558,9 +5592,12 @@ app.post('/api/admin/demo/populate', authenticateAdmin, (req, res) => {
       tags: ['returning', 'trauma-informed'],
       notes: 'Healing from past relationship trauma. Very sensitive, needs slow approach. Making great progress.',
       birthday: '1993-04-22',
-      gender: 'Non-binary',
-      pronouns: 'they/them',
+      invitationCode: 'HEAL-AF99',
+      source: 'referral',
       createdAt: addDays(today, -28),
+      messageHistory: [
+        { id: uuidv4(), subject: 'Checking In', message: 'Hi Amanda, just checking in after your last session. How are you feeling?', sentAt: addDays(today, -7), sentVia: { email: true, sms: false } }
+      ],
       spiritualTools: {
         astrology: null,
         tarotReadings: [],
@@ -5583,6 +5620,11 @@ app.post('/api/admin/demo/populate', authenticateAdmin, (req, res) => {
       name: 'Michael Chen',
       email: 'michael@example.com',
       phone: '503-555-0102',
+      gender: 'Man',
+      pronouns: 'he/him',
+      textPermission: true,
+      status: 'active',
+      preferences: { email: true, sms: false, reminder: '24' },
       sessions: [
         { date: addDays(today, 7), service: '90 Minute Session', price: 444, status: 'confirmed', intentions: 'Healing from past trauma', concerns: 'First time, feeling nervous' }
       ],
@@ -5593,9 +5635,22 @@ app.post('/api/admin/demo/populate', authenticateAdmin, (req, res) => {
       tags: ['new', 'referral'],
       notes: 'Referred by Sarah. First time client, feeling nervous about trauma healing. Sent prep materials.',
       birthday: '1992-03-22',
-      gender: 'Man',
-      pronouns: 'he/him',
-      createdAt: addDays(today, -2)
+      invitationCode: 'HEAL-SARAH',
+      source: 'referral',
+      createdAt: addDays(today, -2),
+      messageHistory: [],
+      spiritualTools: {
+        astrology: null,
+        tarotReadings: [],
+        pendulumSessions: [],
+        kundaliniPractices: [],
+        pranayamaTechniques: [],
+        bioenergetics: [],
+        reikiSessions: [],
+        crystalSessions: [],
+        soundHealingSessions: [],
+        auraReadings: []
+      }
     },
     
     // ===== NEW CLIENT - Lead/Discovery =====
@@ -5604,6 +5659,11 @@ app.post('/api/admin/demo/populate', authenticateAdmin, (req, res) => {
       name: 'Emma Rodriguez',
       email: 'emma@example.com',
       phone: '503-555-0103',
+      gender: 'Woman',
+      pronouns: 'she/her',
+      textPermission: false,
+      status: 'active',
+      preferences: { email: true, sms: false, reminder: '24' },
       sessions: [
         { date: addDays(today, 2), service: '30 min Tantric Coaching (Video)', price: 111, status: 'pending', intentions: 'Curious about sacred bodywork', concerns: 'Want to learn more before committing' }
       ],
@@ -5613,9 +5673,20 @@ app.post('/api/admin/demo/populate', authenticateAdmin, (req, res) => {
       tier: 'new',
       tags: ['lead', 'discovery', 'website-inquiry'],
       notes: 'Found us through Instagram. Curious about sacred bodywork. Seems ready but cautious.',
-      gender: 'Woman',
-      pronouns: 'she/her',
-      createdAt: addDays(today, -1)
+      createdAt: addDays(today, -1),
+      messageHistory: [],
+      spiritualTools: {
+        astrology: null,
+        tarotReadings: [],
+        pendulumSessions: [],
+        kundaliniPractices: [],
+        pranayamaTechniques: [],
+        bioenergetics: [],
+        reikiSessions: [],
+        crystalSessions: [],
+        soundHealingSessions: [],
+        auraReadings: []
+      }
     },
     
     // ===== SUSPENDED CLIENT - For demo =====
@@ -5624,6 +5695,16 @@ app.post('/api/admin/demo/populate', authenticateAdmin, (req, res) => {
       name: 'Robert Blake',
       email: 'robert.blake@example.com',
       phone: '503-555-0108',
+      gender: 'Man',
+      pronouns: 'he/him',
+      textPermission: true,
+      status: 'suspended',
+      statusChangedAt: addDays(today, -45),
+      statusReason: 'Missed 2 appointments without notice. Will reactivate when they reach out.',
+      statusHistory: [
+        { from: 'active', to: 'suspended', reason: 'Missed 2 appointments without notice.', changedAt: addDays(today, -45) }
+      ],
+      preferences: { email: true, sms: false, reminder: '24' },
       sessions: [
         { date: addDays(today, -60), service: '30 min Tantric Coaching (Video)', price: 111, status: 'completed' },
         { date: addDays(today, -53), service: '2 Hour Session', price: 555, status: 'completed' }
@@ -5632,13 +5713,22 @@ app.post('/api/admin/demo/populate', authenticateAdmin, (req, res) => {
       totalSpent: 666,
       lastContact: addDays(today, -45),
       tier: 'returning',
-      status: 'suspended',
-      suspendReason: 'Missed 2 appointments without notice. Will reactivate when they reach out.',
       tags: ['returning', 'no-show'],
       notes: 'Good energy in sessions but attendance issues. Suspended until they demonstrate commitment.',
-      gender: 'Man',
-      pronouns: 'he/him',
-      createdAt: addDays(today, -60)
+      createdAt: addDays(today, -60),
+      messageHistory: [],
+      spiritualTools: {
+        astrology: null,
+        tarotReadings: [],
+        pendulumSessions: [],
+        kundaliniPractices: [],
+        pranayamaTechniques: [],
+        bioenergetics: [],
+        reikiSessions: [],
+        crystalSessions: [],
+        soundHealingSessions: [],
+        auraReadings: []
+      }
     }
   ];
 
@@ -5770,6 +5860,19 @@ app.post('/api/admin/demo/populate', authenticateAdmin, (req, res) => {
       singleUse: true,
       active: false,
       note: 'Sarah\'s referral for Michael'
+    },
+    {
+      id: uuidv4(),
+      code: 'RAVI-DG7K',
+      prefix: 'RAVI',
+      createdAt: addDays(today, -3),
+      expiresAt: addDays(today, 30),
+      usedBy: null,
+      usedAt: null,
+      used: false,
+      singleUse: true,
+      active: true,
+      note: 'Invitation for Daniel Garcia (post-discovery call)'
     }
   ];
 
@@ -5796,6 +5899,11 @@ app.post('/api/admin/demo/populate', authenticateAdmin, (req, res) => {
     name: 'David Park',
     email: 'david@example.com',
     phone: '503-555-0104',
+    gender: 'Man',
+    pronouns: 'he/him',
+    textPermission: true,
+    newsletter: true,
+    serviceId: 'extended-session',
     serviceName: '2 Hour Session',
     serviceDuration: 120,
     servicePrice: 555,
@@ -5804,29 +5912,87 @@ app.post('/api/admin/demo/populate', authenticateAdmin, (req, res) => {
     confirmedTime: '10:00',
     availability: 'Flexible',
     intentions: 'Weekly session',
+    concerns: '',
+    healthNotes: '',
+    sensitivities: '',
+    additionalInfo: '',
+    consentSignature: 'David Park',
+    boundariesAgreed: true,
+    ageConfirmed: true,
     cancelReason: 'Work travel came up unexpectedly',
+    reminders: { h24: false, h1: false },
+    messages: [],
     createdAt: addDays(today, -17),
     updatedAt: now.toISOString()
   });
 
-  // Add a proposed (awaiting client acceptance) booking
+  // Add a proposed booking (awaiting client acceptance — status pending)
   demoBookings.push({
     id: uuidv4(),
     name: 'Amanda Foster',
     email: 'amanda@example.com',
     phone: '503-555-0107',
+    gender: 'Non-binary',
+    pronouns: 'they/them',
+    textPermission: false,
+    newsletter: true,
+    serviceId: 'standard-session',
     serviceName: '90 Minute Session',
     serviceDuration: 90,
     servicePrice: 444,
-    status: 'confirmed',
-    confirmedDate: addDays(today, 8),
-    confirmedTime: '14:00',
+    status: 'pending',
     proposedDate: addDays(today, 8),
     proposedTime: '14:00',
     proposedAt: addDays(today, -1),
     availability: 'Afternoons preferred',
     intentions: 'Continue healing work from last session',
+    concerns: '',
+    healthNotes: '',
+    sensitivities: '',
+    additionalInfo: '',
+    consentSignature: 'Amanda Foster',
+    boundariesAgreed: true,
+    ageConfirmed: true,
+    reminders: { h24: false, h1: false },
+    messages: [
+      { id: uuidv4(), subject: 'Proposed Time', message: 'Hi Amanda! I have an opening next week. How does 2pm work for you?', proposedDate: addDays(today, 8), proposedTime: '14:00', sentAt: addDays(today, -1) }
+    ],
     createdAt: addDays(today, -3),
+    updatedAt: now.toISOString()
+  });
+
+  // Add a reschedule-requested booking (James wants to reschedule)
+  demoBookings.push({
+    id: uuidv4(),
+    name: 'James Wilson',
+    email: 'james@example.com',
+    phone: '503-555-0106',
+    gender: 'Man',
+    pronouns: 'he/him',
+    textPermission: true,
+    newsletter: true,
+    serviceId: 'extended-session',
+    serviceName: '2 Hour Session',
+    serviceDuration: 120,
+    servicePrice: 555,
+    status: 'confirmed',
+    confirmedDate: addDays(today, 4),
+    confirmedTime: '18:00',
+    availability: 'Evenings preferred',
+    intentions: 'Continuing healing journey',
+    concerns: '',
+    healthNotes: '',
+    sensitivities: '',
+    additionalInfo: '',
+    consentSignature: 'James Wilson',
+    boundariesAgreed: true,
+    ageConfirmed: true,
+    rescheduleRequested: true,
+    rescheduleAvailability: 'Can we move to next week? Same time evening works great.',
+    rescheduleRequestedAt: addDays(today, -1),
+    reminders: { h24: false, h1: false },
+    messages: [],
+    createdAt: addDays(today, -7),
     updatedAt: now.toISOString()
   });
 
@@ -5836,13 +6002,30 @@ app.post('/api/admin/demo/populate', authenticateAdmin, (req, res) => {
   const inquiryThomasId = demoInquiries[1].id;
   const inquiryPatriciaId = demoInquiries[2].id;
 
-  // Add more inquiries with various statuses
+  // Pre-generate IDs for cross-referencing
   const calledInquiryId = uuidv4();
   const approvedInquiryId = uuidv4();
   const declinedInquiryId = uuidv4();
   const noShowInquiryId = uuidv4();
+  const videoScheduledInquiryId = uuidv4();
+  const reviewedInquiryId = uuidv4();
+  const followUpInquiryId = uuidv4();
+  const approvedStatusInquiryId = uuidv4();
+
+  // Pre-generate discovery call IDs for linking
+  const rachelCallId = uuidv4();
+  const danielCallId = uuidv4();
+  const kevinCallId = uuidv4();
+  const chrisCallId = uuidv4();
+  const jenniferCallId = uuidv4();
+
+  // Update Thomas inquiry to 'reviewed' status
+  demoInquiries[1].status = 'reviewed';
+  demoInquiries[1].statusUpdatedAt = addDays(today, 0);
+  demoInquiries[1].notes = 'Reviewed — seems genuine. Will schedule a discovery call.';
 
   demoInquiries.push(
+    // call_scheduled
     {
       id: calledInquiryId,
       name: 'Rachel Kim',
@@ -5850,10 +6033,12 @@ app.post('/api/admin/demo/populate', authenticateAdmin, (req, res) => {
       phone: '503-555-0203',
       message: 'Lisa Thompson referred me. I\'ve been wanting to explore sacred bodywork for a while.',
       status: 'call_scheduled',
-      discoveryCallId: null, // will be set below
+      discoveryCallId: rachelCallId,
+      discoveryCallScheduledAt: addDays(today, -4),
       createdAt: addDays(today, -5),
       source: 'referral'
     },
+    // invited (post-discovery-call)
     {
       id: approvedInquiryId,
       name: 'Daniel Garcia',
@@ -5861,12 +6046,14 @@ app.post('/api/admin/demo/populate', authenticateAdmin, (req, res) => {
       phone: '503-555-0204',
       message: 'Very interested in BlissFlow Ritual. I\'ve done breathwork retreats before.',
       status: 'invited',
+      discoveryCallId: danielCallId,
       invitationCode: 'RAVI-DG7K',
       invitedAt: addDays(today, -3),
       approvedAt: addDays(today, -3),
       createdAt: addDays(today, -12),
       source: 'website'
     },
+    // declined
     {
       id: declinedInquiryId,
       name: 'Kevin Murphy',
@@ -5874,11 +6061,13 @@ app.post('/api/admin/demo/populate', authenticateAdmin, (req, res) => {
       phone: '503-555-0205',
       message: 'I want a happy ending massage.',
       status: 'declined',
+      discoveryCallId: kevinCallId,
       declinedAt: addDays(today, -8),
       declineReason: 'Not aligned with the sacred healing nature of this work.',
       createdAt: addDays(today, -10),
       source: 'website'
     },
+    // no_show
     {
       id: noShowInquiryId,
       name: 'Chris Taylor',
@@ -5886,16 +6075,56 @@ app.post('/api/admin/demo/populate', authenticateAdmin, (req, res) => {
       phone: '503-555-0206',
       message: 'Interested in exploring tantric work. I\'ve read about it but never tried.',
       status: 'no_show',
+      discoveryCallId: chrisCallId,
       noShowAt: addDays(today, -4),
       createdAt: addDays(today, -15),
       source: 'instagram'
+    },
+    // video_scheduled
+    {
+      id: videoScheduledInquiryId,
+      name: 'Naomi Black',
+      email: 'naomi@example.com',
+      phone: '503-555-0207',
+      message: 'I attended a breathwork retreat last year and have been looking for a practitioner locally. Would love to connect!',
+      status: 'video_scheduled',
+      videoScheduledAt: addDays(today, 5),
+      createdAt: addDays(today, -4),
+      source: 'referral',
+      notes: 'Video call scheduled for next week. Experienced with breathwork.'
+    },
+    // follow_up
+    {
+      id: followUpInquiryId,
+      name: 'Alex Rivera',
+      email: 'alex.r@example.com',
+      phone: '503-555-0208',
+      message: 'My therapist recommended exploring somatic healing. I\'m curious but want to learn more first.',
+      status: 'follow_up',
+      followUpNotes: 'Seems interested but needs more info. Will send a follow-up email with resources.',
+      statusUpdatedAt: addDays(today, -2),
+      createdAt: addDays(today, -6),
+      source: 'website'
+    },
+    // approved (post-call, code sent)
+    {
+      id: approvedStatusInquiryId,
+      name: 'Jasmine Lee',
+      email: 'jasmine.lee@example.com',
+      phone: '503-555-0209',
+      message: 'I\'ve been on my healing journey for a few years now. Ready to explore sacred touch.',
+      status: 'approved',
+      approvedAt: addDays(today, -1),
+      createdAt: addDays(today, -8),
+      source: 'instagram',
+      notes: 'Approved after discovery call. Very aligned. Sending invitation code next.'
     }
   );
 
   const demoDiscoveryCalls = [
     // Upcoming scheduled call (Rachel)
     {
-      id: uuidv4(),
+      id: rachelCallId,
       inquiryId: calledInquiryId,
       scheduledDate: addDays(today, 3),
       scheduledTime: '11:00',
@@ -5912,7 +6141,7 @@ app.post('/api/admin/demo/populate', authenticateAdmin, (req, res) => {
     },
     // Completed & approved call (Daniel)
     {
-      id: uuidv4(),
+      id: danielCallId,
       inquiryId: approvedInquiryId,
       scheduledDate: addDays(today, -5),
       scheduledTime: '14:00',
@@ -5930,7 +6159,7 @@ app.post('/api/admin/demo/populate', authenticateAdmin, (req, res) => {
     },
     // Completed & declined call (Kevin)
     {
-      id: uuidv4(),
+      id: kevinCallId,
       inquiryId: declinedInquiryId,
       scheduledDate: addDays(today, -8),
       scheduledTime: '10:00',
@@ -5948,7 +6177,7 @@ app.post('/api/admin/demo/populate', authenticateAdmin, (req, res) => {
     },
     // No-show call (Chris)
     {
-      id: uuidv4(),
+      id: chrisCallId,
       inquiryId: noShowInquiryId,
       scheduledDate: addDays(today, -4),
       scheduledTime: '16:00',
@@ -5966,7 +6195,7 @@ app.post('/api/admin/demo/populate', authenticateAdmin, (req, res) => {
     },
     // Pending call (Jennifer - from original inquiries)
     {
-      id: uuidv4(),
+      id: jenniferCallId,
       inquiryId: inquiryJenniferId,
       scheduledDate: null,
       scheduledTime: null,
@@ -6413,7 +6642,10 @@ app.post('/api/admin/demo/populate', authenticateAdmin, (req, res) => {
     counts: {
       bookings: demoBookings.length,
       completedBookings: demoBookings.filter(b => b.status === 'completed').length,
+      pendingBookings: demoBookings.filter(b => b.status === 'pending').length,
+      confirmedBookings: demoBookings.filter(b => b.status === 'confirmed').length,
       cancelledBookings: demoBookings.filter(b => b.status === 'cancelled').length,
+      rescheduleRequested: demoBookings.filter(b => b.rescheduleRequested).length,
       clients: demoClients.length,
       messages: demoMessages.length,
       inquiries: demoInquiries.length,
@@ -6791,10 +7023,26 @@ app.delete('/api/admin/email-templates/:id', authenticateAdmin, (req, res) => {
 
 // Clear all data (reset for demo)
 app.post('/api/admin/demo/reset', authenticateAdmin, (req, res) => {
+  // Clear ALL data stores
   saveBookings([]);
   saveClients([]);
   saveInquiries([]);
   saveInvitationCodes([]);
+  saveMessages([]);
+  saveDiscoveryCalls([]);
+  saveBlogPosts([]);
+  saveContent(getDefaultContent());
+  saveSettings(getDefaultSettings());
+  saveCampaigns([]);
+  saveSegments([]);
+  saveWorkflows([]);
+  saveTemplates([]);
+  saveLeads([]);
+  saveLeadMagnets([]);
+  saveDripCampaigns([]);
+  saveEmailTemplates([]);
+  saveMagicLinks({});
+  saveClientSessions({});
   
   // Also clear all backups
   const backupDirs = [
@@ -6808,7 +7056,7 @@ app.post('/api/admin/demo/reset', authenticateAdmin, (req, res) => {
       try {
         const files = fs.readdirSync(dir);
         files.forEach(file => {
-          if (file.endsWith('.enc')) {
+          if (file.endsWith('.enc') || file.endsWith('.json')) {
             fs.unlinkSync(path.join(dir, file));
             backupsCleared++;
           }
